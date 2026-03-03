@@ -62,8 +62,6 @@ export const mockChallenges: Challenge[] = [
   { id: "6", title: "Ask for someone's number", description: "Ask a stranger for their phone number", emoji: "📱", completed: false, hasVideo: false },
   { id: "7", title: "Return food at a restaurant", description: "Send back a dish and ask for something different", emoji: "🍽️", completed: false, hasVideo: false },
   { id: "8", title: "Ask to use a stranger's phone", description: "Ask someone if you can borrow their phone for a call", emoji: "☎️", completed: false, hasVideo: false },
-  { id: "9", title: "Dance in an elevator", description: "Start dancing when someone else is in the elevator with you", emoji: "🕺", completed: true, hasVideo: true },
-  { id: "10", title: "Ask for a free coffee", description: "Walk into a coffee shop and ask if they can give you one for free", emoji: "☕", completed: true, hasVideo: false },
 ];
 
 export const mockFeedPosts: FeedPost[] = [];
