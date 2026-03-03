@@ -56,7 +56,7 @@ export default function Challenges() {
     return () => clearInterval(timer);
   }, []);
 
-  const isPremium = false;
+  const isPremium = true;
 
   const triggerSubscribe = () => {
     // TODO: Replace with native IAP call via Capacitor plugin
