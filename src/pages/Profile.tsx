@@ -174,14 +174,13 @@ export default function Profile() {
         {/* Photo action sheet */}
         {showPhotoMenu && (
           <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
             onClick={() => setShowPhotoMenu(false)}
           >
             <div
-              className="w-full max-w-lg animate-in slide-in-from-bottom-4 duration-200 rounded-t-2xl bg-card p-2 pb-8"
+              className="w-72 animate-in zoom-in-95 duration-200 rounded-2xl bg-card p-2 shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
               <button
                 onClick={() => { setShowPhotoMenu(false); cameraInputRef.current?.click(); }}
                 className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-foreground active:bg-muted"
