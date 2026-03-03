@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import { Trophy, Play } from "lucide-react";
+import { Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
@@ -17,7 +18,6 @@ interface WeeklySummaryProps {
   onContinue: () => void;
 }
 
-// Mock data for last week's results
 const mockChallengeResults: ChallengeResult[] = [
   { title: "Ask a stranger for a high-five", emoji: "🖐️", completedBy: 1423, totalUsers: 1832, takeRate: 77.6 },
   { title: "Compliment someone's outfit", emoji: "👗", completedBy: 1201, totalUsers: 1832, takeRate: 65.6 },
@@ -36,16 +36,14 @@ const mockTopVideos = [
   { username: "courage_queen", avatar: "cat" as AvatarType, avatarStage: 3 as AvatarStage, challenge: "Ask for someone's number", emoji: "📱" },
 ];
 
-const completedThreshold = 5;
-const totalQualified = 892;
-const totalUsers = 1832;
-const qualifiedPercent = Math.round((totalQualified / totalUsers) * 100);
+const daysUntilDrawing = 3;
 
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
   const [dismissed, setDismissed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const y = useMotionValue(0);
   const opacity = useTransform(y, [0, -200], [1, 0]);
+  const navigate = useNavigate();
 
   const handleDragEnd = (_: any, info: { offset: { y: number }; velocity: { y: number } }) => {
     if (info.offset.y < -80 || info.velocity.y < -300) {
@@ -54,7 +52,15 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
     }
   };
 
-  const youQualified = true;
+  const handleChallengeClick = (challengeTitle: string) => {
+    setDismissed(true);
+    setTimeout(() => navigate("/"), 400);
+  };
+
+  const handleWatchAll = () => {
+    setDismissed(true);
+    setTimeout(() => navigate("/"), 400);
+  };
 
   return (
     <AnimatePresence>
@@ -94,31 +100,21 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             >
               Last Week's Recap
             </motion.h1>
-
-            {/* Qualified banner */}
-            {youQualified && (
-              <motion.div
-                className="mx-auto mt-4 flex items-center gap-2 rounded-full px-4 py-2 w-fit"
-                style={{ backgroundColor: 'hsl(43 96% 80%)' }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, type: "spring" }}
-              >
-                <Trophy className="h-4 w-4" style={{ color: 'hsl(43 80% 35%)' }} />
-                <span className="text-sm font-bold" style={{ color: 'hsl(43 80% 25%)' }}>You qualified for the prize pool!</span>
-              </motion.div>
-            )}
           </div>
 
-          {/* Qualification stat */}
+          {/* Drawing Card */}
           <div className="px-4">
             <motion.div
-              className="rounded-2xl border border-border bg-card shadow-sm px-4 py-3 text-center"
+              className="rounded-2xl border border-border bg-card shadow-sm px-5 py-4 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <p className="text-sm font-semibold text-foreground">{qualifiedPercent}% of users completed 5+ challenges</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Drawing in {daysUntilDrawing} days
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">$287 pot · 52 players</p>
+              <p className="mt-2 text-sm font-semibold text-primary">✓ You're in the draw (completed 5/8)</p>
             </motion.div>
           </div>
 
@@ -134,10 +130,11 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                 <h2 className="text-sm font-bold text-foreground">Group Take Rates</h2>
               </div>
               {mockChallengeResults.map((challenge, i) => (
-                <motion.div
+                <motion.button
                   key={challenge.title}
+                  onClick={() => handleChallengeClick(challenge.title)}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-2.5",
+                    "flex items-center gap-3 px-4 py-2.5 w-full text-left transition-colors active:bg-muted/50",
                     i !== mockChallengeResults.length - 1 && "border-b border-border/50"
                   )}
                   initial={{ opacity: 0, x: -20 }}
@@ -163,10 +160,13 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                       />
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-muted-foreground w-12 text-right">
-                    {challenge.takeRate}%
-                  </span>
-                </motion.div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-bold text-muted-foreground w-12 text-right">
+                      {challenge.takeRate}%
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+                  </div>
+                </motion.button>
               ))}
             </motion.div>
           </div>
@@ -190,21 +190,17 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.9 + i * 0.1, type: "spring" }}
+                    onClick={() => handleWatchAll()}
                   >
-                    {/* Video thumbnail placeholder */}
+                    {/* 9:16 tall thumbnail */}
                     <div
-                      className="aspect-[4/5] relative flex items-center justify-center"
+                      className="aspect-[9/16] relative flex items-center justify-center"
                       style={{ backgroundColor: 'hsl(164 72% 92%)' }}
                     >
                       <span className="text-4xl">{video.emoji}</span>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="h-10 w-10 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-md">
-                          <Play className="h-4 w-4 text-foreground ml-0.5" fill="currentColor" />
-                        </div>
-                      </div>
                     </div>
                     {/* User info */}
-                    <div className="p-3 flex items-center gap-2">
+                    <div className="p-2.5 flex items-center gap-2">
                       <AvatarDisplay avatar={video.avatar} stage={video.avatarStage} size="sm" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground truncate">{video.username}</p>
@@ -213,6 +209,16 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                     </div>
                   </motion.button>
                 ))}
+              </div>
+
+              {/* Watch all videos button */}
+              <div className="px-3 pb-3">
+                <button
+                  onClick={handleWatchAll}
+                  className="w-full rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition-colors active:bg-muted/50"
+                >
+                  Watch all videos
+                </button>
               </div>
             </motion.div>
           </div>
