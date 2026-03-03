@@ -6,7 +6,152 @@ interface DropRevealProps {
   onRevealComplete: () => void;
 }
 
-const stageText = ["Tap to open", "Keep going...", "Almost there..."];
+const stageText = ["Tap to break out", "Keep going...", "Almost free..."];
+
+function CrackLines({ stage }: { stage: number }) {
+  if (stage === 0) return null;
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 200 200"
+    >
+      {/* Stage 1 cracks */}
+      <motion.path
+        d="M100 30 L95 60 L105 80 L90 110"
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth="2"
+        strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.8 }}
+        transition={{ duration: 0.4 }}
+      />
+      <motion.path
+        d="M140 50 L120 70 L130 95"
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.7 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      />
+
+      {/* Stage 2 — more dramatic cracks */}
+      {stage >= 2 && (
+        <>
+          <motion.path
+            d="M60 40 L80 75 L70 100 L85 140"
+            fill="none"
+            stroke="hsl(var(--destructive))"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.9 }}
+            transition={{ duration: 0.4 }}
+          />
+          <motion.path
+            d="M150 80 L125 100 L140 130 L110 160"
+            fill="none"
+            stroke="hsl(var(--destructive))"
+            strokeWidth="2"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.8 }}
+            transition={{ duration: 0.35, delay: 0.1 }}
+          />
+          <motion.path
+            d="M90 140 L100 165 L80 180"
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="2"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.7 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function Sparks({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => {
+        const angle = (i / count) * 360;
+        const distance = 50 + Math.random() * 50;
+        const x = Math.cos((angle * Math.PI) / 180) * distance;
+        const y = Math.sin((angle * Math.PI) / 180) * distance;
+        return (
+          <motion.div
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full"
+            style={{
+              backgroundColor:
+                i % 3 === 0
+                  ? "hsl(var(--gold))"
+                  : i % 3 === 1
+                  ? "hsl(var(--primary))"
+                  : "hsl(var(--destructive))",
+              top: "50%",
+              left: "50%",
+            }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            animate={{ x, y, opacity: 0, scale: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function ShatterPieces() {
+  const pieces = Array.from({ length: 12 }).map((_, i) => {
+    const angle = (i / 12) * 360;
+    const dist = 80 + Math.random() * 60;
+    return {
+      x: Math.cos((angle * Math.PI) / 180) * dist,
+      y: Math.sin((angle * Math.PI) / 180) * dist,
+      rotate: Math.random() * 360,
+      size: 12 + Math.random() * 20,
+    };
+  });
+
+  return (
+    <>
+      {pieces.map((p, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-sm"
+          style={{
+            width: p.size,
+            height: p.size,
+            background:
+              i % 3 === 0
+                ? "hsl(var(--primary) / 0.7)"
+                : i % 3 === 1
+                ? "hsl(var(--gold) / 0.6)"
+                : "hsl(var(--muted-foreground) / 0.4)",
+            top: "50%",
+            left: "50%",
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1, rotate: 0 }}
+          animate={{
+            x: p.x,
+            y: p.y,
+            opacity: 0,
+            scale: 0.3,
+            rotate: p.rotate,
+          }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        />
+      ))}
+    </>
+  );
+}
 
 const shakeVariants = {
   shake: {
@@ -15,151 +160,9 @@ const shakeVariants = {
   },
 };
 
-function BountyChest({ stage }: { stage: number }) {
-  return (
-    <svg
-      viewBox="0 0 200 180"
-      className="w-48 h-48 drop-shadow-2xl"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Chest body */}
-      <rect
-        x="30"
-        y="80"
-        width="140"
-        height="80"
-        rx="8"
-        fill="hsl(var(--gold))"
-        stroke="hsl(var(--primary))"
-        strokeWidth="3"
-      />
-      {/* Chest body darker band */}
-      <rect
-        x="30"
-        y="110"
-        width="140"
-        height="20"
-        fill="hsl(var(--primary) / 0.2)"
-      />
-      {/* Metal corners */}
-      <circle cx="40" cy="90" r="4" fill="hsl(var(--primary))" />
-      <circle cx="160" cy="90" r="4" fill="hsl(var(--primary))" />
-      <circle cx="40" cy="150" r="4" fill="hsl(var(--primary))" />
-      <circle cx="160" cy="150" r="4" fill="hsl(var(--primary))" />
-
-      {/* Lid */}
-      <motion.g
-        animate={{
-          rotateX: stage === 0 ? 0 : stage === 1 ? -8 : -25,
-          y: stage === 0 ? 0 : stage === 1 ? -4 : -14,
-        }}
-        transition={{ type: "spring", stiffness: 200, damping: 12 }}
-        style={{ originX: "50%", originY: "100%" }}
-      >
-        <path
-          d="M25 82 Q100 20 175 82"
-          fill="hsl(var(--gold))"
-          stroke="hsl(var(--primary))"
-          strokeWidth="3"
-        />
-        <rect
-          x="25"
-          y="68"
-          width="150"
-          height="16"
-          rx="4"
-          fill="hsl(var(--gold))"
-          stroke="hsl(var(--primary))"
-          strokeWidth="3"
-        />
-        {/* Lid highlight */}
-        <rect
-          x="45"
-          y="72"
-          width="110"
-          height="6"
-          rx="3"
-          fill="hsl(var(--primary-foreground) / 0.3)"
-        />
-      </motion.g>
-
-      {/* Lock */}
-      <AnimatePresence>
-        {stage < 2 && (
-          <motion.g
-            exit={{ opacity: 0, scale: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <rect
-              x="88"
-              y="90"
-              width="24"
-              height="20"
-              rx="4"
-              fill="hsl(var(--primary))"
-            />
-            <circle
-              cx="100"
-              cy="86"
-              r="10"
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="4"
-            />
-            {/* Crack on stage 1 */}
-            {stage === 1 && (
-              <motion.line
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                x1="95"
-                y1="88"
-                x2="105"
-                y2="108"
-                stroke="hsl(var(--destructive))"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            )}
-          </motion.g>
-        )}
-      </AnimatePresence>
-
-      {/* Keyhole */}
-      <circle cx="100" cy="100" r="3" fill="hsl(var(--gold))" />
-    </svg>
-  );
-}
-
-function Particles({ count }: { count: number }) {
-  return (
-    <>
-      {Array.from({ length: count }).map((_, i) => {
-        const angle = (i / count) * 360;
-        const distance = 60 + Math.random() * 40;
-        const x = Math.cos((angle * Math.PI) / 180) * distance;
-        const y = Math.sin((angle * Math.PI) / 180) * distance;
-        return (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 rounded-full"
-            style={{
-              backgroundColor: i % 2 === 0 ? "hsl(var(--gold))" : "hsl(var(--primary))",
-              top: "50%",
-              left: "50%",
-            }}
-            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-            animate={{ x, y, opacity: 0, scale: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          />
-        );
-      })}
-    </>
-  );
-}
-
 export default function DropReveal({ onRevealComplete }: DropRevealProps) {
   const [stage, setStage] = useState(0);
-  const [particles, setParticles] = useState<number[]>([]);
+  const [sparks, setSparks] = useState<number[]>([]);
   const [exiting, setExiting] = useState(false);
 
   const handleTap = useCallback(() => {
@@ -168,18 +171,18 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
     if (stage < 2) {
       const nextStage = stage + 1;
       setStage(nextStage);
-      setParticles((p) => [...p, Date.now()]);
+      setSparks((p) => [...p, Date.now()]);
       if (navigator.vibrate) navigator.vibrate(30);
       playPop();
     } else {
-      // Stage 2 → final reveal
+      // Stage 2 → final shatter
       setStage(3);
       if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
       playBigWin();
       setExiting(true);
       setTimeout(() => {
         onRevealComplete();
-      }, 600);
+      }, 900);
     }
   }, [stage, exiting, onRevealComplete]);
 
@@ -187,55 +190,145 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
     <motion.div
       className="fixed inset-0 z-[60] flex flex-col items-center justify-center"
       style={{
-        background: "linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(0 0% 4%) 100%)",
+        background:
+          "linear-gradient(135deg, hsl(164 72% 92%) 0%, hsl(180 40% 96%) 25%, hsl(200 30% 95%) 50%, hsl(164 50% 94%) 75%, hsl(140 40% 95%) 100%)",
       }}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
       onClick={handleTap}
     >
-      {/* Golden glow behind chest — grows with stage */}
+      {/* Header */}
+      <motion.p
+        className="absolute top-16 text-sm font-semibold tracking-widest uppercase text-muted-foreground"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        This Week's Challenges
+      </motion.p>
+
+      {/* Subtitle */}
+      <motion.p
+        className="absolute top-24 text-xs font-medium text-muted-foreground/70"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        8 new challenges await
+      </motion.p>
+
+      {/* Glow behind logo */}
       <motion.div
         className="absolute rounded-full"
         style={{
-          background: "radial-gradient(circle, hsl(var(--gold) / 0.4) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
         }}
         animate={{
-          width: stage === 0 ? 200 : stage === 1 ? 280 : stage >= 2 ? 500 : 200,
-          height: stage === 0 ? 200 : stage === 1 ? 280 : stage >= 2 ? 500 : 200,
-          opacity: stage >= 3 ? 1 : 0.6,
+          width: stage === 0 ? 240 : stage === 1 ? 300 : stage >= 2 ? 400 : 240,
+          height: stage === 0 ? 240 : stage === 1 ? 300 : stage >= 2 ? 400 : 240,
+          opacity: stage >= 3 ? 0 : 0.8,
         }}
         transition={{ type: "spring", stiffness: 100 }}
       />
 
-      {/* Chest */}
+      {/* Logo + effects */}
       <motion.div
-        className="relative cursor-pointer select-none"
+        className="relative cursor-pointer select-none flex items-center justify-center"
         variants={shakeVariants}
         animate={stage > 0 && stage < 3 ? "shake" : undefined}
         whileTap={{ scale: 0.95 }}
       >
         <motion.div
+          className="relative"
           animate={
             stage >= 3
-              ? { scale: 1.3, opacity: 0, y: -40 }
-              : { scale: 1, opacity: 1, y: 0 }
+              ? { scale: 1.4, opacity: 0 }
+              : { scale: 1, opacity: 1 }
           }
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <BountyChest stage={stage} />
+          {/* Frozen/icy border effect */}
+          <motion.div
+            className="w-36 h-36 rounded-3xl flex items-center justify-center relative overflow-hidden"
+            style={{
+              background:
+                stage === 0
+                  ? "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(200 40% 90%))"
+                  : stage === 1
+                  ? "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--gold) / 0.15))"
+                  : "linear-gradient(135deg, hsl(var(--destructive) / 0.15), hsl(var(--gold) / 0.2))",
+              border: "2px solid hsl(var(--primary) / 0.25)",
+              boxShadow:
+                stage === 0
+                  ? "0 0 30px hsl(var(--primary) / 0.1), inset 0 0 20px hsl(200 60% 95% / 0.5)"
+                  : "0 0 40px hsl(var(--gold) / 0.2)",
+            }}
+          >
+            {/* Logo emoji */}
+            <motion.span
+              className="text-7xl select-none"
+              style={{
+                filter: stage === 0 ? "brightness(0.9) saturate(0.7)" : "none",
+              }}
+              animate={{
+                filter:
+                  stage === 0
+                    ? "brightness(0.9) saturate(0.7)"
+                    : stage === 1
+                    ? "brightness(1) saturate(1)"
+                    : "brightness(1.1) saturate(1.2)",
+              }}
+            >
+              🔥
+            </motion.span>
+
+            {/* Crack overlay */}
+            <CrackLines stage={stage} />
+
+            {/* Frost overlay — fades on taps */}
+            <motion.div
+              className="absolute inset-0 rounded-3xl pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(200 80% 95% / 0.4) 0%, transparent 60%)",
+              }}
+              animate={{ opacity: stage === 0 ? 1 : stage === 1 ? 0.4 : 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          </motion.div>
         </motion.div>
 
-        {/* Particle bursts */}
-        {particles.map((key) => (
-          <Particles key={key} count={stage >= 2 ? 16 : 8} />
+        {/* Shatter pieces on stage 3 */}
+        <AnimatePresence>
+          {stage >= 3 && <ShatterPieces />}
+        </AnimatePresence>
+
+        {/* Sparks */}
+        {sparks.map((key) => (
+          <Sparks key={key} count={stage >= 2 ? 16 : 8} />
         ))}
       </motion.div>
 
-      {/* Text prompt */}
+      {/* "LET'S GO" flash on final stage */}
+      <AnimatePresence>
+        {stage >= 3 && (
+          <motion.h1
+            className="absolute text-4xl font-extrabold tracking-tight text-primary"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+          >
+            LET'S GO 🔥
+          </motion.h1>
+        )}
+      </AnimatePresence>
+
+      {/* Prompt text */}
       <motion.p
-        className="mt-8 text-lg font-bold text-primary-foreground"
-        animate={{ opacity: stage >= 3 ? 0 : [0.6, 1, 0.6] }}
+        className="mt-10 text-lg font-bold text-foreground"
+        animate={{ opacity: stage >= 3 ? 0 : [0.5, 1, 0.5] }}
         transition={
           stage >= 3
             ? { duration: 0.3 }
@@ -243,15 +336,6 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         }
       >
         {stage < 3 ? stageText[stage] : ""}
-      </motion.p>
-
-      {/* Week label */}
-      <motion.p
-        className="absolute top-16 text-sm font-semibold tracking-widest uppercase text-primary-foreground/60"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        This Week's Drop
       </motion.p>
     </motion.div>
   );
