@@ -138,7 +138,7 @@ export default function Profile() {
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-extrabold text-foreground">{username}</h1>
+          <h1 className="text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
           <button
             onClick={() => navigate("/settings")}
             className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
