@@ -169,9 +169,6 @@ export default function Profile() {
           {uploading && (
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
-          {!photoUrl && (
-            <p className="mt-1.5 text-[10px] text-muted-foreground/40">Hold to set photo</p>
-          )}
         </div>
 
         {/* Photo action sheet */}
