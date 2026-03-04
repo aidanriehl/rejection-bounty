@@ -86,7 +86,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
       {!dismissed && !showDrawing && (
         <motion.div
           ref={containerRef}
-          className="fixed inset-0 z-[60] flex flex-col overflow-y-auto"
+          className="fixed inset-0 z-[60] flex flex-col overflow-y-auto overscroll-none"
           style={{
             backgroundColor: "hsl(var(--background))",
             y,
