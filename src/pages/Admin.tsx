@@ -8,11 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Trophy, Users, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check, MessageCircle, Settings, History } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
+import WinnerMessageThread from "@/components/WinnerMessageThread";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
+const AUTO_MESSAGE = "Congrats on winning!!! As long as your bank account is linked in settings your funds should be on their way 🥳💰";
 
 interface TicketEntry {
   user_id: string;
@@ -28,6 +31,19 @@ interface CompletionWithVideo {
   challenge_id: string;
   video_url: string | null;
   week_key: string;
+}
+
+interface PastWinner {
+  id: string;
+  week_key: string;
+  winner_user_id: string;
+  winning_video_url: string | null;
+  thumbnail_url: string | null;
+  prize_amount: number;
+  status: string;
+  created_at: string;
+  username?: string;
+  avatar?: string;
 }
 
 function getAdminWeekKey() {
@@ -51,6 +67,11 @@ export default function Admin() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
+  const [messagingEnabled, setMessagingEnabled] = useState(true);
+  const [showMessageThread, setShowMessageThread] = useState(false);
+  const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
+  const [expandedPastWinner, setExpandedPastWinner] = useState<string | null>(null);
+  const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
 
   // Check admin access
   useEffect(() => {
