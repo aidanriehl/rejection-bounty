@@ -11,6 +11,7 @@ export function fireConfetti() {
       spread: 65,
       origin: { x: 0, y: 0.6 },
       colors,
+      ticks: 120,
     });
     confetti({
       particleCount: 6,
@@ -18,6 +19,7 @@ export function fireConfetti() {
       spread: 65,
       origin: { x: 1, y: 0.6 },
       colors,
+      ticks: 120,
     });
     if (Date.now() < end) requestAnimationFrame(frame);
   };
