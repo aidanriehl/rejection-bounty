@@ -115,7 +115,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
 
   const handleSpin = () => {
     if (phase !== "idle") return;
-    if (drawingStatus === "pending") return; // Can't spin until winner is selected
+    // if (drawingStatus === "pending") return; // Temporarily allow spin always
     setLeverPulled(true);
     setPhase("spinning");
   };
@@ -464,7 +464,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
 
       {/* Spin / Continue button */}
       <AnimatePresence mode="wait">
-        {phase === "idle" && drawingStatus === "complete" && (
+        {phase === "idle" && (
           <motion.button
             key="spin"
             initial={{ opacity: 0, y: 20 }}
@@ -482,7 +482,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
             🎰 Spin
           </motion.button>
         )}
-        {phase === "idle" && drawingStatus === "pending" && (
+        {false && phase === "idle" && drawingStatus === "pending" && (
           <motion.div
             key="pending"
             initial={{ opacity: 0, y: 20 }}
