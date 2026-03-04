@@ -333,10 +333,7 @@ export default function Admin() {
                           className="w-full flex items-center gap-3 p-3 text-left"
                         >
                           <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
-                            {t.avatar === "dragon" ? "🐉" :
-                             t.avatar === "fox" ? "🦊" :
-                             t.avatar === "owl" ? "🦉" :
-                             t.avatar === "cat" ? "🐱" : "🌳"}
+                            {avatarEmoji(t.avatar)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-foreground truncate">{t.username}</p>
