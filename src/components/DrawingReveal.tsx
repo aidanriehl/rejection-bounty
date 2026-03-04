@@ -83,11 +83,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
   const springY = useSpring(reelY, { stiffness: 60, damping: 14, mass: 1.2 });
   const tickRef = useRef(0);
 
-  // Pull lever on mount
-  useEffect(() => {
-    const t = setTimeout(() => setLeverPulled(true), 200);
-    return () => clearTimeout(t);
-  }, []);
+  // (lever is now pulled via handleSpin)
 
   // Tick sounds
   useEffect(() => {
