@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
