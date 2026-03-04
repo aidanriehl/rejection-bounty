@@ -105,7 +105,7 @@ function TutorialCarousel({ onJoin, onLogin }: { onJoin: () => void; onLogin: ()
         <button
           onClick={onJoin}
           disabled={activeIndex < SLIDES.length - 1}
-          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-md transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-md transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
         >
           Join Now
         </button>
