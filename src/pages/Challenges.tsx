@@ -318,7 +318,7 @@ export default function Challenges() {
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-8"
+                className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-10"
               >
                 <p className="mb-1 text-lg font-bold text-foreground">Add Accountability Video</p>
                 <p className="mb-5 text-sm text-muted-foreground">{choiceChallenge.title}</p>
