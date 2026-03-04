@@ -65,10 +65,11 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
+          className="fixed inset-0 flex flex-col px-6 text-center"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          <div className="-mt-16 flex flex-col items-center">
+          {/* Branding — pinned at ~38% from top so it never shifts */}
+          <div className="flex flex-col items-center" style={{ marginTop: "32vh" }}>
             <span className="mb-4 text-7xl">🔥</span>
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
@@ -78,7 +79,7 @@ export default function Onboarding() {
             </p>
           </div>
 
-          <div className="w-full max-w-sm space-y-3">
+          <div className="mx-auto w-full max-w-sm space-y-3">
             <AnimatePresence mode="wait">
               {!authMode ? (
                 <motion.div
