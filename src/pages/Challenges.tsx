@@ -262,7 +262,7 @@ export default function Challenges() {
           </p>
           <div data-tour="challenge-list" className="space-y-2">
             <AnimatePresence>
-              {challenges.map((challenge, i) => (
+              {dropRevealed && challenges.map((challenge, i) => (
                 <motion.div
                   key={challenge.id}
                   initial={justRevealed ? { opacity: 0, y: -600, scale: 0.95 } : false}
