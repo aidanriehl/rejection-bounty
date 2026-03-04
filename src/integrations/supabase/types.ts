@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: string
+          updated_at: string
+          winner_messaging_enabled: boolean
+        }
+        Insert: {
+          id?: string
+          updated_at?: string
+          winner_messaging_enabled?: boolean
+        }
+        Update: {
+          id?: string
+          updated_at?: string
+          winner_messaging_enabled?: boolean
+        }
+        Relationships: []
+      }
       challenge_completions: {
         Row: {
           challenge_id: string
@@ -221,6 +239,33 @@ export type Database = {
           week_key?: string
           winner_user_id?: string | null
           winning_video_url?: string | null
+        }
+        Relationships: []
+      }
+      winner_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender: string
+          week_key: string
+          winner_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender?: string
+          week_key: string
+          winner_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender?: string
+          week_key?: string
+          winner_user_id?: string
         }
         Relationships: []
       }
