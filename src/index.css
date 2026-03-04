@@ -126,3 +126,12 @@ html.dark body {
   ) !important;
   background-attachment: fixed;
 }
+
+/* Hide scrollbars globally for native app feel */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
