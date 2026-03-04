@@ -30,6 +30,7 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
         width: 8,
         height: 8,
       }}
+      initial={{ opacity: 1, backgroundColor: "hsl(var(--muted-foreground) / 0.15)" }}
       animate={
         isWon
           ? {
@@ -43,14 +44,14 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
               opacity: [0.7, 1, 0.7],
             }
           : {
-              opacity: [0.3, 0.8, 0.3],
-              backgroundColor: "hsl(var(--muted-foreground) / 0.4)",
+              opacity: 1,
+              backgroundColor: "hsl(var(--muted-foreground) / 0.15)",
             }
       }
       transition={
         isWon
           ? { duration: 0.6, repeat: Infinity, delay: index * 0.08 }
-          : { duration: 1.5, repeat: Infinity, delay: index * (1.5 / total) }
+          : { duration: 0 }
       }
     />
   );
