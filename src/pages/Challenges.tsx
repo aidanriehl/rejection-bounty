@@ -208,7 +208,7 @@ export default function Challenges() {
           </div>
 
           {/* Progress */}
-          <div className="mb-5">
+          <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-bold text-foreground">
                 {completed}/5 completed
