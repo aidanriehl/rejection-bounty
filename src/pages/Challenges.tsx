@@ -19,9 +19,7 @@ const progressMessages: Record<number, string> = {
   5: "🔥 Goal reached!",
   6: "Going above & beyond!",
   7: "On fire!",
-  8: "Unstoppable!",
-  9: "One more for perfection!",
-  10: "🏆 LEGEND!",
+  8: "🏆 LEGEND!",
 };
 
 function CountdownDigit({ value, label }: { value: number; label: string }) {
@@ -93,7 +91,7 @@ export default function Challenges() {
       );
       if (!challenge.completed) {
         const newCount = getCompletedCount(next);
-        if (newCount === 10) {
+        if (newCount === 8) {
           fireEpicConfetti();
           playEpicWin();
           if (navigator.vibrate) navigator.vibrate([200, 80, 200, 80, 200, 80, 400]);
