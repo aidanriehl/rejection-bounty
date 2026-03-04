@@ -149,7 +149,15 @@ export default function Challenges() {
         {!summaryDone && <WeeklySummary onContinue={() => setSummaryDone(true)} />}
       </AnimatePresence>
       <AnimatePresence>
-        {summaryDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
+        {summaryDone && !showcaseDone && (
+          <WinnerShowcase onContinue={() => {
+            localStorage.setItem(`${weekKey}-showcase`, "true");
+            setShowcaseDone(true);
+          }} />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {summaryDone && showcaseDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
       </AnimatePresence>
 
       <div className="min-h-screen pb-24 pt-14">
