@@ -464,7 +464,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
 
       {/* Spin / Continue button */}
       <AnimatePresence mode="wait">
-        {phase === "idle" && drawingStatus === "complete" && (
+        {phase === "idle" && (
           <motion.button
             key="spin"
             initial={{ opacity: 0, y: 20 }}
