@@ -154,12 +154,12 @@ export default function SettingsPage() {
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Account</p>
         <div className="mb-5 overflow-hidden rounded-xl border bg-card">
           {/* Display Name */}
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <button onClick={() => setEditingName(true)} className="flex items-center gap-3">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Display Name</span>
-            </button>
-            {editingName ? (
+          {editingName ? (
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <div className="flex items-center gap-3">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Display Name</span>
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   value={nameValue}
@@ -170,13 +170,19 @@ export default function SettingsPage() {
                 />
                 <button onClick={saveName} className="text-xs font-semibold text-primary">Save</button>
               </div>
-            ) : (
-              <button onClick={() => setEditingName(true)} className="flex items-center gap-1 text-sm text-muted-foreground">
+            </div>
+          ) : (
+            <button onClick={() => setEditingName(true)} className="flex w-full items-center justify-between border-b px-4 py-3">
+              <div className="flex items-center gap-3">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Display Name</span>
+              </div>
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 {authProfile?.username || "Set name"}
                 <ChevronRight className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+              </span>
+            </button>
+          )}
 
           {/* Profile Photo */}
           <div className="flex items-center justify-between px-4 py-3">
