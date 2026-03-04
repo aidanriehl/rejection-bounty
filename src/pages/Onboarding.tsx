@@ -22,7 +22,7 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className="flex flex-col items-center gap-3"
+        className="-mt-16 flex flex-col items-center gap-3"
       >
         <span className="text-7xl">🔥</span>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">
