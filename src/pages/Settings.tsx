@@ -243,7 +243,20 @@ export default function SettingsPage() {
               onCheckedChange={setNotifications}
             />
           </div>
-
+          {/* Dark Mode */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Moon className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <span className="text-sm font-medium text-foreground">Dark Mode</span>
+                <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              </div>
+            </div>
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+          </div>
         </div>
 
         {/* Payouts Section */}
