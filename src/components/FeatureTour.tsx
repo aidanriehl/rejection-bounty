@@ -13,24 +13,24 @@ interface TourStep {
 const STEPS: TourStep[] = [
   {
     route: "/challenges",
-    selector: '[data-tour="prize-pool"]',
-    title: "Win real money every week",
-    description:
-      "Every subscriber adds to the weekly prize pool. The more people join, the bigger the pot.",
-  },
-  {
-    route: "/challenges",
     selector: '[data-tour="challenge-list"]',
-    title: "8 challenges, pick any 5",
+    title: "Your weekly dare list",
     description:
-      "Each Sunday, 8 new challenges drop. Complete at least 5 to stay in the game and keep your streak alive.",
+      "Every Sunday, 8 new real-world challenges drop. Ask a stranger for a high-five. Request a discount. Things that scare you — on purpose.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
-    title: "Film it to win",
+    title: "No proof, no point",
     description:
-      "Upload a video of yourself completing a challenge. Subscribers are entered into the weekly cash lottery.",
+      "Film yourself doing the challenge and upload it. If it's not on camera, it didn't happen.",
+  },
+  {
+    route: "/challenges",
+    selector: '[data-tour="prize-pool"]',
+    title: "Get paid to be brave",
+    description:
+      "Complete 5 of 8 challenges and you're entered into the weekly cash draw. More players = bigger pot.",
   },
 ];
 
