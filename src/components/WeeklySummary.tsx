@@ -187,7 +187,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                     {/* 9:16 tall thumbnail */}
                     <div
                       className="aspect-[9/16] relative flex items-center justify-center"
-                      style={{ backgroundColor: 'hsl(164 72% 92%)' }}
+                      style={{ backgroundColor: 'hsl(var(--muted))' }}
                     >
                       <span className="text-4xl">{video.emoji}</span>
                     </div>
