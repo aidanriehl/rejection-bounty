@@ -154,9 +154,9 @@ export default function Challenges() {
         <div className="mx-auto max-w-lg px-4">
 
           {/* Countdown */}
-          <div data-tour="countdown" className="mb-5 text-center">
+          <div data-tour="countdown" className="mb-8 text-center">
             <p className="text-sm font-bold text-foreground">Time Left to Qualify</p>
-            <p className="text-xs text-muted-foreground mb-3">Deadline Sunday @ Midnight</p>
+            <p className="text-xs text-muted-foreground mb-4">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-4">
               <CountdownDigit value={countdown.days} label="Days" />
               <span className="text-xl font-bold text-muted-foreground/30 -mt-3">:</span>
