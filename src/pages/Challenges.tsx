@@ -5,7 +5,7 @@ import { Check, Crown, Trophy, Upload, Users, Video, FolderOpen, RotateCcw, Box 
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
-import { playPop, playBigWin, playEpicWin, playCascade } from "@/lib/sounds";
+import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
 import { toast } from "@/hooks/use-toast";
 import CameraRecorder from "@/components/CameraRecorder";
 import { useAuth } from "@/hooks/useAuth";
