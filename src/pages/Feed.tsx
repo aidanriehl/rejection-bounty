@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockFeedPosts, getWeeklyScore, type FeedPost } from "@/lib/mock-data";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import WinnerBanner from "@/components/WinnerBanner";
 
 const TABS = [
   { key: "week", label: "This Week" },
