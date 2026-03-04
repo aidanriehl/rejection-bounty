@@ -30,7 +30,7 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="upload-btn"]',
     title: "Submitting videos should feel uncomfortable",
     description:
-      "But that's the point.",
+      "But that's the point, discomfort is where you grow.",
   },
   {
     route: "/challenges",
