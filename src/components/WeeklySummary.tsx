@@ -4,6 +4,7 @@ import { Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import DrawingReveal from "@/components/DrawingReveal";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 interface ChallengeResult {
