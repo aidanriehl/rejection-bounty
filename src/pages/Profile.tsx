@@ -221,6 +221,81 @@ export default function Profile() {
           </div>
         )}
 
+        {/* Why get rejected modal */}
+        {showWhyModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+            onClick={() => setShowWhyModal(false)}
+          >
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative mx-2 mb-2 sm:mb-0 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowWhyModal(false)}
+                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground active:bg-muted/70"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <h2 className="mb-6 text-2xl font-extrabold text-foreground leading-tight">
+                Why get rejected?
+              </h2>
+
+              <div className="space-y-4 text-[15px] leading-relaxed text-foreground/90">
+                <p className="text-lg font-bold text-foreground">
+                  Your brain thinks rejection could kill you.
+                </p>
+
+                <p>
+                  And honestly — <em>it's not wrong.</em> It's just about <strong>ten thousand years out of date.</strong>
+                </p>
+
+                <p>
+                  For most of human history, being cast out from the group was the difference between <strong>life and death.</strong> So your brain built a <em>very</em> loud alarm system around it.
+                </p>
+
+                <p className="text-muted-foreground text-sm">
+                  Then we built skyscrapers. And phones. And apps that let you swipe until someone likes you back.
+                </p>
+
+                <p className="font-semibold text-foreground">
+                  The danger disappeared. The alarm didn't.
+                </p>
+
+                <p>
+                  So now we move through life quietly avoiding anything that might set it off — because the alarm <em>feels</em> like danger, even when there's nothing there.
+                </p>
+
+                <p className="text-muted-foreground text-sm italic">
+                  That's why rejection feels like something you need to <strong>survive</strong> rather than something you can <strong>practice.</strong>
+                </p>
+
+                <hr className="border-border my-2" />
+
+                <p className="text-lg font-bold text-foreground">
+                  But confidence is a muscle. 💪
+                </p>
+
+                <p>
+                  And you've just <strong>never been to the gym.</strong>
+                </p>
+
+                <p className="text-muted-foreground text-sm">
+                  Because here's the thing nobody says out loud:
+                </p>
+
+                <p className="text-xl font-extrabold text-primary text-center py-2">
+                  Fear and danger are not the same thing.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         {/* Stats - 2 column grid */}
         <div className="mb-5 space-y-3">
           {/* Streak */}
