@@ -301,20 +301,48 @@ export default function Admin() {
                       </div>
                     )}
 
-                    {/* Confirm / Re-draw */}
-                    {selectedVideo && (
+                    {/* Confirm / Edit / Re-draw */}
+                    {selectedVideo && !showEditor && (
                       <div className="flex gap-2 pt-1">
                         <Button
-                          onClick={() => confirmWinner(drawnUser.user_id, selectedVideo.video_url ?? undefined)}
+                          onClick={() => setShowEditor(true)}
                           className="flex-1"
                         >
                           <UserCheck className="h-4 w-4 mr-2" />
-                          Confirm as Winner
+                          Edit & Confirm Winner
                         </Button>
                         <Button variant="outline" onClick={handleRandomDraw}>
                           Re-draw
                         </Button>
                       </div>
+                    )}
+
+                    {selectedVideo && showEditor && selectedVideo.video_url && (
+                      <AdminVideoEditor
+                        videoUrl={selectedVideo.video_url}
+                        weekKey={weekKey}
+                        winnerId={drawnUser.user_id}
+                        onSave={async (editData) => {
+                          await supabase
+                            .from("weekly_drawings")
+                            .upsert({
+                              week_key: weekKey,
+                              prize_amount: prizeAmount,
+                              winner_user_id: drawnUser.user_id,
+                              winning_video_url: selectedVideo.video_url,
+                              status: "complete",
+                              thumbnail_url: editData.thumbnail_url,
+                              trim_start: editData.trim_start,
+                              trim_end: editData.trim_end,
+                            } as any, { onConflict: "week_key" })
+                            .select()
+                            .single();
+                          setDrawnUser(null);
+                          setShowEditor(false);
+                          fetchData();
+                        }}
+                        onCancel={() => setShowEditor(false)}
+                      />
                     )}
                   </div>
                 )}
