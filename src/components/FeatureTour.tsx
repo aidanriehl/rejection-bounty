@@ -14,44 +14,44 @@ const STEPS: TourStep[] = [
   {
     route: "/challenges",
     selector: '[data-tour="challenge-list"]',
-    title: "Your challenges for the week",
+    title: "Each week we'll assign you 8 challenges",
     description:
-      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5 of them.",
+      "Complete 5 of them to beat your week.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
-    title: "Upload your challenge videos to enter our prize pool",
+    title: "Upload a video of the challenge to enter the prize pool",
     description:
-      "Every video will get you one entry. Submitting videos should feel uncomfortable & that's the point.",
+      "Each video will get you one entry, but if you complete 5 videos your entries double.",
+  },
+  {
+    route: "/challenges",
+    selector: '[data-tour="upload-btn"]',
+    title: "Submitting videos should feel uncomfortable",
+    description:
+      "But that's the point.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="subscribers-card"]',
-    title: "Number of premium players",
+    title: "Number of players",
     description:
-      "People who pay to play on this app are 60% more likely to complete their challenges.",
+      "People who pay to play on this app are **60% more likely** to complete their challenges.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="prize-pool-card"]',
     title: "The prize pool",
     description:
-      "We put 100% of our profits into the prize pool. Just a fun reason to complete your challenges.",
+      "We put **100% of our profits** into the prize pool. Just a fun reason to complete your challenges.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="countdown"]',
-    title: "Weekly Countdown",
+    title: "Time left to enter the drawing",
     description:
-      "Every Sunday we give new challenges, and a recap of how players performed.",
-  },
-  {
-    route: "/profile",
-    selector: '[data-tour="why-rejected"]',
-    title: "Why get rejected?",
-    description:
-      "Read this any time to understand why we feel uncomfortable being rejected even though it doesn't matter — this might surprise you.",
+      "When this countdown ends, a winner will be chosen from a random generator to win the weekly prize.",
   },
 ];
 
@@ -169,7 +169,11 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             })()}
 
             <h2 className="text-lg font-bold text-foreground mb-1">{current.title}</h2>
-            <p className="text-sm text-muted-foreground mb-3">{current.description}</p>
+            <p className="text-sm text-muted-foreground mb-3"
+              dangerouslySetInnerHTML={{
+                __html: current.description.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
+              }}
+            />
 
             {/* Step dots + Next */}
             <div className="flex items-center justify-between">
