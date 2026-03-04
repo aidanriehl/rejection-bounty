@@ -266,50 +266,54 @@ export default function Profile() {
               </h2>
 
               <div className="space-y-4 text-[15px] leading-relaxed text-foreground/90">
-                <p className="text-lg font-bold text-foreground">
-                  Your brain thinks rejection could kill you.
+                <p>
+                  We live in a world where you never have to experience rejection if you don't want to.
                 </p>
 
                 <p>
-                  And honestly — <em>it's not wrong.</em> It's just about <strong>ten thousand years out of date.</strong>
-                </p>
-
-                <p>
-                  For most of human history, being cast out from the group was the difference between <strong>life and death.</strong> So your brain built a <em>very</em> loud alarm system around it.
-                </p>
-
-                <p className="text-muted-foreground text-sm">
-                  Then we built skyscrapers. And phones. And apps that let you swipe until someone likes you back.
+                  You can remain tongue-tied, stay comfortable, and survive fine.
                 </p>
 
                 <p className="font-semibold text-foreground">
-                  The danger disappeared. The alarm didn't.
+                  But we know life can be so much more than that.
                 </p>
 
                 <p>
-                  So now we move through life quietly avoiding anything that might set it off — because the alarm <em>feels</em> like danger, even when there's nothing there.
+                  Yet it isn't because our brains still think rejection is dangerous.
                 </p>
 
-                <p className="text-muted-foreground text-sm italic">
-                  That's why rejection feels like something you need to <strong>survive</strong> rather than something you can <strong>practice.</strong>
+                <p>
+                  Because for most of human history, getting cast out from the social group was the difference between <strong>life and death.</strong>
+                </p>
+
+                <p>
+                  So your brain pulls you away from anything that risks rejection — a conversation, a pitch, an audition.
+                </p>
+
+                <p className="font-semibold text-foreground">
+                  That threat is gone, but the alarm isn't.
                 </p>
 
                 <hr className="border-border my-2" />
 
-                <p className="text-lg font-bold text-foreground">
-                  But confidence is a muscle. 💪
-                </p>
-
                 <p>
-                  And you've just <strong>never been to the gym.</strong>
+                  What people don't realize though is that rejection is a muscle we can work just like anything else.
                 </p>
 
                 <p className="text-muted-foreground text-sm">
-                  Because here's the thing nobody says out loud:
+                  We don't realize this because we never start to practice it.
+                </p>
+
+                <p>
+                  Start small and have consistency, and 100 rejections later you'll become completely unphased of them.
+                </p>
+
+                <p className="text-lg font-bold text-foreground">
+                  And remember that danger is real but fear isn't.
                 </p>
 
                 <p className="text-xl font-extrabold text-primary text-center py-2">
-                  Fear and danger are not the same thing.
+                  It's made up and it's a muscle that gets trained 💪
                 </p>
               </div>
               </motion.div>
