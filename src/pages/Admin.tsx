@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check } from "lucide-react";
+import { mockChallenges } from "@/lib/mock-data";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 
@@ -43,6 +45,8 @@ export default function Admin() {
   const [prizeAmount, setPrizeAmount] = useState(0);
   const [drawing, setDrawing] = useState<any>(null);
   const [drawnUser, setDrawnUser] = useState<TicketEntry | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<CompletionWithVideo | null>(null);
+  const [previewVideo, setPreviewVideo] = useState<string | null>(null);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
 
@@ -107,13 +111,13 @@ export default function Admin() {
 
   const handleRandomDraw = () => {
     if (totalTickets === 0) return;
-    // Weighted random selection
     const pool: TicketEntry[] = [];
     tickets.forEach((t) => {
       for (let i = 0; i < t.tickets; i++) pool.push(t);
     });
     const winner = pool[Math.floor(Math.random() * pool.length)];
     setDrawnUser(winner);
+    setSelectedVideo(null);
   };
 
   const confirmWinner = async (userId: string, videoUrl?: string) => {
@@ -147,6 +151,14 @@ export default function Admin() {
 
   const getUserCompletions = (userId: string) =>
     completions.filter((c) => c.user_id === userId);
+
+  const getChallengeInfo = (challengeId: string) => {
+    const ch = mockChallenges.find((c) => c.id === challengeId);
+    return ch ? { emoji: ch.emoji, title: ch.title } : { emoji: "🎯", title: `Challenge ${challengeId}` };
+  };
+
+  const avatarEmoji = (a: string) =>
+    a === "dragon" ? "🐉" : a === "fox" ? "🦊" : a === "owl" ? "🦉" : a === "cat" ? "🐱" : "🌳";
 
   return (
     <div className="min-h-screen pb-24 pt-6">
@@ -213,60 +225,95 @@ export default function Admin() {
                   className="w-full mb-4"
                 >
                   <Shuffle className="h-4 w-4 mr-2" />
-                  {drawing?.status === "complete" ? "Winner Already Selected" : "Draw Random Winner"}
+                  {drawing?.status === "complete" ? "Winner Already Selected" : drawnUser ? "Re-draw" : "Draw Random Winner"}
                 </Button>
 
                 {drawnUser && (
-                  <div className="rounded-xl border-2 border-primary bg-primary/5 p-4 space-y-3">
+                  <div className="rounded-xl border-2 border-primary bg-primary/5 p-4 space-y-4">
+                    {/* Winner info */}
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                        {drawnUser.avatar === "dragon" ? "🐉" :
-                         drawnUser.avatar === "fox" ? "🦊" :
-                         drawnUser.avatar === "owl" ? "🦉" :
-                         drawnUser.avatar === "cat" ? "🐱" : "🌳"}
+                        {avatarEmoji(drawnUser.avatar)}
                       </div>
                       <div>
                         <p className="font-bold text-foreground">{drawnUser.username}</p>
                         <p className="text-sm text-muted-foreground">
-                          {drawnUser.tickets} tickets ({drawnUser.video_count} videos)
+                          {drawnUser.tickets} tickets · {drawnUser.video_count} videos
                         </p>
                       </div>
                     </div>
 
-                    {/* Show their videos */}
+                    {/* Video grid */}
                     {getUserCompletions(drawnUser.user_id).length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
-                        {getUserCompletions(drawnUser.user_id).map((c) => (
-                          <div key={c.id} className="relative group">
-                            <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground overflow-hidden">
-                              {c.video_url ? (
-                                <video src={c.video_url} className="h-full w-full object-cover" />
-                              ) : (
-                                "No vid"
-                              )}
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] h-5 px-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => confirmWinner(drawnUser.user_id, c.video_url ?? undefined)}
-                            >
-                              Pick
-                            </Button>
-                          </div>
-                        ))}
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2">Their videos this week:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {getUserCompletions(drawnUser.user_id).map((c) => {
+                            const ch = getChallengeInfo(c.challenge_id);
+                            const isSelected = selectedVideo?.id === c.id;
+                            return (
+                              <div
+                                key={c.id}
+                                className={`rounded-lg border-2 overflow-hidden transition-colors ${
+                                  isSelected ? "border-primary bg-primary/10" : "border-border bg-muted"
+                                }`}
+                              >
+                                {/* Thumbnail */}
+                                <button
+                                  onClick={() => c.video_url && setPreviewVideo(c.video_url)}
+                                  className="relative w-full aspect-video bg-background flex items-center justify-center"
+                                >
+                                  {c.video_url ? (
+                                    <>
+                                      <video src={c.video_url} className="h-full w-full object-cover" />
+                                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                        <Play className="h-6 w-6 text-white fill-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">No video</span>
+                                  )}
+                                </button>
+                                {/* Challenge info + select */}
+                                <div className="p-2 space-y-1.5">
+                                  <p className="text-xs text-foreground truncate">
+                                    {ch.emoji} {ch.title}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant={isSelected ? "default" : "outline"}
+                                    className="w-full h-7 text-xs"
+                                    onClick={() => setSelectedVideo(isSelected ? null : c)}
+                                  >
+                                    {isSelected ? (
+                                      <><Check className="h-3 w-3 mr-1" /> Selected</>
+                                    ) : (
+                                      "Select This Video"
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex gap-2">
-                      <Button onClick={() => confirmWinner(drawnUser.user_id)} className="flex-1">
-                        <UserCheck className="h-4 w-4 mr-2" />
-                        Confirm as Winner
-                      </Button>
-                      <Button variant="outline" onClick={handleRandomDraw}>
-                        Re-draw
-                      </Button>
-                    </div>
+                    {/* Confirm / Re-draw */}
+                    {selectedVideo && (
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          onClick={() => confirmWinner(drawnUser.user_id, selectedVideo.video_url ?? undefined)}
+                          className="flex-1"
+                        >
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Confirm as Winner
+                        </Button>
+                        <Button variant="outline" onClick={handleRandomDraw}>
+                          Re-draw
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>
@@ -286,10 +333,7 @@ export default function Admin() {
                           className="w-full flex items-center gap-3 p-3 text-left"
                         >
                           <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
-                            {t.avatar === "dragon" ? "🐉" :
-                             t.avatar === "fox" ? "🦊" :
-                             t.avatar === "owl" ? "🦉" :
-                             t.avatar === "cat" ? "🐱" : "🌳"}
+                            {avatarEmoji(t.avatar)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-foreground truncate">{t.username}</p>
@@ -377,6 +421,15 @@ export default function Admin() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Video Preview Dialog */}
+      <Dialog open={!!previewVideo} onOpenChange={() => setPreviewVideo(null)}>
+        <DialogContent className="max-w-sm p-2">
+          {previewVideo && (
+            <video src={previewVideo} controls autoPlay className="w-full rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
