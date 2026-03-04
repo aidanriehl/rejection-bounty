@@ -30,7 +30,7 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="upload-btn"]',
     title: "Submitting videos should feel uncomfortable",
     description:
-      "But that's the point.",
+      "But that's the point, discomfort is where you grow.",
   },
   {
     route: "/challenges",
@@ -51,7 +51,7 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="countdown"]',
     title: "Time left to enter the drawing",
     description:
-      "When this countdown ends, a winner will be chosen from a random generator to win the weekly prize.",
+      "When the countdown ends, a random winner is drawn and a weekly recap is revealed.",
   },
 ];
 
