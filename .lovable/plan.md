@@ -1,18 +1,18 @@
 
 
-## Plan: Inline stat labels next to numbers
+## Plan: Shrink the video upload area without changing aspect ratio
 
-Move "day streak" and "challenges completed" to sit on the same line as the number, with matching `font-extrabold` weight but roughly half the font size.
+The issue is simple: the upload zone currently stretches to `w-full` (100% width), and the aspect ratio then makes it very tall. The fix is to **constrain the width** (e.g., `w-2/3` or `max-w-[200px]`) and **center it horizontally**. The aspect ratio stays the same — the whole box just gets smaller because it's narrower.
 
-### Changes in `src/pages/Profile.tsx`
+### Changes in `src/pages/Post.tsx`
 
-**Streak card (lines 216-220):**
-- Move "day streak" text into the same flex row as the number
-- Change from `text-[11px] text-muted-foreground` to `text-sm font-extrabold text-foreground` (half of `text-2xl`)
+**Upload placeholder (empty state):**
+- Wrap or modify the upload button to use `w-2/3 mx-auto` instead of `w-full`
+- Keep `aspect-[9/13]` as-is
 
-**Challenges card (lines 226-230):**
-- Move "challenges completed" text into the same flex row as the number
-- Same styling: `text-sm font-extrabold text-foreground`
+**Video preview (after selecting a file):**
+- Same treatment: constrain the video container width to `w-2/3 mx-auto`
+- The aspect ratio stays `aspect-[9/13]`, just renders smaller
 
-Result: `🔥 0 day streak` and `🎯 0/10 challenges completed` all on one line, labels bold but smaller.
+Everything else (caption, thumbnail slider, buttons) remains unchanged and will have more room.
 
