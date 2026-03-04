@@ -26,38 +26,42 @@ export function fireConfetti() {
   frame();
 }
 
-/** 5+ Goal reached — bigger confetti burst (only ~0.3s longer than regular) */
+/** 5+ Goal reached — bigger confetti with extra warm colors clearly visible */
 export function fireBigConfetti() {
-  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE", "#FF6B6B", "#FF9FF3", "#F368E0", "#FF9F43"];
+  const coolColors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700"];
+  const warmColors = ["#FF6B6B", "#FF9FF3", "#F368E0", "#FF9F43", "#E84393"];
+  const allColors = [...coolColors, ...warmColors];
+
+  // Big center burst with all colors
   confetti({
-    particleCount: 100,
+    particleCount: 60,
     spread: 360,
     origin: { x: 0.5, y: 0.4 },
-    colors,
+    colors: allColors,
     startVelocity: 40,
     gravity: 0.9,
     ticks: 140,
   });
+
+  // Separate warm-only burst so they're guaranteed visible
+  confetti({
+    particleCount: 40,
+    spread: 360,
+    origin: { x: 0.5, y: 0.45 },
+    colors: warmColors,
+    startVelocity: 35,
+    gravity: 0.9,
+    ticks: 140,
+  });
+
   const end = Date.now() + 700;
   const frame = () => {
-    confetti({
-      particleCount: 6,
-      angle: 60,
-      spread: 80,
-      origin: { x: 0, y: 0.5 },
-      colors,
-      startVelocity: 35,
-      ticks: 140,
-    });
-    confetti({
-      particleCount: 6,
-      angle: 120,
-      spread: 80,
-      origin: { x: 1, y: 0.5 },
-      colors,
-      startVelocity: 35,
-      ticks: 140,
-    });
+    // Cool side cannons
+    confetti({ particleCount: 4, angle: 60, spread: 80, origin: { x: 0, y: 0.5 }, colors: coolColors, startVelocity: 35, ticks: 140 });
+    confetti({ particleCount: 4, angle: 120, spread: 80, origin: { x: 1, y: 0.5 }, colors: coolColors, startVelocity: 35, ticks: 140 });
+    // Warm side cannons
+    confetti({ particleCount: 3, angle: 60, spread: 80, origin: { x: 0, y: 0.5 }, colors: warmColors, startVelocity: 35, ticks: 140 });
+    confetti({ particleCount: 3, angle: 120, spread: 80, origin: { x: 1, y: 0.5 }, colors: warmColors, startVelocity: 35, ticks: 140 });
     if (Date.now() < end) requestAnimationFrame(frame);
   };
   frame();
