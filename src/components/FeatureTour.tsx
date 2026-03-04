@@ -14,23 +14,44 @@ const STEPS: TourStep[] = [
   {
     route: "/challenges",
     selector: '[data-tour="challenge-list"]',
-    title: "Your weekly dare list",
+    title: "Your challenges for the week",
     description:
-      "Every Sunday, 8 new real-world challenges drop. Ask a stranger for a high-five. Request a discount. Things that scare you — on purpose.",
+      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5/8 of them. THE GOAL HERE IS TO GET REJECTED!",
   },
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
-    title: "No proof, no point",
+    title: "Upload your challenge videos to enter our prize pool",
     description:
-      "Film yourself doing the challenge and upload it. If it's not on camera, it didn't happen.",
+      "Every video you upload gets you one submission into a lottery for our prize pool. Submitting videos should feel uncomfortable & that's the point.",
   },
   {
     route: "/challenges",
-    selector: '[data-tour="prize-pool"]',
-    title: "Get paid to be brave",
+    selector: '[data-tour="subscribers-card"]',
+    title: "Number of players",
     description:
-      "Complete 5 of 8 challenges and you're entered into the weekly cash draw. More players = bigger pot.",
+      "People who pay to play on this app are 60% more likely to follow through with their challenges.",
+  },
+  {
+    route: "/challenges",
+    selector: '[data-tour="prize-pool-card"]',
+    title: "The prize pool",
+    description:
+      "We put 100% of our profits into the prize pool. Just a fun reason to complete your challenges.",
+  },
+  {
+    route: "/challenges",
+    selector: '[data-tour="countdown"]',
+    title: "Countdown",
+    description:
+      "Every Sunday @ midnight we'll give you new challenges, and a recap of how our players performed the week before.",
+  },
+  {
+    route: "/profile",
+    selector: '[data-tour="why-rejected"]',
+    title: "Why get rejected?",
+    description:
+      "Read this any time to understand why we feel uncomfortable being rejected even though it doesn't matter — this might surprise you.",
   },
 ];
 
