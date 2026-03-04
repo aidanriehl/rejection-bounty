@@ -181,7 +181,7 @@ export default function PostPage() {
         {!videoUrl ? (
           <button
             onClick={() => fileRef.current?.click()}
-            className="group mb-3 flex aspect-[9/13] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
+            className="group mb-3 flex aspect-[9/13] w-2/3 mx-auto flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
               <Upload className="h-6 w-6" />
@@ -192,7 +192,7 @@ export default function PostPage() {
             </div>
           </button>
         ) : (
-          <div className="mb-3">
+          <div className="mb-3 w-2/3 mx-auto">
             <div className="relative overflow-hidden rounded-2xl bg-black">
               <div className="aspect-[9/13] w-full">
                 <video
