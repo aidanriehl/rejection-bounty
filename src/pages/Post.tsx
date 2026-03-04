@@ -192,7 +192,7 @@ export default function PostPage() {
             </div>
           </button>
         ) : (
-          <div className="mb-3">
+          <div className="mb-3 w-2/3 mx-auto">
             <div className="relative overflow-hidden rounded-2xl bg-black">
               <div className="aspect-[9/13] w-full">
                 <video
