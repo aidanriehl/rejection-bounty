@@ -153,6 +153,27 @@ export default function Challenges() {
       <div className="min-h-screen pb-24 pt-14">
         <div className="mx-auto max-w-lg px-4">
 
+          {/* Dev nav buttons */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setSummaryDone(false)}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Last Week
+            </button>
+            <button
+              onClick={() => {
+                setSummaryDone(true);
+                setDropRevealed(false);
+              }}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+            >
+              <Box className="h-3.5 w-3.5" />
+              Drop Reveal
+            </button>
+          </div>
+
           {/* Countdown */}
           <div data-tour="countdown" className="mb-8 text-center">
             <p className="text-lg font-extrabold text-foreground">Time Left Until the Next Drawing</p>
