@@ -176,7 +176,7 @@ export default function Challenges() {
               <div className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
                 <Users className="h-5 w-5 text-muted-foreground mb-3" />
                 <p className="text-3xl font-extrabold tracking-tight">{subscribers.toLocaleString()}</p>
-                <p className="text-xs font-semibold text-muted-foreground mt-1">Subscribers</p>
+                <p className="text-xs font-semibold text-muted-foreground mt-1">Players</p>
               </div>
             ) : (
               <button
