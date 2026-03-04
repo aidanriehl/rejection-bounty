@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
