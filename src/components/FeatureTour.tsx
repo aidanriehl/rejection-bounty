@@ -118,14 +118,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       <div className="absolute inset-0" style={{ zIndex: 0 }} />
 
       {/* Tooltip card */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {rect && (
           <motion.div
             key={step}
-            initial={{ opacity: 0, y: tooltipBelow ? -12 : 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: tooltipBelow ? -12 : 12 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="absolute left-4 right-4 mx-auto max-w-sm rounded-2xl bg-card p-5 shadow-xl border"
             style={{
               zIndex: 2,
