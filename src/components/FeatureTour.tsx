@@ -140,7 +140,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-4 right-4 mx-auto max-w-sm rounded-2xl bg-card p-5 shadow-xl border"
+            className="absolute left-4 right-4 mx-auto max-w-sm rounded-2xl bg-card px-5 pt-5 pb-3.5 shadow-xl border"
             style={{
               zIndex: 2,
               ...(tooltipBelow
