@@ -426,7 +426,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring" }}
             onClick={onContinue}
-            className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+            className="mt-4 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
           >
             See Last Week's Recap
           </motion.button>
