@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, Users, ChevronRight } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X } from "lucide-react";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,15 +55,13 @@ function getMilestone(completed: number) {
 
 export default function Profile() {
   const { user, profile, loading, setProfile } = useAuth();
-  const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
+  const [showWhyModal, setShowWhyModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
-
-  const [friendCount, setFriendCount] = useState(0);
 
   const username = profile?.username || "Username";
   const avatar = (profile?.avatar || "dragon") as AvatarType;
@@ -72,14 +70,6 @@ export default function Profile() {
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("friendships")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .then(({ count }) => setFriendCount(count ?? 0));
-  }, [user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -148,7 +138,14 @@ export default function Profile() {
     <div className="min-h-screen pb-24 pt-4">
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => setShowWhyModal(true)}
+            className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            Why get rejected?
+          </button>
           <button
             onClick={() => navigate("/settings")}
             className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
@@ -187,16 +184,6 @@ export default function Profile() {
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
           <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
-
-          {/* Friends link */}
-          <button
-            onClick={() => navigate("/friends")}
-            className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-foreground transition-colors active:bg-muted/70"
-          >
-            <Users className="h-3.5 w-3.5 text-muted-foreground" />
-            <span>{friendCount} Friends</span>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
         </div>
 
         {/* Photo action sheet */}
@@ -231,6 +218,81 @@ export default function Profile() {
                 Cancel
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Why get rejected modal */}
+        {showWhyModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+            onClick={() => setShowWhyModal(false)}
+          >
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative mx-2 mb-2 sm:mb-0 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowWhyModal(false)}
+                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground active:bg-muted/70"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <h2 className="mb-6 text-2xl font-extrabold text-foreground leading-tight">
+                Why get rejected?
+              </h2>
+
+              <div className="space-y-4 text-[15px] leading-relaxed text-foreground/90">
+                <p className="text-lg font-bold text-foreground">
+                  Your brain thinks rejection could kill you.
+                </p>
+
+                <p>
+                  And honestly — <em>it's not wrong.</em> It's just about <strong>ten thousand years out of date.</strong>
+                </p>
+
+                <p>
+                  For most of human history, being cast out from the group was the difference between <strong>life and death.</strong> So your brain built a <em>very</em> loud alarm system around it.
+                </p>
+
+                <p className="text-muted-foreground text-sm">
+                  Then we built skyscrapers. And phones. And apps that let you swipe until someone likes you back.
+                </p>
+
+                <p className="font-semibold text-foreground">
+                  The danger disappeared. The alarm didn't.
+                </p>
+
+                <p>
+                  So now we move through life quietly avoiding anything that might set it off — because the alarm <em>feels</em> like danger, even when there's nothing there.
+                </p>
+
+                <p className="text-muted-foreground text-sm italic">
+                  That's why rejection feels like something you need to <strong>survive</strong> rather than something you can <strong>practice.</strong>
+                </p>
+
+                <hr className="border-border my-2" />
+
+                <p className="text-lg font-bold text-foreground">
+                  But confidence is a muscle. 💪
+                </p>
+
+                <p>
+                  And you've just <strong>never been to the gym.</strong>
+                </p>
+
+                <p className="text-muted-foreground text-sm">
+                  Because here's the thing nobody says out loud:
+                </p>
+
+                <p className="text-xl font-extrabold text-primary text-center py-2">
+                  Fear and danger are not the same thing.
+                </p>
+              </div>
+            </motion.div>
           </div>
         )}
 
