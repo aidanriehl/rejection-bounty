@@ -165,13 +165,9 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
   const lightCount = 12;
 
   return (
-    <motion.div
+    <div
       className="fixed inset-0 z-[70] flex flex-col items-center justify-center px-4"
       style={{ backgroundColor: "hsl(var(--background))" }}
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -200 }}
-      transition={{ duration: 0.4 }}
     >
       {/* Pot info above machine */}
       <motion.div
