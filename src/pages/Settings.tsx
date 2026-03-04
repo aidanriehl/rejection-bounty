@@ -30,7 +30,7 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const { theme, setTheme } = useTheme();
 
   // Stripe Connect state
   const [connectStatus, setConnectStatus] = useState<{
