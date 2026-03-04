@@ -33,8 +33,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     setSaving(true);
     const { data, error } = await supabase
       .from("profiles")
-      .update({ username: trimmed })
-      .eq("id", userId)
+      .upsert({ id: userId, username: trimmed })
       .select()
       .single();
 
