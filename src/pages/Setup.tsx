@@ -52,7 +52,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 -mt-16">
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <span className="text-5xl">✨</span>
