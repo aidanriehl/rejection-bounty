@@ -154,7 +154,7 @@ export default function Challenges() {
         <div className="mx-auto max-w-lg px-4">
 
           {/* Countdown */}
-          <div className="mb-5 text-center">
+          <div data-tour="countdown" className="mb-5 text-center">
             <p className="text-sm font-bold text-foreground">Time Left to Qualify</p>
             <p className="text-xs text-muted-foreground mb-3">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-4">
@@ -170,7 +170,7 @@ export default function Challenges() {
           <div data-tour="prize-pool" className="flex gap-3 mb-5">
             {/* Subscribers */}
             {isPremium ? (
-              <div className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
+                <div data-tour="subscribers-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
                 <Users className="h-5 w-5 text-muted-foreground mb-3" />
                 <p className="text-3xl font-extrabold tracking-tight">{subscribers.toLocaleString()}</p>
                 <p className="text-xs font-semibold text-muted-foreground mt-1">Players</p>
@@ -189,7 +189,7 @@ export default function Challenges() {
 
             {/* Prize Pool */}
             {isPremium ? (
-              <div className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
+              <div data-tour="prize-pool-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
                 <Trophy className="h-5 w-5 text-muted-foreground mb-3" />
                 <p className="text-3xl font-extrabold tracking-tight">${prizePool.toLocaleString()}</p>
                 <p className="text-xs font-semibold text-muted-foreground mt-1">Prize Pool</p>

@@ -140,6 +140,7 @@ export default function Profile() {
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button
+            data-tour="why-rejected"
             onClick={() => setShowWhyModal(true)}
             className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
           >
