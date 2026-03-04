@@ -127,15 +127,25 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                 : { top: Math.max(20, rect.top - 200) }),
             }}
           >
-            {/* Arrow pointer */}
-            <div
-              className="absolute left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-card border"
-              style={
-                tooltipBelow
-                  ? { top: -6, borderRight: "none", borderBottom: "none" }
-                  : { bottom: -6, borderLeft: "none", borderTop: "none" }
-              }
-            />
+            {/* Arrow pointer — points toward the spotlight center */}
+            {(() => {
+              // tooltip is left:16px right:16px (1rem each side), so its width ≈ viewport - 32
+              const tooltipLeft = 16;
+              const tooltipWidth = Math.min(window.innerWidth - 32, 384); // max-w-sm = 384
+              const spotlightCenterX = rect.left + rect.width / 2;
+              const arrowLeft = Math.max(24, Math.min(spotlightCenterX - tooltipLeft, tooltipWidth - 24));
+              return (
+                <div
+                  className="absolute h-3 w-3 rotate-45 bg-card border"
+                  style={{
+                    left: arrowLeft,
+                    ...(tooltipBelow
+                      ? { top: -6, borderRight: "none", borderBottom: "none" }
+                      : { bottom: -6, borderLeft: "none", borderTop: "none" }),
+                  }}
+                />
+              );
+            })()}
 
             <h2 className="text-lg font-bold text-foreground mb-1">{current.title}</h2>
             <p className="text-sm text-muted-foreground mb-4">{current.description}</p>
