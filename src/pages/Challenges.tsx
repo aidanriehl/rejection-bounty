@@ -19,9 +19,7 @@ const progressMessages: Record<number, string> = {
   5: "🔥 Goal reached!",
   6: "Going above & beyond!",
   7: "On fire!",
-  8: "Unstoppable!",
-  9: "One more for perfection!",
-  10: "🏆 LEGEND!",
+  8: "🏆 LEGEND!",
 };
 
 function CountdownDigit({ value, label }: { value: number; label: string }) {
