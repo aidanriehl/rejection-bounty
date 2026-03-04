@@ -169,7 +169,11 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             })()}
 
             <h2 className="text-lg font-bold text-foreground mb-1">{current.title}</h2>
-            <p className="text-sm text-muted-foreground mb-3">{current.description}</p>
+            <p className="text-sm text-muted-foreground mb-3"
+              dangerouslySetInnerHTML={{
+                __html: current.description.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
+              }}
+            />
 
             {/* Step dots + Next */}
             <div className="flex items-center justify-between">
