@@ -8,6 +8,8 @@ import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti"
 import { playPop, playBigWin, playEpicWin, playCascade } from "@/lib/sounds";
 import { toast } from "@/hooks/use-toast";
 import CameraRecorder from "@/components/CameraRecorder";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
 import DropReveal from "@/components/DropReveal";
 
@@ -37,6 +39,7 @@ function CountdownDigit({ value, label }: { value: number; label: string }) {
 
 export default function Challenges() {
   const navigate = useNavigate();
+  const { user, profile, setProfile } = useAuth();
   const weekKey = getCurrentWeekKey();
   const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true");
@@ -55,10 +58,24 @@ export default function Challenges() {
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
 
-  // Persist completed challenges to localStorage
+  // Persist completed challenges to localStorage + sync to DB
   useEffect(() => {
     const completedIds = challenges.filter(c => c.completed).map(c => c.id);
     localStorage.setItem(`${weekKey}-completed`, JSON.stringify(completedIds));
+
+    // Sync total completed this week to the profile in DB
+    if (user) {
+      const count = completedIds.length;
+      supabase
+        .from("profiles")
+        .update({ total_completed: count })
+        .eq("id", user.id)
+        .then(() => {
+          if (profile) {
+            setProfile({ ...profile, total_completed: count });
+          }
+        });
+    }
   }, [challenges, weekKey]);
 
   // Live countdown tick
