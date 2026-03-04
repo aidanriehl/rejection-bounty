@@ -50,6 +50,7 @@ export default function Admin() {
   const [previewVideo, setPreviewVideo] = useState<string | null>(null);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
 
   // Check admin access
   useEffect(() => {
