@@ -182,7 +182,7 @@ export default function PostPage() {
           /* Upload zone — before file selected */
           <button
             onClick={() => fileRef.current?.click()}
-            className="group mb-4 flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 py-16 transition-all hover:border-primary/40 hover:bg-muted/30"
+            className="group mb-4 flex aspect-[9/16] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
               <Upload className="h-6 w-6" />
@@ -197,7 +197,7 @@ export default function PostPage() {
           <div className="mb-4">
             {/* Video preview card */}
             <div className="relative overflow-hidden rounded-2xl bg-black">
-              <div className="aspect-[9/16] max-h-[360px] w-full">
+              <div className="aspect-[9/16] w-full">
                 <video
                   ref={videoRef}
                   src={videoUrl}
