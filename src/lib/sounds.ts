@@ -293,6 +293,34 @@ export function playEpicWin() {
     });
   } catch {}
 }
+/** Slot machine reel tick — short mechanical click */
+export function playReelTick() {
+  try {
+    const a = ctx();
+    const t = a.currentTime;
+    const bufSize = a.sampleRate * 0.015;
+    const buf = a.createBuffer(1, bufSize, a.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let j = 0; j < bufSize; j++) {
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 12);
+    }
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    const bp = a.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 3500;
+    bp.Q.value = 6;
+    const g = a.createGain();
+    g.gain.setValueAtTime(0.18, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(a.destination);
+    src.start(t);
+    src.stop(t + 0.02);
+  } catch {}
+}
+
 /** Cascade / pieces clicking into place */
 export function playCascade(count = 10, durationMs = 800) {
   try {
