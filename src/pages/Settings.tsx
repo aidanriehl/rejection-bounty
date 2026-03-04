@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,7 +30,7 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const { theme, setTheme } = useTheme();
 
   // Stripe Connect state
   const [connectStatus, setConnectStatus] = useState<{
@@ -242,7 +243,20 @@ export default function SettingsPage() {
               onCheckedChange={setNotifications}
             />
           </div>
-
+          {/* Dark Mode */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Moon className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <span className="text-sm font-medium text-foreground">Dark Mode</span>
+                <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              </div>
+            </div>
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+          </div>
         </div>
 
         {/* Payouts Section */}
