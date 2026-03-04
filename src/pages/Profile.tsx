@@ -198,7 +198,7 @@ export default function Profile() {
               <div className="mx-3 h-px bg-border" />
               <button
                 onClick={() => setShowPhotoMenu(false)}
-                className="mt-1 flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground active:bg-muted"
+                className="flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground active:bg-muted"
               >
                 Cancel
               </button>
