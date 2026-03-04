@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Users } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Users, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -146,12 +146,23 @@ export default function Profile() {
             <HelpCircle className="h-3.5 w-3.5" />
             Why get rejected?
           </button>
-          <button
-            onClick={() => navigate("/settings")}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
-          >
-            <Settings className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                navigate("/challenges");
+                setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
+            >
+              <Info className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => navigate("/settings")}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Avatar + username */}
