@@ -1,18 +1,16 @@
 
 
-## Plan: Inline stat labels next to numbers
+**Fix:** The modal card is anchored to the bottom (`items-end`) inside a container that starts at `top-[30%]` and ends at `bottom-[72px]`, so it hugs the nav bar instead of centering vertically.
 
-Move "day streak" and "challenges completed" to sit on the same line as the number, with matching `font-extrabold` weight but roughly half the font size.
+**Changes in `src/pages/Profile.tsx`:**
 
-### Changes in `src/pages/Profile.tsx`
+1. Split into two layers:
+   - **Backdrop layer:** `fixed inset-0 z-50 bg-black/50` — dims the full screen
+   - **Content layer:** `fixed inset-0 z-50 flex items-center justify-center` with `pointer-events-none` — centers the modal card vertically and horizontally on the full screen (above the nav)
 
-**Streak card (lines 216-220):**
-- Move "day streak" text into the same flex row as the number
-- Change from `text-[11px] text-muted-foreground` to `text-sm font-extrabold text-foreground` (half of `text-2xl`)
+2. The modal card itself gets `max-h-[60vh]` and `overflow-y-auto` to cap its height at ~60% of the viewport, keeping it visually centered without being too tall. Add `pointer-events-auto` so it remains interactive.
 
-**Challenges card (lines 226-230):**
-- Move "challenges completed" text into the same flex row as the number
-- Same styling: `text-sm font-extrabold text-foreground`
+3. Add `mb-[72px]` or `pb-[72px]` to the centering container so the card centers in the space above the nav bar rather than the full screen.
 
-Result: `🔥 0 day streak` and `🎯 0/10 challenges completed` all on one line, labels bold but smaller.
+This keeps the backdrop fullscreen, the card vertically centered in the usable area, and the nav bar visible underneath.
 
