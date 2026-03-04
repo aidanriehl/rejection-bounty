@@ -137,8 +137,7 @@ export default function Profile() {
     <div className="min-h-screen pb-24 pt-4">
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+        <div className="mb-4 flex items-center justify-end">
           <button
             onClick={() => navigate("/settings")}
             className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
@@ -147,14 +146,15 @@ export default function Profile() {
           </button>
         </div>
 
-        {/* Avatar */}
-        <div className="mb-6 mt-8 flex flex-col items-center">
+        {/* Avatar + username */}
+        <div className="mb-6 mt-4 flex flex-col items-center">
           <div
             className="relative inline-flex cursor-pointer select-none"
             onPointerDown={handleLongPressStart}
             onPointerUp={handleLongPressEnd}
             onPointerLeave={handleLongPressEnd}
             onContextMenu={(e) => e.preventDefault()}
+            onClick={() => !photoUrl && setShowPhotoMenu(true)}
           >
             <AvatarDisplay
               avatar={avatar}
@@ -163,12 +163,19 @@ export default function Profile() {
               photoUrl={photoUrl}
               className="!h-[104px] !w-[104px] !text-5xl"
             />
+            {/* IG-style plus badge — only show when no custom photo */}
+            {!photoUrl && (
+              <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary border-[2.5px] border-background shadow-sm">
+                <span className="text-xs font-bold text-primary-foreground leading-none">+</span>
+              </div>
+            )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoUpload} />
           </div>
           {uploading && (
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
+          <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
         </div>
 
         {/* Photo action sheet */}
