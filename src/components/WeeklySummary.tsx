@@ -147,15 +147,26 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                   onClick={() => handleChallengeClick(challenge.title)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 w-full text-left transition-colors active:bg-muted/50",
-                    i !== mockChallengeResults.length - 1 && "border-b border-border/50"
+                    i !== mockChallengeResults.length - 1 && "border-b border-border/50",
+                    challenge.userCompleted && "bg-primary/5"
                   )}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + i * 0.05 }}
                 >
-                  <span className="text-lg w-8 text-center">{challenge.emoji}</span>
+                  <div className="relative w-8 text-center">
+                    <span className="text-lg">{challenge.emoji}</span>
+                    {challenge.userCompleted && (
+                      <div className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary">
+                        <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground/70 truncate">{challenge.title}</p>
+                    <p className={cn(
+                      "text-xs font-medium truncate",
+                      challenge.userCompleted ? "text-foreground" : "text-foreground/70"
+                    )}>{challenge.title}</p>
                     <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
                       <motion.div
                         className="h-full rounded-full"
