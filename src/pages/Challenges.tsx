@@ -27,7 +27,7 @@ const progressMessages: Record<number, string> = {
 function CountdownDigit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="text-2xl font-extrabold text-foreground tabular-nums leading-none">
+      <span className="text-4xl font-extrabold text-foreground tabular-nums leading-none">
         {String(value).padStart(2, "0")}
       </span>
       <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
