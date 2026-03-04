@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
+import AdminVideoEditor from "@/components/AdminVideoEditor";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 
