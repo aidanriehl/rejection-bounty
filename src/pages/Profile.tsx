@@ -340,8 +340,8 @@ export default function Profile() {
           {/* Challenges */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl">🎯</span>
-              <span className="text-3xl font-extrabold text-foreground">{ms.current}/{ms.goal}</span>
+              <span className="text-2xl leading-none">🎯</span>
+              <span className="text-3xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
               <span className="text-lg font-semibold text-foreground">challenges completed</span>
             </div>
             {ms.medal && (
