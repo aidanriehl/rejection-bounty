@@ -63,8 +63,6 @@ export default function Profile() {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
-  const [friendCount, setFriendCount] = useState(0);
-
   const username = profile?.username || "Username";
   const avatar = (profile?.avatar || "dragon") as AvatarType;
   const avatarStage = (profile?.avatar_stage ?? 0) as AvatarStage;
