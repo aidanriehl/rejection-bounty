@@ -15,6 +15,7 @@ import FriendsPage from "@/pages/Friends";
 import NotFound from "./pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
+import Admin from "@/pages/Admin";
 import FeatureTour from "@/components/FeatureTour";
 import { useAuth } from "@/hooks/useAuth";
 
