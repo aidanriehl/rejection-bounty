@@ -41,12 +41,25 @@ export default function Challenges() {
   const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>(mockChallenges);
+  const [challenges, setChallenges] = useState<Challenge[]>(() => {
+    const saved = localStorage.getItem(`${weekKey}-completed`);
+    if (saved) {
+      const completedIds: string[] = JSON.parse(saved);
+      return mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) }));
+    }
+    return mockChallenges;
+  });
   const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
   
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
+
+  // Persist completed challenges to localStorage
+  useEffect(() => {
+    const completedIds = challenges.filter(c => c.completed).map(c => c.id);
+    localStorage.setItem(`${weekKey}-completed`, JSON.stringify(completedIds));
+  }, [challenges, weekKey]);
 
   // Live countdown tick
   useEffect(() => {
