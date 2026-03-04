@@ -1,16 +1,18 @@
 
 
-## Plan: Increase font and icon sizes in Players & Prize Pool cards
+## Plan: Inline stat labels next to numbers
 
-Keep the card dimensions as-is, just bump up the visual weight of the content inside.
+Move "day streak" and "challenges completed" to sit on the same line as the number, with matching `font-extrabold` weight but roughly half the font size.
 
-### Changes in `src/pages/Challenges.tsx`
+### Changes in `src/pages/Profile.tsx`
 
-**All 4 card variants (premium + non-premium for both cards):**
+**Streak card (lines 216-220):**
+- Move "day streak" text into the same flex row as the number
+- Change from `text-[11px] text-muted-foreground` to `text-sm font-extrabold text-foreground` (half of `text-2xl`)
 
-- Icons: `h-4 w-4` → `h-5 w-5`
-- Main number: `text-2xl` → `text-3xl`
-- Label text: `text-[11px]` → `text-xs` (roughly 11px → 12px)
+**Challenges card (lines 226-230):**
+- Move "challenges completed" text into the same flex row as the number
+- Same styling: `text-sm font-extrabold text-foreground`
 
-That's it — same card size, bigger content to fill the space and match the importance.
+Result: `🔥 0 day streak` and `🎯 0/10 challenges completed` all on one line, labels bold but smaller.
 
