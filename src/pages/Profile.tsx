@@ -138,7 +138,14 @@ export default function Profile() {
     <div className="min-h-screen pb-24 pt-4">
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => setShowWhyModal(true)}
+            className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            Why get rejected?
+          </button>
           <button
             onClick={() => navigate("/settings")}
             className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
