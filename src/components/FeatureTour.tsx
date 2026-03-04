@@ -66,7 +66,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       navigate(current.route);
     }
     // Wait for page to render before measuring
-    measureTimeout.current = setTimeout(measure, 350);
+    measureTimeout.current = setTimeout(measure, location.pathname === current.route ? 50 : 350);
     return () => clearTimeout(measureTimeout.current);
   }, [step, location.pathname, current.route, navigate, measure]);
 
