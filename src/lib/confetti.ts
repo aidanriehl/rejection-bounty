@@ -28,7 +28,7 @@ export function fireConfetti() {
 
 /** 5+ Goal reached — bigger confetti burst (only ~0.3s longer than regular) */
 export function fireBigConfetti() {
-  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE"];
+  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE", "#FF6B6B", "#FF9FF3", "#F368E0", "#FF9F43"];
   confetti({
     particleCount: 100,
     spread: 360,
