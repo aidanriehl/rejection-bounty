@@ -55,7 +55,7 @@ function getMilestone(completed: number) {
 
 export default function Profile() {
   const { user, profile, loading, setProfile } = useAuth();
-  const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
+  const [showWhyModal, setShowWhyModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
