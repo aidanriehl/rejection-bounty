@@ -29,7 +29,7 @@ export function fireConfetti() {
 /** 5+ Goal reached — bigger confetti with extra warm colors clearly visible */
 export function fireBigConfetti() {
   const coolColors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700"];
-  const warmColors = ["#FF6B6B", "#FF9FF3", "#F368E0", "#FF9F43", "#E84393"];
+  const warmColors = ["#FF6B6B", "#FF9FF3", "#FF9F43", "#FFD700", "#FDCB6E"];
   const allColors = [...coolColors, ...warmColors];
 
   // Big center burst with all colors
