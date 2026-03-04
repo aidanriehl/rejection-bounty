@@ -55,6 +55,12 @@ export default function Challenges() {
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
 
+  // Persist completed challenges to localStorage
+  useEffect(() => {
+    const completedIds = challenges.filter(c => c.completed).map(c => c.id);
+    localStorage.setItem(`${weekKey}-completed`, JSON.stringify(completedIds));
+  }, [challenges, weekKey]);
+
   // Live countdown tick
   useEffect(() => {
     const timer = setInterval(() => setCountdown(getTimeUntilSunday()), 1000);
