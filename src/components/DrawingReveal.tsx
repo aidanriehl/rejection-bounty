@@ -378,7 +378,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             }}
           />
         </div>
-      </motion.div>
+      </div>
 
       {/* Prize reveal */}
       <AnimatePresence>
