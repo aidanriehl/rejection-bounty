@@ -326,9 +326,9 @@ export default function Profile() {
           {/* Streak */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-2">
-              <span className="text-2xl leading-none">🔥</span>
+              <span className="text-xl leading-none">🔥</span>
               <span className="text-3xl font-extrabold leading-none text-foreground">{streak}</span>
-              <span className="text-lg font-semibold text-foreground">Week Streak</span>
+              <span className="text-lg font-semibold leading-none text-foreground">Week Streak</span>
             </div>
             <div className="flex items-center gap-3 mt-1.5">
               <p className="text-[10px] text-muted-foreground/50">Best Streak: {streak}</p>
