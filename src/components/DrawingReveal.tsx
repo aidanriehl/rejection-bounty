@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { fireEpicConfetti } from "@/lib/confetti";
 import { playBigWin, playReelTick } from "@/lib/sounds";
 
@@ -17,58 +17,95 @@ const FAKE_NAMES = [
   "risky_rob", "audacious_amy", "intrepid_ian", "gallant_gina",
 ];
 
-const ITEM_HEIGHT = 56; // px per name row
-const VISIBLE_COUNT = 3; // names visible in window
+const ITEM_HEIGHT = 48;
 
-type Phase = "spinning" | "slowing" | "winner" | "done";
+type Phase = "idle" | "spinning" | "slowing" | "winner" | "done";
+
+// Pulsing light dot component
+function LightDot({ index, isWon, total }: { index: number; isWon: boolean; total: number }) {
+  return (
+    <motion.div
+      className="rounded-full"
+      style={{
+        width: 8,
+        height: 8,
+      }}
+      animate={
+        isWon
+          ? {
+              backgroundColor: [
+                "hsl(var(--primary))",
+                "hsl(var(--destructive))",
+                "hsl(var(--gold))",
+                "hsl(var(--primary))",
+              ],
+              scale: [1, 1.4, 1],
+              opacity: [0.7, 1, 0.7],
+            }
+          : {
+              opacity: [0.3, 0.8, 0.3],
+              backgroundColor: "hsl(var(--muted-foreground) / 0.4)",
+            }
+      }
+      transition={
+        isWon
+          ? { duration: 0.6, repeat: Infinity, delay: index * 0.08 }
+          : { duration: 1.5, repeat: Infinity, delay: index * (1.5 / total) }
+      }
+    />
+  );
+}
 
 export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
   const [phase, setPhase] = useState<Phase>("spinning");
+  const [leverPulled, setLeverPulled] = useState(false);
 
-  // Build the reel: lots of fake names, winner placed near the end
   const reelNames = useMemo(() => {
     const names: string[] = [];
-    // ~40 names of spinning, then the winner
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 45; i++) {
       names.push(FAKE_NAMES[i % FAKE_NAMES.length]);
     }
     names.push(winnerName);
-    // A couple more after so the reel has content below
-    names.push(FAKE_NAMES[3], FAKE_NAMES[7]);
+    names.push(FAKE_NAMES[3]);
     return names;
   }, [winnerName]);
 
-  const winnerIndex = reelNames.length - 3; // the winner is 3rd from end
-  const finalOffset = -(winnerIndex - 1) * ITEM_HEIGHT; // center the winner in the 3-row window
+  const winnerIndex = reelNames.length - 2;
+  const finalOffset = -winnerIndex * ITEM_HEIGHT;
 
-  // Motion values for the reel position
   const reelY = useMotionValue(0);
-  const springY = useSpring(reelY, { stiffness: 80, damping: 18, mass: 1 });
+  const springY = useSpring(reelY, { stiffness: 60, damping: 14, mass: 1.2 });
   const tickRef = useRef(0);
 
-  // Play tick sounds as names pass
+  // Pull lever on mount
+  useEffect(() => {
+    const t = setTimeout(() => setLeverPulled(true), 200);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Tick sounds
   useEffect(() => {
     const unsub = reelY.on("change", (v) => {
       const currentSlot = Math.floor(Math.abs(v) / ITEM_HEIGHT);
       if (currentSlot !== tickRef.current) {
         tickRef.current = currentSlot;
-        if (phase === "spinning" || phase === "slowing") {
+        if (phase === "spinning") {
           playReelTick();
-          if (navigator.vibrate) navigator.vibrate(8);
+          if (navigator.vibrate) navigator.vibrate(6);
         }
       }
     });
     return unsub;
   }, [reelY, phase]);
 
-  // Animate the reel
+  // Main reel animation
   useEffect(() => {
     if (phase !== "spinning") return;
 
     let frame: number;
     let start: number | null = null;
-    const spinDuration = 2200; // total ms
-    const fastEnd = 800; // fast phase ms
+    const spinDuration = 2600;
+    const fastEnd = 1000;
     const totalDistance = Math.abs(finalOffset);
 
     const animate = (ts: number) => {
@@ -76,16 +113,13 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       const elapsed = ts - start;
       const progress = Math.min(elapsed / spinDuration, 1);
 
-      // Easing: fast start, dramatic slowdown
       let eased: number;
       if (elapsed < fastEnd) {
-        // Linear fast phase
-        eased = (elapsed / spinDuration) * 0.5;
+        eased = (elapsed / spinDuration) * 0.45;
       } else {
-        // Deceleration curve
         const slowProgress = (elapsed - fastEnd) / (spinDuration - fastEnd);
-        const decel = 1 - Math.pow(1 - slowProgress, 3);
-        eased = 0.5 + decel * 0.5;
+        const decel = 1 - Math.pow(1 - slowProgress, 3.5);
+        eased = 0.45 + decel * 0.55;
       }
 
       reelY.set(-eased * totalDistance);
@@ -93,7 +127,6 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       if (progress < 1) {
         frame = requestAnimationFrame(animate);
       } else {
-        // Snap to final with spring bounce
         setPhase("slowing");
         springY.set(finalOffset);
       }
@@ -103,7 +136,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
     return () => cancelAnimationFrame(frame);
   }, [phase, finalOffset, reelY, springY]);
 
-  // When spring settles → winner phase
+  // Spring settle → winner
   useEffect(() => {
     if (phase !== "slowing") return;
     const unsub = springY.on("change", (v) => {
@@ -111,8 +144,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
         setPhase("winner");
       }
     });
-    // Fallback timer
-    const t = setTimeout(() => setPhase("winner"), 800);
+    const t = setTimeout(() => setPhase("winner"), 1000);
     return () => { unsub(); clearTimeout(t); };
   }, [phase, springY, finalOffset]);
 
@@ -122,115 +154,242 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       fireEpicConfetti();
       playBigWin();
       if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
-      const t = setTimeout(() => setPhase("done"), 800);
+      const t = setTimeout(() => setPhase("done"), 1000);
       return () => clearTimeout(t);
     }
   }, [phase]);
 
   const isWon = phase === "winner" || phase === "done";
+  const lightCount = 12;
 
   return (
     <motion.div
-      className="fixed inset-0 z-[70] flex flex-col items-center justify-center px-6"
+      className="fixed inset-0 z-[70] flex flex-col items-center justify-center px-4"
       style={{ backgroundColor: "hsl(var(--background))" }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, y: -200 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Pot info */}
+      {/* Pot info above machine */}
       <motion.div
-        className="mb-6 text-center"
+        className="mb-4 text-center"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <motion.span
-          className="text-4xl block mb-2"
-          animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-          transition={{ duration: 0.6 }}
-        >
-          🎰
-        </motion.span>
         <p className="text-sm font-bold text-foreground">
           ${potAmount.toLocaleString()} pot · {playerCount} players
         </p>
       </motion.div>
 
-      {/* Status text */}
-      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
-        {isWon ? "🎉 Winner!" : "Selecting winner..."}
-      </p>
-
-      {/* Slot Machine Frame */}
-      <div
-        className="relative rounded-2xl p-[3px] shadow-lg"
-        style={{
-          background: "linear-gradient(135deg, hsl(var(--muted-foreground) / 0.4), hsl(var(--muted-foreground) / 0.15), hsl(var(--muted-foreground) / 0.4))",
-        }}
+      {/* Slot Machine Body */}
+      <motion.div
+        className="relative"
+        animate={
+          isWon
+            ? { rotate: [0, -1.5, 1.5, -1, 1, 0], scale: [1, 1.02, 1] }
+            : {}
+        }
+        transition={{ duration: 0.5 }}
       >
+        {/* Machine outer frame */}
         <div
-          className="relative rounded-[13px] overflow-hidden"
+          className="relative rounded-3xl p-[3px]"
           style={{
-            width: 280,
-            height: ITEM_HEIGHT * VISIBLE_COUNT,
-            backgroundColor: "hsl(var(--card))",
+            background: "linear-gradient(160deg, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.15), hsl(var(--muted-foreground) / 0.5))",
+            width: 260,
           }}
         >
-          {/* Reel strip */}
-          <motion.div
-            style={{ y: phase === "slowing" || isWon ? springY : reelY }}
+          <div
+            className="rounded-[21px] flex flex-col items-center overflow-hidden"
+            style={{
+              backgroundColor: "hsl(var(--card))",
+            }}
           >
-            {reelNames.map((name, i) => (
+            {/* JACKPOT label plate */}
+            <div
+              className="w-full py-2.5 text-center"
+              style={{
+                background: "linear-gradient(180deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05))",
+                borderBottom: "2px solid hsl(var(--primary) / 0.2)",
+              }}
+            >
+              <motion.p
+                className="text-xs font-black uppercase tracking-[0.3em] text-primary"
+                animate={
+                  isWon
+                    ? { scale: [1, 1.1, 1], opacity: [1, 0.7, 1] }
+                    : {}
+                }
+                transition={{ duration: 0.4, repeat: isWon ? 5 : 0 }}
+              >
+                {isWon ? "🎉 WINNER 🎉" : "JACKPOT"}
+              </motion.p>
+            </div>
+
+            {/* Decorative lights - top row */}
+            <div className="flex justify-center gap-3 py-2.5 w-full px-4">
+              {Array.from({ length: lightCount }).map((_, i) => (
+                <LightDot key={`top-${i}`} index={i} isWon={isWon} total={lightCount} />
+              ))}
+            </div>
+
+            {/* Status text */}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+              {isWon ? "Winner Selected!" : "Spinning..."}
+            </p>
+
+            {/* Reel window - single name */}
+            <div className="relative px-4 w-full">
               <div
-                key={`${name}-${i}`}
-                className="flex items-center justify-center font-extrabold"
+                className="relative rounded-xl overflow-hidden mx-auto"
                 style={{
                   height: ITEM_HEIGHT,
-                  fontSize: isWon && i === winnerIndex ? 26 : 22,
-                  color: isWon && i === winnerIndex
-                    ? "hsl(var(--primary))"
-                    : "hsl(var(--foreground))",
-                  transition: "color 0.3s, font-size 0.3s",
+                  width: "100%",
+                  backgroundColor: "hsl(var(--background))",
+                  border: "2px solid hsl(var(--border))",
+                  boxShadow: "inset 0 4px 12px hsl(var(--foreground) / 0.08)",
                 }}
               >
-                {name}
+                {/* Reel strip */}
+                <motion.div
+                  style={{ y: phase === "slowing" || isWon ? springY : reelY }}
+                >
+                  {reelNames.map((name, i) => (
+                    <div
+                      key={`${name}-${i}`}
+                      className="flex items-center justify-center font-extrabold"
+                      style={{
+                        height: ITEM_HEIGHT,
+                        fontSize: isWon && i === winnerIndex ? 22 : 18,
+                        color:
+                          isWon && i === winnerIndex
+                            ? "hsl(var(--primary))"
+                            : "hsl(var(--foreground))",
+                        transition: "color 0.3s, font-size 0.3s",
+                      }}
+                    >
+                      {name}
+                    </div>
+                  ))}
+                </motion.div>
+
+                {/* Winner glow overlay */}
+                {isWon && (
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none rounded-xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.3, 0] }}
+                    transition={{ duration: 0.8, repeat: 3 }}
+                    style={{
+                      background: "hsl(var(--primary) / 0.15)",
+                    }}
+                  />
+                )}
               </div>
-            ))}
+            </div>
+
+            {/* Decorative lights - bottom row */}
+            <div className="flex justify-center gap-3 py-2.5 w-full px-4">
+              {Array.from({ length: lightCount }).map((_, i) => (
+                <LightDot key={`bot-${i}`} index={i + lightCount} isWon={isWon} total={lightCount} />
+              ))}
+            </div>
+
+            {/* Base / bottom plate */}
+            <div
+              className="w-full py-3"
+              style={{
+                background: "linear-gradient(0deg, hsl(var(--muted) / 0.8), hsl(var(--muted) / 0.3))",
+                borderTop: "1px solid hsl(var(--border))",
+              }}
+            >
+              <div className="flex justify-center gap-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-full"
+                    style={{
+                      width: 6,
+                      height: 6,
+                      backgroundColor: "hsl(var(--muted-foreground) / 0.25)",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lever arm on the right */}
+        <div
+          className="absolute flex flex-col items-center"
+          style={{ right: -28, top: "35%" }}
+        >
+          {/* Lever rod */}
+          <motion.div
+            className="flex flex-col items-center origin-bottom"
+            animate={{ rotate: leverPulled ? 25 : 0 }}
+            transition={{ type: "spring", stiffness: 120, damping: 10, delay: 0.1 }}
+          >
+            {/* Lever ball */}
+            <motion.div
+              className="rounded-full mb-0.5"
+              style={{
+                width: 20,
+                height: 20,
+                background: "linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.7))",
+                boxShadow: "0 2px 6px hsl(var(--destructive) / 0.4)",
+              }}
+              animate={isWon ? { scale: [1, 1.2, 1] } : {}}
+              transition={{ duration: 0.3, repeat: isWon ? 3 : 0 }}
+            />
+            {/* Lever shaft */}
+            <div
+              className="rounded-full"
+              style={{
+                width: 6,
+                height: 50,
+                background: "linear-gradient(180deg, hsl(var(--muted-foreground) / 0.5), hsl(var(--muted-foreground) / 0.3))",
+              }}
+            />
           </motion.div>
-
-          {/* Top/bottom fade overlays */}
+          {/* Lever base */}
           <div
-            className="absolute inset-x-0 top-0 pointer-events-none"
+            className="rounded-full"
             style={{
-              height: ITEM_HEIGHT,
-              background: "linear-gradient(to bottom, hsl(var(--card)), transparent)",
-            }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 pointer-events-none"
-            style={{
-              height: ITEM_HEIGHT,
-              background: "linear-gradient(to top, hsl(var(--card)), transparent)",
-            }}
-          />
-
-          {/* Center selection line */}
-          <div
-            className="absolute inset-x-0 pointer-events-none"
-            style={{
-              top: ITEM_HEIGHT - 1,
-              height: ITEM_HEIGHT + 2,
-              borderTop: "2px solid hsl(var(--primary) / 0.5)",
-              borderBottom: "2px solid hsl(var(--primary) / 0.5)",
-              background: isWon ? "hsl(var(--primary) / 0.08)" : "transparent",
-              transition: "background 0.3s",
+              width: 14,
+              height: 8,
+              backgroundColor: "hsl(var(--muted-foreground) / 0.3)",
             }}
           />
         </div>
-      </div>
 
-      {/* Prize amount on winner */}
+        {/* Machine stand/base */}
+        <div className="flex justify-center mt-1">
+          <div
+            className="rounded-b-xl"
+            style={{
+              width: 200,
+              height: 12,
+              background: "linear-gradient(180deg, hsl(var(--muted-foreground) / 0.25), hsl(var(--muted-foreground) / 0.1))",
+            }}
+          />
+        </div>
+        <div className="flex justify-center">
+          <div
+            className="rounded-b-lg"
+            style={{
+              width: 230,
+              height: 6,
+              background: "linear-gradient(180deg, hsl(var(--muted-foreground) / 0.15), transparent)",
+            }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Prize reveal */}
       <AnimatePresence>
         {isWon && (
           <motion.div
@@ -257,7 +416,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring" }}
             onClick={onContinue}
-            className="mt-10 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+            className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
           >
             See Last Week's Recap
           </motion.button>
