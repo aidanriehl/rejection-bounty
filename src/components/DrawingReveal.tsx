@@ -255,7 +255,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
                         fontSize: isWon && i === winnerIndex ? 22 : 18,
                         color:
                           isWon && i === winnerIndex
-                            ? "hsl(var(--primary))"
+                            ? "hsl(45 90% 50%)"
                             : "hsl(var(--foreground))",
                         transition: "color 0.3s, font-size 0.3s",
                       }}
