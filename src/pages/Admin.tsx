@@ -111,13 +111,13 @@ export default function Admin() {
 
   const handleRandomDraw = () => {
     if (totalTickets === 0) return;
-    // Weighted random selection
     const pool: TicketEntry[] = [];
     tickets.forEach((t) => {
       for (let i = 0; i < t.tickets; i++) pool.push(t);
     });
     const winner = pool[Math.floor(Math.random() * pool.length)];
     setDrawnUser(winner);
+    setSelectedVideo(null);
   };
 
   const confirmWinner = async (userId: string, videoUrl?: string) => {
