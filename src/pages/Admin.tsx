@@ -45,6 +45,8 @@ export default function Admin() {
   const [prizeAmount, setPrizeAmount] = useState(0);
   const [drawing, setDrawing] = useState<any>(null);
   const [drawnUser, setDrawnUser] = useState<TicketEntry | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<CompletionWithVideo | null>(null);
+  const [previewVideo, setPreviewVideo] = useState<string | null>(null);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
 
