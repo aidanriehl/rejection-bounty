@@ -67,8 +67,22 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
   };
 
   return (
-    <AnimatePresence>
-      {!dismissed && (
+    <>
+      {/* Page 1: Drawing animation */}
+      <AnimatePresence>
+        {showDrawing && (
+          <DrawingReveal
+            potAmount={potAmount}
+            playerCount={playerCount}
+            winnerName={winnerName}
+            onContinue={() => setShowDrawing(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Page 2: Recap */}
+      <AnimatePresence>
+      {!dismissed && !showDrawing && (
         <motion.div
           ref={containerRef}
           className="fixed inset-0 z-[60] flex flex-col overflow-y-auto"
