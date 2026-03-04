@@ -32,13 +32,6 @@ const STEPS: TourStep[] = [
     description:
       "Upload a video of yourself completing a challenge. Subscribers are entered into the weekly cash lottery.",
   },
-  {
-    route: "/",
-    selector: '[data-tour="feed"]',
-    title: "Watch the community",
-    description:
-      "See how others are facing their fears. Like, learn, and get inspired.",
-  },
 ];
 
 interface Rect {
