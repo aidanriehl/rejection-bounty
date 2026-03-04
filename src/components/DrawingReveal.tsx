@@ -57,8 +57,14 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
 }
 
 export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
-  const [phase, setPhase] = useState<Phase>("spinning");
+  const [phase, setPhase] = useState<Phase>("idle");
   const [leverPulled, setLeverPulled] = useState(false);
+
+  const handleSpin = () => {
+    if (phase !== "idle") return;
+    setLeverPulled(true);
+    setPhase("spinning");
+  };
 
   const reelNames = useMemo(() => {
     const names: string[] = [];
