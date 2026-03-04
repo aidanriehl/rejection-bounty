@@ -17,37 +17,28 @@ const FAKE_NAMES = [
   "risky_rob", "audacious_amy", "intrepid_ian", "gallant_gina",
 ];
 
-type Phase = "intro" | "spinning" | "slowing" | "winner" | "done";
+type Phase = "spinning" | "slowing" | "winner" | "done";
 
 export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
-  const [phase, setPhase] = useState<Phase>("intro");
+  const [phase, setPhase] = useState<Phase>("spinning");
   const [currentName, setCurrentName] = useState(FAKE_NAMES[0]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const indexRef = useRef(0);
 
-  // Start the spin after intro
-  useEffect(() => {
-    if (phase === "intro") {
-      const t = setTimeout(() => setPhase("spinning"), 1800);
-      return () => clearTimeout(t);
-    }
-  }, [phase]);
-
-  // Fast spinning phase
+  // Fast spinning phase — starts immediately
   useEffect(() => {
     if (phase === "spinning") {
       playPop();
-      let speed = 60;
       const tick = () => {
         indexRef.current = (indexRef.current + 1) % FAKE_NAMES.length;
         setCurrentName(FAKE_NAMES[indexRef.current]);
       };
-      intervalRef.current = setInterval(tick, speed);
+      intervalRef.current = setInterval(tick, 60);
 
-      // After 2s, slow down
+      // After 800ms, slow down
       const slowTimer = setTimeout(() => {
         setPhase("slowing");
-      }, 2000);
+      }, 800);
 
       return () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -56,23 +47,22 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
     }
   }, [phase]);
 
-  // Slowing down phase — increasing intervals until winner
+  // Slowing down phase — ~1.2s with fewer steps
   useEffect(() => {
     if (phase !== "slowing") return;
 
     let speed = 100;
     let steps = 0;
-    const maxSteps = 12;
+    const maxSteps = 6;
 
     const doStep = () => {
       if (steps >= maxSteps) {
-        // Land on winner
         setCurrentName(winnerName);
         setPhase("winner");
         return;
       }
       steps++;
-      speed += 40 + steps * 15;
+      speed += 60 + steps * 25;
       indexRef.current = (indexRef.current + 1) % FAKE_NAMES.length;
       setCurrentName(steps === maxSteps - 1 ? winnerName : FAKE_NAMES[indexRef.current]);
       if (navigator.vibrate) navigator.vibrate(15);
@@ -103,44 +93,35 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       exit={{ opacity: 0, y: -200 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Intro */}
       <AnimatePresence mode="wait">
-        {phase === "intro" && (
+        <motion.div
+          key="spinner"
+          className="text-center w-full max-w-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {/* Pot info always visible */}
           <motion.div
-            key="intro"
-            className="text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="mb-6"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
           >
             <motion.span
-              className="text-6xl block mb-6"
+              className="text-4xl block mb-2"
               animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-              transition={{ duration: 0.8, delay: 0.5 }}
+              transition={{ duration: 0.6 }}
             >
               🎰
             </motion.span>
-            <h1 className="text-2xl font-extrabold text-foreground">
-              It's Drawing Time!
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-sm font-bold text-foreground">
               ${potAmount.toLocaleString()} pot · {playerCount} players
             </p>
           </motion.div>
-        )}
 
-        {/* Spinning / Slowing / Winner */}
-        {(phase === "spinning" || phase === "slowing" || phase === "winner" || phase === "done") && (
-          <motion.div
-            key="spinner"
-            className="text-center w-full max-w-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-8">
-              {phase === "winner" || phase === "done" ? "Winner!" : "Selecting winner..."}
-            </p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">
+            {phase === "winner" || phase === "done" ? "🎉 Winner!" : "Selecting winner..."}
+          </p>
 
             {/* Name display */}
             <div className="relative h-20 flex items-center justify-center overflow-hidden">
@@ -195,8 +176,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
                 </motion.button>
               )}
             </AnimatePresence>
-          </motion.div>
-        )}
+        </motion.div>
       </AnimatePresence>
     </motion.div>
   );
