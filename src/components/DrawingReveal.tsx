@@ -409,7 +409,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ delay: 0.3, type: "spring" }}
             onClick={handleSpin}
-            className="mt-8 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
             style={{
               background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
               color: "hsl(0 0% 100%)",
