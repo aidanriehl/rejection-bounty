@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check } from "lucide-react";
+import { mockChallenges } from "@/lib/mock-data";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 
