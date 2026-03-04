@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,9 +21,14 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, profile, loading, setProfile } = useAuth();
-  const [showTour, setShowTour] = useState(
-    () => localStorage.getItem("tour_pending") === "true"
-  );
+  const [showTour, setShowTour] = useState(false);
+
+  // React to profile changes — tour_pending is set in Setup before profile updates
+  useEffect(() => {
+    if (profile?.username && localStorage.getItem("tour_pending") === "true") {
+      setShowTour(true);
+    }
+  }, [profile]);
 
   const handleTourComplete = () => {
     localStorage.removeItem("tour_pending");
