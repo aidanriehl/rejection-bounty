@@ -229,10 +229,10 @@ export default function Profile() {
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg">🎯</span>
-              <span className="text-3xl font-extrabold text-foreground">{totalCompleted}/{ms.goal}</span>
-              <span className="text-lg font-semibold text-foreground">Challenges Completed</span>
+              <span className="text-3xl font-extrabold text-foreground">{totalCompleted}/8</span>
+              <span className="text-lg font-semibold text-foreground">This Week</span>
             </div>
-            <p className="text-[10px] text-muted-foreground/50 mt-1.5">{totalCompleted >= 5 ? Math.round((Math.floor(totalCompleted / 5) / 52) * 100) : 0}% Weeks Completed</p>
+            <p className="text-[10px] text-muted-foreground/50 mt-1.5">{totalCompleted >= 5 ? "✅ You're in the draw!" : `${5 - totalCompleted} more to qualify`}</p>
           </div>
         </div>
 
