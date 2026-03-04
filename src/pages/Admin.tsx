@@ -406,6 +406,13 @@ export default function Admin() {
                             } as any, { onConflict: "week_key" })
                             .select()
                             .single();
+                          // Send auto congratulations message
+                          await supabase.from("winner_messages").insert({
+                            week_key: weekKey,
+                            winner_user_id: drawnUser.user_id,
+                            sender: "admin",
+                            message: AUTO_MESSAGE,
+                          } as any);
                           setDrawnUser(null);
                           setShowEditor(false);
                           fetchData();
