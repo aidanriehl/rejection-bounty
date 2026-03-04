@@ -1,28 +1,9 @@
 import { lovable } from "@/integrations/lovable";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import useEmblaCarousel from "embla-carousel-react";
 
 const SPLASH_DURATION = 2200;
-
-const SLIDES = [
-  {
-    title: "Face your fears and win real cash prizes",
-    description:
-      "Complete rejection challenges each week to stay in the game and split the prize pool with other players.",
-  },
-  {
-    title: "Every Sunday, 8 new challenges drop",
-    description:
-      "Complete at least 5 out of 8 challenges before the week ends. Film yourself doing each one to prove it.",
-  },
-  {
-    title: "Build confidence while earning money",
-    description:
-      "Push past your comfort zone, grow as a person, and get paid for it. The more players, the bigger the pot.",
-  },
-];
 
 function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
@@ -49,74 +30,6 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
         </h1>
       </motion.div>
     </motion.div>
-  );
-}
-
-function TutorialCarousel({ onJoin, onLogin }: { onJoin: () => void; onLogin: () => void }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, containScroll: "trimSnaps" });
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setActiveIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on("select", onSelect);
-    return () => { emblaApi.off("select", onSelect); };
-  }, [emblaApi, onSelect]);
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      {/* Carousel */}
-      <div className="flex-1 overflow-hidden" ref={emblaRef}>
-        <div className="flex h-full">
-          {SLIDES.map((slide, i) => (
-            <div key={i} className="min-w-0 flex-[0_0_100%] px-6 pt-16">
-              <h2 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-foreground">
-                {slide.title}
-              </h2>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                {slide.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Dots */}
-      <div className="flex justify-center gap-2 pb-6">
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => emblaApi?.scrollTo(i)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === activeIndex
-                ? "w-6 bg-primary"
-                : "w-2 bg-muted-foreground/30"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Buttons */}
-      <div className="px-6 pb-10 space-y-3">
-        <button
-          onClick={onJoin}
-          disabled={activeIndex < SLIDES.length - 1}
-          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-md transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          Join Now
-        </button>
-        <button
-          onClick={onLogin}
-          className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-foreground/15 bg-card text-base font-bold text-foreground"
-        >
-          Login
-        </button>
-      </div>
-    </div>
   );
 }
 
@@ -155,7 +68,6 @@ function AuthScreen({ mode, onBack }: { mode: "join" | "login"; onBack: () => vo
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="fixed inset-0 z-40 flex flex-col bg-background"
     >
-      {/* Back button */}
       <div className="px-4 pt-4">
         <button
           onClick={onBack}
@@ -236,11 +148,30 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
+          className="flex min-h-screen flex-col items-center justify-center px-6 text-center"
         >
-          <TutorialCarousel
-            onJoin={() => setAuthScreen("join")}
-            onLogin={() => setAuthScreen("login")}
-          />
+          <span className="mb-4 text-7xl">🔥</span>
+          <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-foreground">
+            Rejection Bounty
+          </h1>
+          <p className="mb-12 text-base text-muted-foreground">
+            Face your fears. Win real cash.
+          </p>
+
+          <div className="w-full max-w-sm space-y-3">
+            <button
+              onClick={() => setAuthScreen("join")}
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-md"
+            >
+              Join Now
+            </button>
+            <button
+              onClick={() => setAuthScreen("login")}
+              className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-foreground/15 bg-card text-base font-bold text-foreground"
+            >
+              Login
+            </button>
+          </div>
         </motion.div>
       )}
 
