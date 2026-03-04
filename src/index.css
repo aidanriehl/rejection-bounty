@@ -140,9 +140,3 @@ html.dark body {
   display: none; /* Chrome/Safari */
 }
 
-/* Dark backdrop on wider screens */
-@media (min-width: 32.1rem) {
-  html {
-    background-color: hsl(0 0% 8%);
-  }
-}
