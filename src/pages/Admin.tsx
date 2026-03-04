@@ -8,11 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Users, Ticket, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Trophy, Users, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check, MessageCircle, Settings, History } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
+import WinnerMessageThread from "@/components/WinnerMessageThread";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
+const AUTO_MESSAGE = "Congrats on winning!!! As long as your bank account is linked in settings your funds should be on their way 🥳💰";
 
 interface TicketEntry {
   user_id: string;
@@ -28,6 +31,19 @@ interface CompletionWithVideo {
   challenge_id: string;
   video_url: string | null;
   week_key: string;
+}
+
+interface PastWinner {
+  id: string;
+  week_key: string;
+  winner_user_id: string;
+  winning_video_url: string | null;
+  thumbnail_url: string | null;
+  prize_amount: number;
+  status: string;
+  created_at: string;
+  username?: string;
+  avatar?: string;
 }
 
 function getAdminWeekKey() {
@@ -51,6 +67,11 @@ export default function Admin() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
+  const [messagingEnabled, setMessagingEnabled] = useState(true);
+  const [showMessageThread, setShowMessageThread] = useState(false);
+  const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
+  const [expandedPastWinner, setExpandedPastWinner] = useState<string | null>(null);
+  const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
 
   // Check admin access
   useEffect(() => {
@@ -106,6 +127,39 @@ export default function Admin() {
       .not("video_url", "is", null);
     setCompletions((comps as CompletionWithVideo[]) ?? []);
 
+    // Get app settings
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+    if (settings) setMessagingEnabled((settings as any).winner_messaging_enabled ?? true);
+
+    // Get past winners
+    const { data: pastDrawings } = await supabase
+      .from("weekly_drawings")
+      .select("*")
+      .eq("status", "complete")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (pastDrawings) {
+      const winnerIds = pastDrawings.map((d: any) => d.winner_user_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar")
+        .in("id", winnerIds);
+
+      const profileMap: Record<string, any> = {};
+      profiles?.forEach((p: any) => { profileMap[p.id] = p; });
+
+      setPastWinners(pastDrawings.map((d: any) => ({
+        ...d,
+        username: profileMap[d.winner_user_id]?.username ?? "Unknown",
+        avatar: profileMap[d.winner_user_id]?.avatar ?? "dragon",
+      })));
+    }
+
     setLoadingData(false);
   };
 
@@ -123,7 +177,6 @@ export default function Admin() {
   };
 
   const confirmWinner = async (userId: string, videoUrl?: string) => {
-    // Upsert weekly drawing
     const { data } = await supabase
       .from("weekly_drawings")
       .upsert({
@@ -136,9 +189,25 @@ export default function Admin() {
       .select()
       .single();
 
+    // Send auto congratulations message
+    await supabase.from("winner_messages").insert({
+      week_key: weekKey,
+      winner_user_id: userId,
+      sender: "admin",
+      message: AUTO_MESSAGE,
+    } as any);
+
     setDrawing(data);
     setDrawnUser(null);
     fetchData();
+  };
+
+  const toggleMessaging = async (enabled: boolean) => {
+    setMessagingEnabled(enabled);
+    await supabase
+      .from("app_settings")
+      .update({ winner_messaging_enabled: enabled, updated_at: new Date().toISOString() } as any)
+      .not("id", "is", null);
   };
 
   if (loading || isAdmin === null) {
@@ -337,6 +406,13 @@ export default function Admin() {
                             } as any, { onConflict: "week_key" })
                             .select()
                             .single();
+                          // Send auto congratulations message
+                          await supabase.from("winner_messages").insert({
+                            week_key: weekKey,
+                            winner_user_id: drawnUser.user_id,
+                            sender: "admin",
+                            message: AUTO_MESSAGE,
+                          } as any);
                           setDrawnUser(null);
                           setShowEditor(false);
                           fetchData();
@@ -450,6 +526,125 @@ export default function Admin() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Section 4: Settings */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Settings className="h-5 w-5 text-primary" />
+              Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+              <div>
+                <p className="text-sm font-bold text-foreground">Winner Messaging</p>
+                <p className="text-xs text-muted-foreground">Show gold banner to winners</p>
+              </div>
+              <Switch checked={messagingEnabled} onCheckedChange={toggleMessaging} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section 5: Message Current Winner */}
+        {drawing?.status === "complete" && drawing?.winner_user_id && (
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <MessageCircle className="h-5 w-5 text-primary" />
+                Message Winner
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl">
+                  {avatarEmoji(tickets.find(t => t.user_id === drawing.winner_user_id)?.avatar ?? "dragon")}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">
+                    {tickets.find(t => t.user_id === drawing.winner_user_id)?.username ?? "Winner"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{weekKey}</p>
+                </div>
+              </div>
+              <Button onClick={() => setShowMessageThread(true)} className="w-full">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Open Message Thread
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Section 6: Past Winners */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <History className="h-5 w-5 text-primary" />
+              Past Winners
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pastWinners.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No winners yet</p>
+            ) : (
+              <div className="space-y-2">
+                {pastWinners.map((pw) => {
+                  const weekNum = pw.week_key.split("-w")[1];
+                  const year = pw.week_key.split("-w")[0];
+                  const isExpanded = expandedPastWinner === pw.id;
+                  return (
+                    <div key={pw.id} className="rounded-lg border bg-card">
+                      <button
+                        onClick={() => setExpandedPastWinner(isExpanded ? null : pw.id)}
+                        className="w-full flex items-center gap-3 p-3 text-left"
+                      >
+                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
+                          {avatarEmoji(pw.avatar ?? "dragon")}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground truncate">{pw.username}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Week {weekNum}, {year} · ${Number(pw.prize_amount).toFixed(2)}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {pw.status === "complete" ? "Paid" : "Pending"}
+                        </Badge>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                      {isExpanded && (
+                        <div className="px-3 pb-3 space-y-2">
+                          {pw.thumbnail_url && (
+                            <img src={pw.thumbnail_url} alt="Winner thumbnail" className="w-full rounded-lg border" />
+                          )}
+                          {pw.winning_video_url && !pw.thumbnail_url && (
+                            <video src={pw.winning_video_url} className="w-full rounded-lg" controls />
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Drawn: {new Date(pw.created_at).toLocaleDateString()}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setPastWinnerThread(pw)}
+                          >
+                            <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
+                            View Message History
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Video Preview Dialog */}
@@ -460,6 +655,30 @@ export default function Admin() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Current winner message thread */}
+      {showMessageThread && drawing?.winner_user_id && (
+        <WinnerMessageThread
+          weekKey={weekKey}
+          userId={user!.id}
+          daysLeft={7}
+          onClose={() => setShowMessageThread(false)}
+          isAdmin
+          adminTargetUserId={drawing.winner_user_id}
+        />
+      )}
+
+      {/* Past winner message thread */}
+      {pastWinnerThread && (
+        <WinnerMessageThread
+          weekKey={pastWinnerThread.week_key}
+          userId={user!.id}
+          daysLeft={0}
+          onClose={() => setPastWinnerThread(null)}
+          isAdmin
+          adminTargetUserId={pastWinnerThread.winner_user_id}
+        />
+      )}
     </div>
   );
 }

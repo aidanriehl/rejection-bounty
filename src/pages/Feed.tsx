@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockFeedPosts, getWeeklyScore, type FeedPost } from "@/lib/mock-data";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import WinnerBanner from "@/components/WinnerBanner";
 
 const TABS = [
   { key: "week", label: "This Week" },
@@ -145,6 +146,10 @@ export default function Feed() {
 
   return (
     <div data-tour="feed" className="relative h-[calc(100dvh-4.5rem)] w-full overflow-hidden bg-black">
+      {/* Winner Banner */}
+      <div className="absolute top-0 inset-x-0 z-20 px-4 pt-2">
+        <WinnerBanner />
+      </div>
       {/* Tab bar overlay */}
       <div className="absolute top-0 inset-x-0 z-10 pt-9 px-4">
         <div className="flex items-center justify-center gap-6">
