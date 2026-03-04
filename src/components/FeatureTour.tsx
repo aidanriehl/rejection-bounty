@@ -123,8 +123,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             style={{
               zIndex: 2,
               ...(tooltipBelow
-                ? { top: rect.top + rect.height + 20 }
-                : { bottom: window.innerHeight - rect.top + 20 }),
+                ? { top: Math.min(rect.top + rect.height + 20, window.innerHeight - 220) }
+                : { top: Math.max(20, rect.top - 200) }),
             }}
           >
             {/* Arrow pointer */}
