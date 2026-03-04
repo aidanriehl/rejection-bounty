@@ -218,7 +218,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           {/* Continue button */}
           <div className="sticky bottom-0 pb-8 pt-4 flex flex-col items-center"
             style={{
-              background: "linear-gradient(0deg, hsl(164 72% 92%) 60%, transparent 100%)",
+              background: "linear-gradient(0deg, hsl(var(--background)) 60%, transparent 100%)",
             }}
           >
             <button
