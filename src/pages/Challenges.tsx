@@ -150,13 +150,13 @@ export default function Challenges() {
         {summaryDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
       </AnimatePresence>
 
-      <div className="min-h-screen pb-24 pt-6">
+      <div className="min-h-screen pb-24 pt-10">
         <div className="mx-auto max-w-lg px-4">
 
           {/* Countdown */}
-          <div data-tour="countdown" className="mb-5 text-center">
+          <div data-tour="countdown" className="mb-8 text-center">
             <p className="text-sm font-bold text-foreground">Time Left to Qualify</p>
-            <p className="text-xs text-muted-foreground mb-3">Deadline Sunday @ Midnight</p>
+            <p className="text-xs text-muted-foreground mb-4">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-4">
               <CountdownDigit value={countdown.days} label="Days" />
               <span className="text-xl font-bold text-muted-foreground/30 -mt-3">:</span>
@@ -167,7 +167,7 @@ export default function Challenges() {
           </div>
 
           {/* Premium Cards */}
-          <div data-tour="prize-pool" className="flex gap-3 mb-5">
+          <div data-tour="prize-pool" className="flex gap-3 mb-8">
             {/* Subscribers */}
             {isPremium ? (
                 <div data-tour="subscribers-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
@@ -208,7 +208,7 @@ export default function Challenges() {
           </div>
 
           {/* Progress */}
-          <div className="mb-5">
+          <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-bold text-foreground">
                 {completed}/5 completed
