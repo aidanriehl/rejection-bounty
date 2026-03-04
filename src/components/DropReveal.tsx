@@ -304,20 +304,6 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         ))}
       </motion.div>
 
-      {/* "LET'S GO" flash on final stage */}
-      <AnimatePresence>
-        {stage >= 3 && (
-          <motion.h1
-            className="absolute text-4xl font-extrabold tracking-tight text-primary"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-          >
-            LET'S GO 🔥
-          </motion.h1>
-        )}
-      </AnimatePresence>
 
       {/* Prompt text */}
       <motion.p
