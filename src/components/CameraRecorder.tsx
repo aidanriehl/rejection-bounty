@@ -185,7 +185,7 @@ export default function CameraRecorder({ onRecorded, onClose, challengeTitle }: 
         className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
       >
         <p className="mb-4 text-center text-white">Camera access is required to record.</p>
-        <p className="mb-6 text-center text-sm text-white/60">
+        <p className="mb-6 text-center text-sm text-white/60 max-w-[280px] mx-auto">
           Please enable camera permissions in your browser settings.
         </p>
         <button
