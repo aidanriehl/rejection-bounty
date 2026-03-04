@@ -112,7 +112,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.h1>
           </div>
 
-          {/* Drawing Card */}
+          {/* Winner Card (replaces old drawing countdown) */}
           <div className="px-4">
             <motion.div
               className="rounded-2xl border border-border bg-card shadow-sm px-5 py-4 text-center"
@@ -121,10 +121,11 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
               transition={{ delay: 0.4 }}
             >
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Drawing in {daysUntilDrawing} days
+                Last Week's Winner
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">$287 pot · 52 players</p>
-              <p className="mt-2 text-sm font-semibold text-primary">✓ You're in the draw (completed 5/8)</p>
+              <p className="mt-1.5 text-lg font-extrabold text-foreground">{winnerName}</p>
+              <p className="mt-1 text-sm text-muted-foreground">Won ${potAmount.toLocaleString()} · {playerCount} players</p>
+              <p className="mt-2 text-sm font-semibold text-primary">✓ You were in the draw (completed 5/8)</p>
             </motion.div>
           </div>
 
