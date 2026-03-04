@@ -184,6 +184,13 @@ export default function Profile() {
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
           <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+          <button
+            onClick={() => navigate("/friends")}
+            className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
+          >
+            <User className="h-3.5 w-3.5" />
+            Friends
+          </button>
         </div>
 
         {/* Photo action sheet */}
