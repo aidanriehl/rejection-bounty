@@ -227,7 +227,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
 
             {/* Status text */}
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
-              {isWon ? "Winner Selected!" : "Spinning..."}
+              {isWon ? "Winner Selected!" : phase === "idle" ? "Pull the lever or tap spin" : "Spinning..."}
             </p>
 
             {/* Reel window - single name */}
