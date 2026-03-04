@@ -2,7 +2,7 @@ import confetti from "canvas-confetti";
 
 /** Single task completion — side cannons burst */
 export function fireConfetti() {
-  const colors = ["#6C5CE7", "#00B894", "#74B9FF", "#A29BFE", "#55EFC4", "#81ECEC"];
+  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#E17055", "#74B9FF", "#FFD700"];
   const end = Date.now() + 700;
   const frame = () => {
     confetti({
