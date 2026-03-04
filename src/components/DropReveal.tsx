@@ -197,24 +197,19 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
       transition={{ duration: 0.5 }}
       onClick={handleTap}
     >
-      {/* Header */}
-      <motion.p
-        className="absolute top-16 text-sm font-semibold tracking-widest uppercase text-muted-foreground"
+      {/* Header text — positioned relative to the logo, not absolute top */}
+      <motion.div
+        className="mb-12 text-center"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        This Week's Challenges
-      </motion.p>
-
-      {/* Subtitle */}
-      <motion.p
-        className="absolute top-24 text-xs font-medium text-muted-foreground/70"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        8 new challenges await
-      </motion.p>
+        <p className="text-lg font-extrabold tracking-tight text-foreground">
+          This Week's Challenges
+        </p>
+        <p className="mt-1 text-sm font-medium text-muted-foreground">
+          8 new challenges await
+        </p>
+      </motion.div>
 
       {/* Glow behind logo */}
       <motion.div
