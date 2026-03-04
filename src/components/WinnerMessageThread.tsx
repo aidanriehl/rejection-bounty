@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
+  winner_user_id: string;
   sender: string;
   message: string;
   created_at: string;
