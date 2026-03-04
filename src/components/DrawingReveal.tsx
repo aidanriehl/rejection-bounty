@@ -2,11 +2,12 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { fireEpicConfetti } from "@/lib/confetti";
 import { playBigWin, playReelTick } from "@/lib/sounds";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DrawingRevealProps {
   potAmount: number;
   playerCount: number;
-  winnerName: string;
+  winnerName?: string;
   onContinue: () => void;
 }
 
@@ -54,12 +55,67 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
   );
 }
 
-export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
+export default function DrawingReveal({ potAmount, playerCount, winnerName: propWinnerName, onContinue }: DrawingRevealProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [leverPulled, setLeverPulled] = useState(false);
+  const [drawingStatus, setDrawingStatus] = useState<"pending" | "complete" | null>(null);
+  const [resolvedWinner, setResolvedWinner] = useState<string | null>(propWinnerName ?? null);
+
+  // Fetch drawing status for current week
+  useEffect(() => {
+    const fetchDrawing = async () => {
+      const now = new Date();
+      const jan1 = new Date(now.getFullYear(), 0, 1);
+      const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+      const weekKey = `${now.getFullYear()}-w${weekNum}`;
+
+      const { data } = await supabase
+        .from("weekly_drawings")
+        .select("*, profiles:winner_user_id(username)")
+        .eq("week_key", weekKey)
+        .maybeSingle();
+
+      if (data) {
+        setDrawingStatus(data.status as "pending" | "complete");
+        if (data.status === "complete" && (data as any).profiles?.username) {
+          setResolvedWinner((data as any).profiles.username);
+        }
+      } else {
+        setDrawingStatus("pending");
+      }
+    };
+    fetchDrawing();
+
+    // Realtime subscription
+    const channel = supabase
+      .channel("weekly_drawings_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "weekly_drawings" }, (payload) => {
+        const row = payload.new as any;
+        if (row?.status === "complete") {
+          setDrawingStatus("complete");
+          // Re-fetch to get joined username
+          supabase
+            .from("weekly_drawings")
+            .select("*, profiles:winner_user_id(username)")
+            .eq("id", row.id)
+            .maybeSingle()
+            .then(({ data: d }) => {
+              if (d && (d as any).profiles?.username) {
+                setResolvedWinner((d as any).profiles.username);
+              }
+            });
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const winnerName = resolvedWinner ?? "???";
 
   const handleSpin = () => {
     if (phase !== "idle") return;
+    if (drawingStatus === "pending") return; // Can't spin until winner is selected
     setLeverPulled(true);
     setPhase("spinning");
   };
@@ -408,7 +464,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
 
       {/* Spin / Continue button */}
       <AnimatePresence mode="wait">
-        {phase === "idle" && (
+        {phase === "idle" && drawingStatus === "complete" && (
           <motion.button
             key="spin"
             initial={{ opacity: 0, y: 20 }}
@@ -425,6 +481,17 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
           >
             🎰 Spin
           </motion.button>
+        )}
+        {phase === "idle" && drawingStatus === "pending" && (
+          <motion.div
+            key="pending"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, type: "spring" }}
+            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest text-muted-foreground bg-muted"
+          >
+            🕐 Drawing Soon
+          </motion.div>
         )}
         {phase === "done" && (
           <motion.button

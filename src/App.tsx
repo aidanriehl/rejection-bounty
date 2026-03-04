@@ -15,6 +15,7 @@ import FriendsPage from "@/pages/Friends";
 import NotFound from "./pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
+import Admin from "@/pages/Admin";
 import FeatureTour from "@/components/FeatureTour";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -84,6 +85,7 @@ function AppRoutes() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/post" element={<PostPage />} />
         <Route path="/friends" element={<FriendsPage />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/onboarding" element={<Navigate to="/" replace />} />
         <Route path="/setup" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />

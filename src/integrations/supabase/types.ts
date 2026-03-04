@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_completions: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          user_id: string
+          video_url: string | null
+          week_key: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+          video_url?: string | null
+          week_key: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          video_url?: string | null
+          week_key?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string
@@ -49,6 +76,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      prize_pool: {
+        Row: {
+          id: string
+          month: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          month: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          month?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -116,12 +164,72 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_drawings: {
+        Row: {
+          created_at: string
+          id: string
+          prize_amount: number
+          status: string
+          week_key: string
+          winner_user_id: string | null
+          winning_video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prize_amount?: number
+          status?: string
+          week_key: string
+          winner_user_id?: string | null
+          winning_video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prize_amount?: number
+          status?: string
+          week_key?: string
+          winner_user_id?: string | null
+          winning_video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_tickets: {
+        Args: { p_week_key: string }
+        Returns: {
+          avatar: string
+          tickets: number
+          user_id: string
+          username: string
+          video_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
