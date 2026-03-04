@@ -32,13 +32,6 @@ const STEPS: TourStep[] = [
     description:
       "Upload a video of yourself completing a challenge. Subscribers are entered into the weekly cash lottery.",
   },
-  {
-    route: "/",
-    selector: '[data-tour="feed"]',
-    title: "Watch the community",
-    description:
-      "See how others are facing their fears. Like, learn, and get inspired.",
-  },
 ];
 
 interface Rect {
@@ -130,8 +123,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             style={{
               zIndex: 2,
               ...(tooltipBelow
-                ? { top: rect.top + rect.height + 20 }
-                : { bottom: window.innerHeight - rect.top + 20 }),
+                ? { top: Math.min(rect.top + rect.height + 20, window.innerHeight - 220) }
+                : { top: Math.max(20, rect.top - 200) }),
             }}
           >
             {/* Arrow pointer */}
