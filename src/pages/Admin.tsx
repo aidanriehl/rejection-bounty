@@ -225,60 +225,95 @@ export default function Admin() {
                   className="w-full mb-4"
                 >
                   <Shuffle className="h-4 w-4 mr-2" />
-                  {drawing?.status === "complete" ? "Winner Already Selected" : "Draw Random Winner"}
+                  {drawing?.status === "complete" ? "Winner Already Selected" : drawnUser ? "Re-draw" : "Draw Random Winner"}
                 </Button>
 
                 {drawnUser && (
-                  <div className="rounded-xl border-2 border-primary bg-primary/5 p-4 space-y-3">
+                  <div className="rounded-xl border-2 border-primary bg-primary/5 p-4 space-y-4">
+                    {/* Winner info */}
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                        {drawnUser.avatar === "dragon" ? "🐉" :
-                         drawnUser.avatar === "fox" ? "🦊" :
-                         drawnUser.avatar === "owl" ? "🦉" :
-                         drawnUser.avatar === "cat" ? "🐱" : "🌳"}
+                        {avatarEmoji(drawnUser.avatar)}
                       </div>
                       <div>
                         <p className="font-bold text-foreground">{drawnUser.username}</p>
                         <p className="text-sm text-muted-foreground">
-                          {drawnUser.tickets} tickets ({drawnUser.video_count} videos)
+                          {drawnUser.tickets} tickets · {drawnUser.video_count} videos
                         </p>
                       </div>
                     </div>
 
-                    {/* Show their videos */}
+                    {/* Video grid */}
                     {getUserCompletions(drawnUser.user_id).length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
-                        {getUserCompletions(drawnUser.user_id).map((c) => (
-                          <div key={c.id} className="relative group">
-                            <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground overflow-hidden">
-                              {c.video_url ? (
-                                <video src={c.video_url} className="h-full w-full object-cover" />
-                              ) : (
-                                "No vid"
-                              )}
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] h-5 px-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => confirmWinner(drawnUser.user_id, c.video_url ?? undefined)}
-                            >
-                              Pick
-                            </Button>
-                          </div>
-                        ))}
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2">Their videos this week:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {getUserCompletions(drawnUser.user_id).map((c) => {
+                            const ch = getChallengeInfo(c.challenge_id);
+                            const isSelected = selectedVideo?.id === c.id;
+                            return (
+                              <div
+                                key={c.id}
+                                className={`rounded-lg border-2 overflow-hidden transition-colors ${
+                                  isSelected ? "border-primary bg-primary/10" : "border-border bg-muted"
+                                }`}
+                              >
+                                {/* Thumbnail */}
+                                <button
+                                  onClick={() => c.video_url && setPreviewVideo(c.video_url)}
+                                  className="relative w-full aspect-video bg-background flex items-center justify-center"
+                                >
+                                  {c.video_url ? (
+                                    <>
+                                      <video src={c.video_url} className="h-full w-full object-cover" />
+                                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                        <Play className="h-6 w-6 text-white fill-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">No video</span>
+                                  )}
+                                </button>
+                                {/* Challenge info + select */}
+                                <div className="p-2 space-y-1.5">
+                                  <p className="text-xs text-foreground truncate">
+                                    {ch.emoji} {ch.title}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant={isSelected ? "default" : "outline"}
+                                    className="w-full h-7 text-xs"
+                                    onClick={() => setSelectedVideo(isSelected ? null : c)}
+                                  >
+                                    {isSelected ? (
+                                      <><Check className="h-3 w-3 mr-1" /> Selected</>
+                                    ) : (
+                                      "Select This Video"
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex gap-2">
-                      <Button onClick={() => confirmWinner(drawnUser.user_id)} className="flex-1">
-                        <UserCheck className="h-4 w-4 mr-2" />
-                        Confirm as Winner
-                      </Button>
-                      <Button variant="outline" onClick={handleRandomDraw}>
-                        Re-draw
-                      </Button>
-                    </div>
+                    {/* Confirm / Re-draw */}
+                    {selectedVideo && (
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          onClick={() => confirmWinner(drawnUser.user_id, selectedVideo.video_url ?? undefined)}
+                          className="flex-1"
+                        >
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Confirm as Winner
+                        </Button>
+                        <Button variant="outline" onClick={handleRandomDraw}>
+                          Re-draw
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>
