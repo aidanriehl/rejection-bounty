@@ -152,6 +152,14 @@ export default function Admin() {
   const getUserCompletions = (userId: string) =>
     completions.filter((c) => c.user_id === userId);
 
+  const getChallengeInfo = (challengeId: string) => {
+    const ch = mockChallenges.find((c) => c.id === challengeId);
+    return ch ? { emoji: ch.emoji, title: ch.title } : { emoji: "🎯", title: `Challenge ${challengeId}` };
+  };
+
+  const avatarEmoji = (a: string) =>
+    a === "dragon" ? "🐉" : a === "fox" ? "🦊" : a === "owl" ? "🦉" : a === "cat" ? "🐱" : "🌳";
+
   return (
     <div className="min-h-screen pb-24 pt-6">
       <div className="mx-auto max-w-lg px-4">
