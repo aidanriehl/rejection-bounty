@@ -95,7 +95,7 @@ export default function Challenges() {
           fireEpicConfetti();
           playEpicWin();
           if (navigator.vibrate) navigator.vibrate([200, 80, 200, 80, 200, 80, 400]);
-        } else if (newCount === 5) {
+        } else if (newCount >= 5) {
           fireBigConfetti();
           playBigWin();
           if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
