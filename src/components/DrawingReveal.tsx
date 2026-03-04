@@ -240,6 +240,9 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
                   backgroundColor: "hsl(var(--background))",
                   border: "2px solid hsl(var(--border))",
                   boxShadow: "inset 0 4px 12px hsl(var(--foreground) / 0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {/* Reel strip */}
