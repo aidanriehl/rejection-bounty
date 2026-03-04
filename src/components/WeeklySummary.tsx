@@ -37,9 +37,12 @@ const mockTopVideos = [
   { username: "courage_queen", avatar: "cat" as AvatarType, avatarStage: 3 as AvatarStage, challenge: "Ask for someone's number", emoji: "📱" },
 ];
 
-const daysUntilDrawing = 3;
+const potAmount = 287;
+const playerCount = 52;
+const winnerName = "brave_sarah";
 
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
+  const [showDrawing, setShowDrawing] = useState(true);
   const [dismissed, setDismissed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const y = useMotionValue(0);
