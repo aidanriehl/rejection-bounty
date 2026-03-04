@@ -384,7 +384,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
           {/* Lever rod */}
           <motion.div
             className="flex flex-col items-center origin-bottom"
-            animate={{ rotate: leverPulled ? 25 : -90 }}
+            animate={{ rotate: leverPulled ? 35 : 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 10 }}
           >
             {/* Lever ball */}

@@ -191,6 +191,9 @@ export type Database = {
           id: string
           prize_amount: number
           status: string
+          thumbnail_url: string | null
+          trim_end: number | null
+          trim_start: number | null
           week_key: string
           winner_user_id: string | null
           winning_video_url: string | null
@@ -200,6 +203,9 @@ export type Database = {
           id?: string
           prize_amount?: number
           status?: string
+          thumbnail_url?: string | null
+          trim_end?: number | null
+          trim_start?: number | null
           week_key: string
           winner_user_id?: string | null
           winning_video_url?: string | null
@@ -209,6 +215,9 @@ export type Database = {
           id?: string
           prize_amount?: number
           status?: string
+          thumbnail_url?: string | null
+          trim_end?: number | null
+          trim_start?: number | null
           week_key?: string
           winner_user_id?: string | null
           winning_video_url?: string | null

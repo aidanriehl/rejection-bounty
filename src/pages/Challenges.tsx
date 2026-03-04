@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
 import DropReveal from "@/components/DropReveal";
+import WinnerShowcase from "@/pages/WinnerShowcase";
 
 const progressMessages: Record<number, string> = {
   1: "Great start!",
@@ -43,6 +44,7 @@ export default function Challenges() {
   const weekKey = getCurrentWeekKey();
   const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true" || localStorage.getItem("tour_pending") === "true");
+  const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>(() => {
     const saved = localStorage.getItem(`${weekKey}-completed`);
@@ -147,7 +149,15 @@ export default function Challenges() {
         {!summaryDone && <WeeklySummary onContinue={() => setSummaryDone(true)} />}
       </AnimatePresence>
       <AnimatePresence>
-        {summaryDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
+        {summaryDone && !showcaseDone && (
+          <WinnerShowcase onContinue={() => {
+            localStorage.setItem(`${weekKey}-showcase`, "true");
+            setShowcaseDone(true);
+          }} />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {summaryDone && showcaseDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
       </AnimatePresence>
 
       <div className="min-h-screen pb-24 pt-14">
