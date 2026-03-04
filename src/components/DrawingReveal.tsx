@@ -462,50 +462,41 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
         )}
       </AnimatePresence>
 
-      {/* Spin / Continue button */}
-      <AnimatePresence mode="wait">
-        {phase === "idle" && (
-          <motion.button
-            key="spin"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ delay: 0.3, type: "spring" }}
-            onClick={handleSpin}
-            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
-            style={{
-              background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
-              color: "hsl(0 0% 100%)",
-              boxShadow: "0 4px 20px hsl(45 90% 50% / 0.4)",
-            }}
-          >
-            🎰 Spin
-          </motion.button>
-        )}
-        {false && phase === "idle" && drawingStatus === "pending" && (
-          <motion.div
-            key="pending"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, type: "spring" }}
-            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest text-muted-foreground bg-muted"
-          >
-            🕐 Drawing Soon
-          </motion.div>
-        )}
-        {phase === "done" && (
-          <motion.button
-            key="continue"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, type: "spring" }}
-            onClick={onContinue}
-            className="mt-4 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
-          >
-            See Last Week's Recap
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Spin / Continue button — fixed height to prevent layout shift */}
+      <div className="h-16 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {phase === "idle" && (
+            <motion.button
+              key="spin"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              onClick={handleSpin}
+              className="rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              style={{
+                background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
+                color: "hsl(0 0% 100%)",
+                boxShadow: "0 4px 20px hsl(45 90% 50% / 0.4)",
+              }}
+            >
+              🎰 Spin
+            </motion.button>
+          )}
+          {phase === "done" && (
+            <motion.button
+              key="continue"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              onClick={onContinue}
+              className="rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+            >
+              See Last Week's Recap
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
