@@ -65,15 +65,19 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="flex min-h-screen flex-col items-center justify-center px-6 text-center"
+          className="fixed inset-0 flex flex-col items-center px-6 text-center"
+          style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          <span className="mb-4 text-7xl">🔥</span>
-          <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-foreground">
-            Rejection Bounty
-          </h1>
-          <p className="mb-8 text-base text-muted-foreground">
-            100 rejections will change your life
-          </p>
+          {/* Fixed-position header block so it never shifts */}
+          <div className="mt-[38vh] flex flex-col items-center">
+            <span className="mb-4 text-7xl">🔥</span>
+            <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
+              Rejection Bounty
+            </h1>
+            <p className="mb-8 text-base text-primary-foreground/60">
+              100 rejections will change your life
+            </p>
+          </div>
 
           <div className="w-full max-w-sm space-y-3">
             <AnimatePresence mode="wait">
@@ -88,13 +92,13 @@ export default function Onboarding() {
                 >
                   <button
                     onClick={() => setAuthMode("join")}
-                    className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-md"
+                    className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
                   >
                     Join Now
                   </button>
                   <button
                     onClick={() => setAuthMode("login")}
-                    className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-foreground/15 bg-card text-base font-bold text-foreground"
+                    className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-bold text-primary-foreground"
                   >
                     Login
                   </button>
@@ -111,7 +115,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => handleSignIn("google")}
                     disabled={loading !== null}
-                    className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border-2 border-foreground/10 bg-card text-base font-medium text-foreground disabled:opacity-50"
+                    className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 text-base font-medium text-primary-foreground disabled:opacity-50"
                   >
                     {loading === "google" ? (
                       <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -129,7 +133,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => handleSignIn("apple")}
                     disabled={loading !== null}
-                    className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border-2 border-foreground/10 bg-card text-base font-medium text-foreground disabled:opacity-50"
+                    className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 text-base font-medium text-primary-foreground disabled:opacity-50"
                   >
                     {loading === "apple" ? (
                       <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -141,13 +145,13 @@ export default function Onboarding() {
                     Continue with Apple
                   </button>
 
-                  <p className="pt-2 text-xs text-muted-foreground/60">
+                  <p className="pt-2 text-xs text-primary-foreground/40">
                     By continuing, you agree to our Terms & Privacy Policy.
                   </p>
 
                   <button
                     onClick={() => setAuthMode(null)}
-                    className="pt-1 text-sm font-medium text-muted-foreground"
+                    className="pt-1 text-sm font-medium text-primary-foreground/60"
                   >
                     Back
                   </button>
