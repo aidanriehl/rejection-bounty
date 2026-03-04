@@ -30,6 +30,7 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
         width: 8,
         height: 8,
       }}
+      initial={{ opacity: 1, backgroundColor: "hsl(var(--muted-foreground) / 0.15)" }}
       animate={
         isWon
           ? {
@@ -43,22 +44,28 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
               opacity: [0.7, 1, 0.7],
             }
           : {
-              opacity: [0.3, 0.8, 0.3],
-              backgroundColor: "hsl(var(--muted-foreground) / 0.4)",
+              opacity: 1,
+              backgroundColor: "hsl(var(--muted-foreground) / 0.15)",
             }
       }
       transition={
         isWon
           ? { duration: 0.6, repeat: Infinity, delay: index * 0.08 }
-          : { duration: 1.5, repeat: Infinity, delay: index * (1.5 / total) }
+          : { duration: 0 }
       }
     />
   );
 }
 
 export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
-  const [phase, setPhase] = useState<Phase>("spinning");
+  const [phase, setPhase] = useState<Phase>("idle");
   const [leverPulled, setLeverPulled] = useState(false);
+
+  const handleSpin = () => {
+    if (phase !== "idle") return;
+    setLeverPulled(true);
+    setPhase("spinning");
+  };
 
   const reelNames = useMemo(() => {
     const names: string[] = [];
@@ -77,11 +84,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
   const springY = useSpring(reelY, { stiffness: 60, damping: 14, mass: 1.2 });
   const tickRef = useRef(0);
 
-  // Pull lever on mount
-  useEffect(() => {
-    const t = setTimeout(() => setLeverPulled(true), 200);
-    return () => clearTimeout(t);
-  }, []);
+  // (lever is now pulled via handleSpin)
 
   // Tick sounds
   useEffect(() => {
@@ -408,10 +411,29 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
         )}
       </AnimatePresence>
 
-      {/* Continue button */}
-      <AnimatePresence>
+      {/* Spin / Continue button */}
+      <AnimatePresence mode="wait">
+        {phase === "idle" && (
+          <motion.button
+            key="spin"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ delay: 0.3, type: "spring" }}
+            onClick={handleSpin}
+            className="mt-8 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+            style={{
+              background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
+              color: "hsl(0 0% 100%)",
+              boxShadow: "0 4px 20px hsl(45 90% 50% / 0.4)",
+            }}
+          >
+            🎰 Spin
+          </motion.button>
+        )}
         {phase === "done" && (
           <motion.button
+            key="continue"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring" }}
