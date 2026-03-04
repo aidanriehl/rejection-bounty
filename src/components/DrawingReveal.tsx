@@ -29,8 +29,8 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
       style={{
         width: 8,
         height: 8,
+        backgroundColor: "hsl(var(--muted-foreground) / 0.15)",
       }}
-      initial={{ opacity: 1, backgroundColor: "hsl(var(--muted-foreground) / 0.15)" }}
       animate={
         isWon
           ? {
@@ -43,10 +43,7 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
               scale: [1, 1.4, 1],
               opacity: [0.7, 1, 0.7],
             }
-          : {
-              opacity: 1,
-              backgroundColor: "hsl(var(--muted-foreground) / 0.15)",
-            }
+          : {}
       }
       transition={
         isWon
@@ -166,13 +163,9 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
   const lightCount = 12;
 
   return (
-    <motion.div
+    <div
       className="fixed inset-0 z-[70] flex flex-col items-center justify-center px-4"
       style={{ backgroundColor: "hsl(var(--background))" }}
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -200 }}
-      transition={{ duration: 0.4 }}
     >
       {/* Pot info above machine */}
       <motion.div
@@ -187,15 +180,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       </motion.div>
 
       {/* Slot Machine Body */}
-      <motion.div
-        className="relative"
-        animate={
-          isWon
-            ? { rotate: [0, -1.5, 1.5, -1, 1, 0], scale: [1, 1.02, 1] }
-            : {}
-        }
-        transition={{ duration: 0.5 }}
-      >
+      <div className="relative">
         {/* Machine outer frame */}
         <div
           className="relative rounded-3xl p-[3px]"
@@ -240,7 +225,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
 
             {/* Status text */}
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
-              {isWon ? "Winner Selected!" : "Spinning..."}
+              {isWon ? "Winner Selected!" : phase === "idle" ? "Pull the lever or tap spin" : "Spinning..."}
             </p>
 
             {/* Reel window - single name */}
@@ -253,11 +238,20 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
                   backgroundColor: "hsl(var(--background))",
                   border: "2px solid hsl(var(--border))",
                   boxShadow: "inset 0 4px 12px hsl(var(--foreground) / 0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {/* Reel strip */}
                 <motion.div
-                  style={{ y: phase === "slowing" || isWon ? springY : reelY }}
+                  style={{ 
+                    y: phase === "slowing" || isWon ? springY : reelY,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                  }}
                 >
                   {reelNames.map((name, i) => (
                     <div
@@ -268,7 +262,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
                         fontSize: isWon && i === winnerIndex ? 22 : 18,
                         color:
                           isWon && i === winnerIndex
-                            ? "hsl(var(--primary))"
+                            ? "hsl(45 90% 50%)"
                             : "hsl(var(--foreground))",
                         transition: "color 0.3s, font-size 0.3s",
                       }}
@@ -325,16 +319,17 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
           </div>
         </div>
 
-        {/* Lever arm on the right */}
+        {/* Lever arm on the right - clickable */}
         <div
-          className="absolute flex flex-col items-center"
+          className="absolute flex flex-col items-center cursor-pointer"
           style={{ right: -28, top: "35%" }}
+          onClick={handleSpin}
         >
           {/* Lever rod */}
           <motion.div
             className="flex flex-col items-center origin-bottom"
-            animate={{ rotate: leverPulled ? 25 : 0 }}
-            transition={{ type: "spring", stiffness: 120, damping: 10, delay: 0.1 }}
+            animate={{ rotate: leverPulled ? 25 : -90 }}
+            transition={{ type: "spring", stiffness: 120, damping: 10 }}
           >
             {/* Lever ball */}
             <motion.div
@@ -390,7 +385,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             }}
           />
         </div>
-      </motion.div>
+      </div>
 
       {/* Prize reveal */}
       <AnimatePresence>
@@ -421,7 +416,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ delay: 0.3, type: "spring" }}
             onClick={handleSpin}
-            className="mt-8 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
             style={{
               background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
               color: "hsl(0 0% 100%)",
@@ -438,12 +433,12 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring" }}
             onClick={onContinue}
-            className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+            className="mt-4 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
           >
             See Last Week's Recap
           </motion.button>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
