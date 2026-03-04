@@ -328,7 +328,7 @@ export default function Profile() {
             <div className="flex items-center gap-3 mt-1.5">
               <p className="text-[10px] text-muted-foreground/50">Best Streak: {streak}</p>
               <span className="text-[10px] text-muted-foreground/30">·</span>
-              <p className="text-[10px] text-muted-foreground/50">0% weeks completed</p>
+              <p className="text-[10px] text-muted-foreground/50 text-right flex-1">0% weeks completed</p>
             </div>
           </div>
 
