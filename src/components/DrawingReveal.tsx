@@ -247,7 +247,13 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
               >
                 {/* Reel strip */}
                 <motion.div
-                  style={{ y: phase === "slowing" || isWon ? springY : reelY }}
+                  style={{ 
+                    y: phase === "slowing" || isWon ? springY : reelY,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                  }}
                 >
                   {reelNames.map((name, i) => (
                     <div
