@@ -182,15 +182,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
       </motion.div>
 
       {/* Slot Machine Body */}
-      <motion.div
-        className="relative"
-        animate={
-          isWon
-            ? { rotate: [0, -1.5, 1.5, -1, 1, 0], scale: [1, 1.02, 1] }
-            : {}
-        }
-        transition={{ duration: 0.5 }}
-      >
+      <div className="relative">
         {/* Machine outer frame */}
         <div
           className="relative rounded-3xl p-[3px]"
