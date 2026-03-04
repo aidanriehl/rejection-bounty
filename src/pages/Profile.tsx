@@ -63,12 +63,23 @@ export default function Profile() {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
+  const [friendCount, setFriendCount] = useState(0);
+
   const username = profile?.username || "Username";
   const avatar = (profile?.avatar || "dragon") as AvatarType;
   const avatarStage = (profile?.avatar_stage ?? 0) as AvatarStage;
   const streak = profile?.streak ?? 0;
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setFriendCount(count ?? 0));
+  }, [user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
