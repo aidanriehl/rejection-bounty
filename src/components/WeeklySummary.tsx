@@ -4,6 +4,7 @@ import { Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import DrawingReveal from "@/components/DrawingReveal";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 interface ChallengeResult {
@@ -36,9 +37,12 @@ const mockTopVideos = [
   { username: "courage_queen", avatar: "cat" as AvatarType, avatarStage: 3 as AvatarStage, challenge: "Ask for someone's number", emoji: "📱" },
 ];
 
-const daysUntilDrawing = 3;
+const potAmount = 287;
+const playerCount = 52;
+const winnerName = "brave_sarah";
 
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
+  const [showDrawing, setShowDrawing] = useState(true);
   const [dismissed, setDismissed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const y = useMotionValue(0);
@@ -63,8 +67,22 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
   };
 
   return (
-    <AnimatePresence>
-      {!dismissed && (
+    <>
+      {/* Page 1: Drawing animation */}
+      <AnimatePresence>
+        {showDrawing && (
+          <DrawingReveal
+            potAmount={potAmount}
+            playerCount={playerCount}
+            winnerName={winnerName}
+            onContinue={() => setShowDrawing(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Page 2: Recap */}
+      <AnimatePresence>
+      {!dismissed && !showDrawing && (
         <motion.div
           ref={containerRef}
           className="fixed inset-0 z-[60] flex flex-col overflow-y-auto"
@@ -94,7 +112,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.h1>
           </div>
 
-          {/* Drawing Card */}
+          {/* Winner Card (replaces old drawing countdown) */}
           <div className="px-4">
             <motion.div
               className="rounded-2xl border border-border bg-card shadow-sm px-5 py-4 text-center"
@@ -103,10 +121,11 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
               transition={{ delay: 0.4 }}
             >
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Drawing in {daysUntilDrawing} days
+                Last Week's Winner
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">$287 pot · 52 players</p>
-              <p className="mt-2 text-sm font-semibold text-primary">✓ You're in the draw (completed 5/8)</p>
+              <p className="mt-1.5 text-lg font-extrabold text-foreground">{winnerName}</p>
+              <p className="mt-1 text-sm text-muted-foreground">Won ${potAmount.toLocaleString()} · {playerCount} players</p>
+              <p className="mt-2 text-sm font-semibold text-primary">✓ You were in the draw (completed 5/8)</p>
             </motion.div>
           </div>
 
@@ -230,6 +249,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }
