@@ -67,9 +67,9 @@ export function fireBigConfetti() {
   frame();
 }
 
-/** ULTRA 8/8 LEGEND — royal confetti explosion */
+/** ULTRA 8/8 LEGEND — royal gold confetti explosion */
 export function fireEpicConfetti() {
-  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE", "#55EFC4"];
+  const colors = ["#FFD700", "#DAA520", "#B8860B", "#CD9B1D", "#EEC900", "#CFB53B", "#C5B358"];
 
   // Massive initial starburst
   confetti({
