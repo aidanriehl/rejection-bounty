@@ -204,9 +204,6 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         animate={{ opacity: 1, y: 0 }}
       >
         <p className="text-xl font-extrabold tracking-tight text-foreground">
-          This Week's Challenges
-        </p>
-        <p className="mt-1 text-sm font-medium text-muted-foreground">
           8 new challenges await
         </p>
       </motion.div>
