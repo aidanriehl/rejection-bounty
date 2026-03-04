@@ -91,7 +91,7 @@ export default function Challenges() {
       );
       if (!challenge.completed) {
         const newCount = getCompletedCount(next);
-        if (newCount === 10) {
+        if (newCount === 8) {
           fireEpicConfetti();
           playEpicWin();
           if (navigator.vibrate) navigator.vibrate([200, 80, 200, 80, 200, 80, 400]);
