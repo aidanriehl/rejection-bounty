@@ -68,7 +68,7 @@ export default function Onboarding() {
           className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          <div className="-mt-16 flex flex-col items-center">
+          <div className="-mt-28 flex flex-col items-center">
             <span className="mb-4 text-7xl">🔥</span>
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
