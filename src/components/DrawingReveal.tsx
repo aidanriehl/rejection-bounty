@@ -36,10 +36,10 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
         isWon
           ? {
               backgroundColor: [
-                "hsl(var(--primary))",
-                "hsl(var(--destructive))",
-                "hsl(var(--gold))",
-                "hsl(var(--primary))",
+                "hsl(45 90% 50%)",
+                "hsl(38 85% 40%)",
+                "hsl(50 95% 60%)",
+                "hsl(45 90% 50%)",
               ],
               scale: [1, 1.4, 1],
               opacity: [0.7, 1, 0.7],
