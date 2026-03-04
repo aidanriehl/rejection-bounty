@@ -62,10 +62,10 @@ function AuthScreen({ mode, onBack }: { mode: "join" | "login"; onBack: () => vo
 
   return (
     <motion.div
-      initial={{ x: "100%" }}
-      animate={{ x: 0 }}
-      exit={{ x: "100%" }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       className="fixed inset-0 z-40 flex flex-col bg-background"
     >
       <div className="px-4 pt-4">
