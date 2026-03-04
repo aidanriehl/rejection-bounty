@@ -118,26 +118,38 @@ export function playBigWin() {
   } catch {}
 }
 
-/** ULTRA 8/8 LEGEND — royal castle entrance, herald trumpets + celebration */
+/** ULTRA 8/8 LEGEND — MASSIVE royal fanfare + timpani + celebration */
 export function playEpicWin() {
   try {
     const a = ctx();
     const t = a.currentTime;
 
+    // Master compressor for loudness
+    const comp = a.createDynamicsCompressor();
+    comp.threshold.setValueAtTime(-10, t);
+    comp.knee.setValueAtTime(10, t);
+    comp.ratio.setValueAtTime(4, t);
+    comp.attack.setValueAtTime(0.003, t);
+    comp.release.setValueAtTime(0.1, t);
+    
+    const masterGain = a.createGain();
+    masterGain.gain.setValueAtTime(1.8, t);
+    masterGain.connect(comp);
+    comp.connect(a.destination);
+
     // Bright brass stab helper — punchy, immediate, warm
     const trumpetStab = (freq: number, start: number, dur: number, vol: number) => {
-      [1, 2, 3, 4, 5].forEach((h, i) => {
-        const vols = [1, 0.7, 0.4, 0.25, 0.12];
+      [1, 2, 3, 4, 5, 6].forEach((h, i) => {
+        const vols = [1, 0.7, 0.5, 0.35, 0.2, 0.1];
         const o = a.createOscillator();
         const g = a.createGain();
-        o.type = "sine";
+        o.type = i < 3 ? "sine" : "sawtooth";
         o.frequency.setValueAtTime(freq * h, start);
-        o.detune.value = Math.random() * 4 - 2;
+        o.detune.value = Math.random() * 6 - 3;
         o.connect(g);
-        g.connect(a.destination);
+        g.connect(masterGain);
         g.gain.setValueAtTime(0, start);
-        // Quick attack — punchy, not slow
-        g.gain.linearRampToValueAtTime(vol * vols[i], start + 0.015);
+        g.gain.linearRampToValueAtTime(vol * vols[i], start + 0.012);
         g.gain.setValueAtTime(vol * vols[i], start + dur * 0.75);
         g.gain.exponentialRampToValueAtTime(0.001, start + dur);
         o.start(start);
@@ -145,30 +157,88 @@ export function playEpicWin() {
       });
     };
 
+    // TIMPANI ROLL — dramatic buildup
+    const timpaniHit = (start: number, vol: number) => {
+      const buf = a.createBuffer(1, a.sampleRate * 0.4, a.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let j = 0; j < buf.length; j++) {
+        const env = Math.pow(1 - j / buf.length, 1.5);
+        data[j] = Math.sin(2 * Math.PI * 80 * j / a.sampleRate) * env +
+                   Math.sin(2 * Math.PI * 120 * j / a.sampleRate) * env * 0.5 +
+                   (Math.random() * 2 - 1) * env * 0.08;
+      }
+      const src = a.createBufferSource();
+      src.buffer = buf;
+      const g = a.createGain();
+      g.gain.setValueAtTime(vol, start);
+      src.connect(g);
+      g.connect(masterGain);
+      src.start(start);
+      src.stop(start + 0.4);
+    };
+
+    // Timpani hits before fanfare
+    timpaniHit(t, 0.5);
+    timpaniHit(t + 0.15, 0.6);
+    timpaniHit(t + 0.25, 0.7);
+
     // HERALD FANFARE — bold, immediate, royal announcement
-    // "BA-BA BA-BAAAA BA-BA BA-BAAAA" (classic royal herald)
-    const f = t;
-    trumpetStab(392, f, 0.12, 0.055);         // G4 — short
-    trumpetStab(392, f + 0.14, 0.12, 0.055);  // G4 — short
-    trumpetStab(523, f + 0.28, 0.12, 0.06);   // C5 — short
-    trumpetStab(659, f + 0.42, 0.4, 0.065);   // E5 — HELD (the announcement!)
+    const f = t + 0.35;
+    trumpetStab(392, f, 0.12, 0.09);
+    trumpetStab(392, f + 0.14, 0.12, 0.09);
+    trumpetStab(523, f + 0.28, 0.12, 0.10);
+    trumpetStab(659, f + 0.42, 0.4, 0.11);
 
-    trumpetStab(523, f + 0.9, 0.12, 0.055);   // C5 — short
-    trumpetStab(659, f + 1.04, 0.12, 0.06);   // E5 — short
-    trumpetStab(784, f + 1.18, 0.5, 0.065);   // G5 — HELD HIGH (triumph!)
+    trumpetStab(523, f + 0.9, 0.12, 0.09);
+    trumpetStab(659, f + 1.04, 0.12, 0.10);
+    trumpetStab(784, f + 1.18, 0.5, 0.11);
 
-    // SECOND TRUMPET — harmony, slightly delayed for richness
-    trumpetStab(262, f + 0.01, 0.12, 0.035);
-    trumpetStab(262, f + 0.15, 0.12, 0.035);
-    trumpetStab(330, f + 0.29, 0.12, 0.04);
-    trumpetStab(392, f + 0.43, 0.4, 0.045);
-    trumpetStab(330, f + 0.91, 0.12, 0.035);
-    trumpetStab(392, f + 1.05, 0.12, 0.04);
-    trumpetStab(523, f + 1.19, 0.5, 0.045);
+    // SECOND TRUMPET — harmony
+    trumpetStab(262, f + 0.01, 0.12, 0.06);
+    trumpetStab(262, f + 0.15, 0.12, 0.06);
+    trumpetStab(330, f + 0.29, 0.12, 0.07);
+    trumpetStab(392, f + 0.43, 0.4, 0.075);
+    trumpetStab(330, f + 0.91, 0.12, 0.06);
+    trumpetStab(392, f + 1.05, 0.12, 0.07);
+    trumpetStab(523, f + 1.19, 0.5, 0.075);
 
-    // CELEBRATION CHORD — big, warm, joyful (the party!)
+    // THIRD TRUMPET — low power octave for grandeur
+    trumpetStab(196, f + 0.02, 0.12, 0.05);
+    trumpetStab(196, f + 0.16, 0.12, 0.05);
+    trumpetStab(262, f + 0.30, 0.12, 0.055);
+    trumpetStab(330, f + 0.44, 0.4, 0.06);
+    trumpetStab(262, f + 0.92, 0.12, 0.05);
+    trumpetStab(330, f + 1.06, 0.12, 0.055);
+    trumpetStab(392, f + 1.20, 0.5, 0.06);
+
+    // BASS BOOM on the announcement hit
+    timpaniHit(f + 0.42, 0.8);
+    timpaniHit(f + 1.18, 0.9);
+
+    // CYMBAL CRASH
+    const crashStart = f + 1.18;
+    const crashBuf = a.createBuffer(1, a.sampleRate * 1.5, a.sampleRate);
+    const crashData = crashBuf.getChannelData(0);
+    for (let j = 0; j < crashBuf.length; j++) {
+      crashData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / crashBuf.length, 1.2);
+    }
+    const crashSrc = a.createBufferSource();
+    crashSrc.buffer = crashBuf;
+    const crashFilter = a.createBiquadFilter();
+    crashFilter.type = "highpass";
+    crashFilter.frequency.value = 3000;
+    const crashGain = a.createGain();
+    crashGain.gain.setValueAtTime(0.25, crashStart);
+    crashGain.gain.exponentialRampToValueAtTime(0.005, crashStart + 1.5);
+    crashSrc.connect(crashFilter);
+    crashFilter.connect(crashGain);
+    crashGain.connect(masterGain);
+    crashSrc.start(crashStart);
+    crashSrc.stop(crashStart + 1.5);
+
+    // CELEBRATION CHORD — massive, warm, joyful
     const partyStart = f + 1.75;
-    [262, 330, 392, 523, 659, 784, 1047].forEach((freq) => {
+    [131, 196, 262, 330, 392, 523, 659, 784, 1047, 1319].forEach((freq) => {
       const o = a.createOscillator();
       const o2 = a.createOscillator();
       const g = a.createGain();
@@ -179,48 +249,48 @@ export function playEpicWin() {
       o2.frequency.setValueAtTime(freq, partyStart);
       o.connect(g);
       o2.connect(g);
-      g.connect(a.destination);
+      g.connect(masterGain);
       g.gain.setValueAtTime(0, partyStart);
-      g.gain.linearRampToValueAtTime(0.03, partyStart + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.001, partyStart + 1.2);
+      g.gain.linearRampToValueAtTime(0.06, partyStart + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, partyStart + 1.5);
       o.start(partyStart);
       o2.start(partyStart);
-      o.stop(partyStart + 1.2);
-      o2.stop(partyStart + 1.2);
+      o.stop(partyStart + 1.5);
+      o2.stop(partyStart + 1.5);
     });
 
-    // SPARKLE RAIN — like confetti sounds, bright little pings
+    // SPARKLE RAIN — bright celebration pings
     const sparkleStart = f + 1.9;
-    [2093, 2637, 3136, 2349, 3520, 2793, 4186].forEach((freq, i) => {
+    [2093, 2637, 3136, 2349, 3520, 2793, 4186, 3520, 2637, 4186].forEach((freq, i) => {
       const o = a.createOscillator();
       const g = a.createGain();
       o.type = "sine";
       o.connect(g);
-      g.connect(a.destination);
-      const s = sparkleStart + i * 0.09;
+      g.connect(masterGain);
+      const s = sparkleStart + i * 0.07;
       o.frequency.setValueAtTime(freq, s);
       g.gain.setValueAtTime(0, s);
-      g.gain.linearRampToValueAtTime(0.07, s + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, s + 0.2);
+      g.gain.linearRampToValueAtTime(0.12, s + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, s + 0.25);
       o.start(s);
-      o.stop(s + 0.2);
+      o.stop(s + 0.25);
     });
 
-    // BASS BOOM on the announcement hit
-    const boomBuf = a.createBuffer(1, a.sampleRate * 0.25, a.sampleRate);
-    const boomData = boomBuf.getChannelData(0);
-    for (let j = 0; j < boomBuf.length; j++) {
-      boomData[j] = Math.sin(2 * Math.PI * 55 * j / a.sampleRate) * Math.pow(1 - j / boomBuf.length, 2);
-    }
-    const boomSrc = a.createBufferSource();
-    boomSrc.buffer = boomBuf;
-    const bg = a.createGain();
-    bg.gain.setValueAtTime(0.3, f + 0.42);
-    bg.gain.exponentialRampToValueAtTime(0.005, f + 0.9);
-    boomSrc.connect(bg);
-    bg.connect(a.destination);
-    boomSrc.start(f + 0.42);
-    boomSrc.stop(f + 0.9);
+    // FINAL TRIUMPHANT CHORD
+    const finalStart = f + 2.5;
+    [262, 330, 392, 523, 784, 1047].forEach((freq) => {
+      const o = a.createOscillator();
+      const g = a.createGain();
+      o.type = "sine";
+      o.connect(g);
+      g.connect(masterGain);
+      o.frequency.setValueAtTime(freq, finalStart);
+      g.gain.setValueAtTime(0, finalStart);
+      g.gain.linearRampToValueAtTime(0.05, finalStart + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, finalStart + 1.8);
+      o.start(finalStart);
+      o.stop(finalStart + 1.8);
+    });
   } catch {}
 }
 /** Cascade / pieces clicking into place */

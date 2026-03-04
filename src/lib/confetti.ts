@@ -97,12 +97,18 @@ export function fireEpicConfetti() {
     });
   }, 300);
 
-  // Multi-source cannons for 2 seconds
+  // Multi-source cannons for 2 seconds — sides + bottom
   const end = Date.now() + 2000;
   const frame = () => {
+    // Side cannons
     confetti({ particleCount: 8, angle: 60, spread: 90, origin: { x: 0, y: 0.4 }, colors, startVelocity: 40, ticks: 120 });
     confetti({ particleCount: 8, angle: 120, spread: 90, origin: { x: 1, y: 0.4 }, colors, startVelocity: 40, ticks: 120 });
+    // Top rain
     confetti({ particleCount: 4, angle: 90, spread: 160, origin: { x: 0.5, y: 0 }, colors, startVelocity: 25, ticks: 120 });
+    // Bottom-left cannon shooting up
+    confetti({ particleCount: 6, angle: 70, spread: 60, origin: { x: 0.2, y: 1 }, colors, startVelocity: 50, gravity: 1.2, ticks: 140 });
+    // Bottom-right cannon shooting up
+    confetti({ particleCount: 6, angle: 110, spread: 60, origin: { x: 0.8, y: 1 }, colors, startVelocity: 50, gravity: 1.2, ticks: 140 });
     if (Date.now() < end) requestAnimationFrame(frame);
   };
   frame();
