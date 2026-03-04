@@ -138,7 +138,7 @@ export default function WinnerShowcase({ onContinue }: WinnerShowcaseProps) {
         <div className="h-14 w-14 rounded-full flex items-center justify-center"
           style={{ backgroundColor: "hsl(var(--primary) / 0.1)" }}
         >
-          <AvatarDisplay avatar={winner.avatar} stage={0} size={48} />
+          <AvatarDisplay avatar={winner.avatar as any} stage={0 as any} size="lg" />
         </div>
         <div>
           <p className="text-xl font-extrabold text-foreground">{winner.username}</p>
