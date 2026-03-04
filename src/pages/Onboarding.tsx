@@ -65,11 +65,10 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex flex-col items-center px-6 text-center"
+          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          {/* Fixed-position header block so it never shifts */}
-          <div className="mt-[38vh] flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <span className="mb-4 text-7xl">🔥</span>
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
