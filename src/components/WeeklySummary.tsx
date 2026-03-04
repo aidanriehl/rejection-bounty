@@ -125,7 +125,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
               </p>
               <p className="mt-1.5 text-lg font-extrabold text-foreground">{winnerName}</p>
               <p className="mt-1 text-sm text-muted-foreground">Won ${potAmount.toLocaleString()} · {playerCount} players</p>
-              <p className="mt-2 text-sm font-semibold text-primary">✓ You were in the draw (completed 5/8)</p>
+              
             </motion.div>
           </div>
 
