@@ -113,20 +113,21 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.h1>
           </div>
 
-          {/* Winner Card (replaces old drawing countdown) */}
+          {/* Winner Card */}
           <div className="px-4">
             <motion.div
-              className="rounded-2xl border border-border bg-card shadow-sm px-5 py-4 text-center"
+              className="rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/5 to-card shadow-sm px-5 py-5 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, type: "spring" }}
             >
+              <span className="text-3xl block mb-2">🏆</span>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Last Week's Winner
               </p>
-              <p className="mt-1.5 text-lg font-extrabold text-foreground">{winnerName}</p>
-              <p className="mt-1 text-sm text-muted-foreground">Won ${potAmount.toLocaleString()} · {playerCount} players</p>
-              
+              <p className="mt-2 text-xl font-extrabold text-foreground">{winnerName}</p>
+              <p className="mt-1 text-2xl font-extrabold text-primary">${potAmount.toLocaleString()}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{playerCount} players entered</p>
             </motion.div>
           </div>
 
