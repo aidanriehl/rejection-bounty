@@ -194,9 +194,11 @@ export default function Challenges() {
             {/* Prize Pool */}
             {isPremium ? (
               <div data-tour="prize-pool-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
-                <Trophy className="h-5 w-5 text-muted-foreground mb-2" />
-                <p className="text-3xl font-extrabold tracking-tight">${prizePool.toLocaleString()}</p>
-                <p className="text-xs font-semibold text-muted-foreground mt-0.5">Prize Pool</p>
+                <p className="text-3xl font-bold tracking-tight">${prizePool.toLocaleString()}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
+                  <p className="text-xs font-semibold text-muted-foreground">Prize Pool</p>
+                </div>
               </div>
             ) : (
               <button
