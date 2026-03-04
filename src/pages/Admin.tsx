@@ -424,6 +424,15 @@ export default function Admin() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Video Preview Dialog */}
+      <Dialog open={!!previewVideo} onOpenChange={() => setPreviewVideo(null)}>
+        <DialogContent className="max-w-sm p-2">
+          {previewVideo && (
+            <video src={previewVideo} controls autoPlay className="w-full rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
