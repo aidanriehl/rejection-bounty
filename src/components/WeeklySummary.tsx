@@ -69,15 +69,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           ref={containerRef}
           className="fixed inset-0 z-[60] flex flex-col overflow-y-auto"
           style={{
-            background: `linear-gradient(
-              135deg,
-              hsl(164 72% 92%) 0%,
-              hsl(180 40% 96%) 25%,
-              hsl(200 30% 95%) 50%,
-              hsl(164 50% 94%) 75%,
-              hsl(140 40% 95%) 100%
-            )`,
-            backgroundAttachment: "fixed",
+            backgroundColor: "hsl(var(--background))",
             y,
             opacity,
           }}
