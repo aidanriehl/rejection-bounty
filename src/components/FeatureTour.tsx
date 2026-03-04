@@ -169,32 +169,24 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             })()}
 
             <h2 className="text-lg font-bold text-foreground mb-1">{current.title}</h2>
-            <p className="text-sm text-muted-foreground mb-4">{current.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{current.description}</p>
 
-            {/* Step dots */}
+            {/* Step dots + Next */}
             <div className="flex items-center justify-between">
               <div className="flex gap-1.5">
                 {STEPS.map((_, i) => (
                   <div
                     key={i}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === step ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30"
+                    className={`h-1.5 w-1.5 rounded-full transition-all ${
+                      i === step ? "bg-primary" : "bg-muted-foreground/30"
                     }`}
                   />
                 ))}
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={skip}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Skip
-                </button>
-                <Button size="sm" onClick={next} className="rounded-full px-5">
-                  {step === STEPS.length - 1 ? "Got it! 🎉" : "Next"}
-                </Button>
-              </div>
+              <Button size="sm" onClick={next} className="rounded-full px-5">
+                {step === STEPS.length - 1 ? "Got it! 🎉" : "Next"}
+              </Button>
             </div>
           </motion.div>
         )}
