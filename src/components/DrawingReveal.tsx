@@ -29,8 +29,6 @@ function LightDot({ index, isWon, total }: { index: number; isWon: boolean; tota
       style={{
         width: 8,
         height: 8,
-      }}
-      style={{
         backgroundColor: "hsl(var(--muted-foreground) / 0.15)",
       }}
       animate={
