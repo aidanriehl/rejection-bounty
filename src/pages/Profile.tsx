@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, Users, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,12 +63,23 @@ export default function Profile() {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
+  const [friendCount, setFriendCount] = useState(0);
+
   const username = profile?.username || "Username";
   const avatar = (profile?.avatar || "dragon") as AvatarType;
   const avatarStage = (profile?.avatar_stage ?? 0) as AvatarStage;
   const streak = profile?.streak ?? 0;
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setFriendCount(count ?? 0));
+  }, [user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -176,6 +187,16 @@ export default function Profile() {
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
           <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+
+          {/* Friends link */}
+          <button
+            onClick={() => navigate("/friends")}
+            className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-foreground transition-colors active:bg-muted/70"
+          >
+            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>{friendCount} Friends</span>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
         </div>
 
         {/* Photo action sheet */}
