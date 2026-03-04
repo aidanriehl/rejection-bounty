@@ -328,3 +328,60 @@ export function playCascade(count = 10, durationMs = 800) {
     }
   } catch {}
 }
+
+/** Satisfying "thud" — deep hit + woody knock, pitched by index for cascade feel */
+export function playBrickLand(index: number) {
+  try {
+    const a = ctx();
+    const t = a.currentTime;
+
+    // Deep sub-bass thud
+    const subOsc = a.createOscillator();
+    const subGain = a.createGain();
+    subOsc.type = "sine";
+    subOsc.frequency.setValueAtTime(80 + index * 8, t);
+    subOsc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+    subGain.gain.setValueAtTime(0.35, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    subOsc.connect(subGain);
+    subGain.connect(a.destination);
+    subOsc.start(t);
+    subOsc.stop(t + 0.15);
+
+    // Woody "knock" — short noise burst through a resonant filter
+    const bufSize = a.sampleRate * 0.04;
+    const buf = a.createBuffer(1, bufSize, a.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let j = 0; j < bufSize; j++) {
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 6);
+    }
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    const bp = a.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 800 + index * 120; // pitch up each successive brick
+    bp.Q.value = 8;
+    const knockGain = a.createGain();
+    knockGain.gain.setValueAtTime(0.3, t);
+    knockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    src.connect(bp);
+    bp.connect(knockGain);
+    knockGain.connect(a.destination);
+    src.start(t);
+    src.stop(t + 0.06);
+
+    // Bright "ping" overtone — satisfying high-end click
+    const pingOsc = a.createOscillator();
+    const pingGain = a.createGain();
+    pingOsc.type = "sine";
+    pingOsc.frequency.setValueAtTime(1200 + index * 150, t);
+    pingGain.gain.setValueAtTime(0.08, t);
+    pingGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    pingOsc.connect(pingGain);
+    pingGain.connect(a.destination);
+    pingOsc.start(t);
+    pingOsc.stop(t + 0.08);
+
+    if (navigator.vibrate) navigator.vibrate(20);
+  } catch {}
+}

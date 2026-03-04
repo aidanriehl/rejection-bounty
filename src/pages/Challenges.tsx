@@ -5,7 +5,7 @@ import { Check, Crown, Trophy, Upload, Users, Video, FolderOpen, RotateCcw, Box 
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
-import { playPop, playBigWin, playEpicWin, playCascade } from "@/lib/sounds";
+import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
 import { toast } from "@/hooks/use-toast";
 import CameraRecorder from "@/components/CameraRecorder";
 import { useAuth } from "@/hooks/useAuth";
@@ -265,12 +265,15 @@ export default function Challenges() {
               {dropRevealed && challenges.map((challenge, i) => (
                 <motion.div
                   key={challenge.id}
-                  initial={justRevealed ? { opacity: 0, y: -600, scale: 0.95 } : false}
+                  initial={justRevealed ? { opacity: 0, y: -300, scale: 0.3 } : false}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={justRevealed
-                    ? { delay: i * 0.15, type: "spring", stiffness: 400, damping: 28 }
+                    ? { delay: i * 0.18, type: "spring", stiffness: 350, damping: 22 }
                     : { duration: 0 }
                   }
+                  onAnimationComplete={() => {
+                    if (justRevealed) playBrickLand(i);
+                  }}
                   className={cn(
                     "group flex items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all",
                     challenge.completed
