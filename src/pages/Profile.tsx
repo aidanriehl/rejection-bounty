@@ -261,7 +261,7 @@ export default function Profile() {
                 <X className="h-4 w-4" />
               </button>
 
-              <h2 className="mb-6 text-2xl font-extrabold text-foreground leading-tight">
+              <h2 className="mb-6 text-2xl font-extrabold text-primary leading-tight">
                 Why get rejected?
               </h2>
 
@@ -274,7 +274,7 @@ export default function Profile() {
                   You can remain tongue-tied, stay comfortable, and survive fine.
                 </p>
 
-                <p className="font-semibold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                   But we know life can be so much more than that.
                 </p>
 
@@ -290,11 +290,9 @@ export default function Profile() {
                   So your brain pulls you away from anything that risks rejection — a conversation, a pitch, an audition.
                 </p>
 
-                <p className="font-semibold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                   That threat is gone, but the alarm isn't.
                 </p>
-
-                <hr className="border-border my-2" />
 
                 <p>
                   What people don't realize though is that rejection is a muscle we can work just like anything else.
@@ -308,12 +306,12 @@ export default function Profile() {
                   Start small and have consistency, and 100 rejections later you'll become completely unphased of them.
                 </p>
 
-                <p className="text-lg font-bold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                   And remember that danger is real but fear isn't.
                 </p>
 
-                <p className="text-xl font-extrabold text-primary text-center py-2">
-                  It's made up and it's a muscle that gets trained 💪
+                <p className="text-lg font-extrabold text-foreground">
+                  It's made up and it's a muscle that gets trained
                 </p>
               </div>
               </motion.div>
