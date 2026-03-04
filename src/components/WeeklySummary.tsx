@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import { Play, ChevronRight } from "lucide-react";
+import { Play, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -13,6 +13,7 @@ interface ChallengeResult {
   completedBy: number;
   totalUsers: number;
   takeRate: number;
+  userCompleted: boolean;
 }
 
 interface WeeklySummaryProps {
@@ -20,14 +21,14 @@ interface WeeklySummaryProps {
 }
 
 const mockChallengeResults: ChallengeResult[] = [
-  { title: "Ask a stranger for a high-five", emoji: "🖐️", completedBy: 1423, totalUsers: 1832, takeRate: 77.6 },
-  { title: "Compliment someone's outfit", emoji: "👗", completedBy: 1201, totalUsers: 1832, takeRate: 65.6 },
-  { title: "Request a discount at a store", emoji: "💰", completedBy: 987, totalUsers: 1832, takeRate: 53.9 },
-  { title: "Sing in public for 10 seconds", emoji: "🎤", completedBy: 734, totalUsers: 1832, takeRate: 40.1 },
-  { title: "Dance in an elevator", emoji: "🕺", completedBy: 612, totalUsers: 1832, takeRate: 33.4 },
-  { title: "Ask for a free coffee", emoji: "☕", completedBy: 498, totalUsers: 1832, takeRate: 27.2 },
-  { title: "Ask to cut in line", emoji: "🚶", completedBy: 345, totalUsers: 1832, takeRate: 18.8 },
-  { title: "Ask for someone's number", emoji: "📱", completedBy: 234, totalUsers: 1832, takeRate: 12.8 },
+  { title: "Ask a stranger for a high-five", emoji: "🖐️", completedBy: 1423, totalUsers: 1832, takeRate: 77.6, userCompleted: true },
+  { title: "Compliment someone's outfit", emoji: "👗", completedBy: 1201, totalUsers: 1832, takeRate: 65.6, userCompleted: true },
+  { title: "Request a discount at a store", emoji: "💰", completedBy: 987, totalUsers: 1832, takeRate: 53.9, userCompleted: false },
+  { title: "Sing in public for 10 seconds", emoji: "🎤", completedBy: 734, totalUsers: 1832, takeRate: 40.1, userCompleted: true },
+  { title: "Dance in an elevator", emoji: "🕺", completedBy: 612, totalUsers: 1832, takeRate: 33.4, userCompleted: true },
+  { title: "Ask for a free coffee", emoji: "☕", completedBy: 498, totalUsers: 1832, takeRate: 27.2, userCompleted: false },
+  { title: "Ask to cut in line", emoji: "🚶", completedBy: 345, totalUsers: 1832, takeRate: 18.8, userCompleted: true },
+  { title: "Ask for someone's number", emoji: "📱", completedBy: 234, totalUsers: 1832, takeRate: 12.8, userCompleted: false },
 ];
 
 const mockTopVideos = [
@@ -146,15 +147,26 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                   onClick={() => handleChallengeClick(challenge.title)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 w-full text-left transition-colors active:bg-muted/50",
-                    i !== mockChallengeResults.length - 1 && "border-b border-border/50"
+                    i !== mockChallengeResults.length - 1 && "border-b border-border/50",
+                    challenge.userCompleted && "bg-primary/5"
                   )}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + i * 0.05 }}
                 >
-                  <span className="text-lg w-8 text-center">{challenge.emoji}</span>
+                  <div className="relative w-8 text-center">
+                    <span className="text-lg">{challenge.emoji}</span>
+                    {challenge.userCompleted && (
+                      <div className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary">
+                        <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground/70 truncate">{challenge.title}</p>
+                    <p className={cn(
+                      "text-xs font-medium truncate",
+                      challenge.userCompleted ? "text-foreground" : "text-foreground/70"
+                    )}>{challenge.title}</p>
                     <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
                       <motion.div
                         className="h-full rounded-full"
