@@ -1,17 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, UserPlus, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 interface FriendProfile {
@@ -26,15 +20,15 @@ interface FriendProfile {
 export default function FriendsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
   const [friends, setFriends] = useState<FriendProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<FriendProfile[]>([]);
   const [searching, setSearching] = useState(false);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const isSearching = query.trim().length > 0;
 
   // Fetch friends list
   const fetchFriends = useCallback(async () => {
@@ -64,9 +58,9 @@ export default function FriendsPage() {
     fetchFriends();
   }, [fetchFriends]);
 
-  // Search users
+  // Search all users when query is non-empty
   useEffect(() => {
-    if (!searchQuery.trim() || !user) {
+    if (!query.trim() || !user) {
       setSearchResults([]);
       return;
     }
@@ -75,14 +69,14 @@ export default function FriendsPage() {
       const { data } = await supabase
         .from("profiles")
         .select("id, username, avatar, avatar_stage, streak, profile_photo_url")
-        .ilike("username", `%${searchQuery.trim()}%`)
+        .ilike("username", `%${query.trim()}%`)
         .neq("id", user.id)
         .limit(20);
       setSearchResults((data as FriendProfile[]) ?? []);
       setSearching(false);
     }, 300);
     return () => clearTimeout(timeout);
-  }, [searchQuery, user]);
+  }, [query, user]);
 
   const handleFollow = async (friendId: string) => {
     if (!user) return;
@@ -121,9 +115,12 @@ export default function FriendsPage() {
     setActionLoading(null);
   };
 
-  const filtered = friends.filter((f) =>
-    (f.username ?? "").toLowerCase().includes(search.toLowerCase())
+  const filteredFriends = friends.filter((f) =>
+    (f.username ?? "").toLowerCase().includes(query.toLowerCase())
   );
+
+  // Which list to render
+  const displayList = isSearching ? searchResults : filteredFriends;
 
   return (
     <div className="min-h-screen pb-24 pt-4">
@@ -138,150 +135,98 @@ export default function FriendsPage() {
           </button>
           <h1 className="text-lg font-bold text-foreground">Friends</h1>
           <span className="text-sm text-muted-foreground">{friends.length}</span>
-          <div className="flex-1" />
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowAddModal(true)}
-            className="gap-1.5"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add
-          </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-4">
+        {/* Search — searches friends when idle, all users when typing */}
+        <div className="relative mb-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search friends"
-            className="w-full rounded-lg bg-muted py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search friends or find new people"
+            className="w-full rounded-xl bg-muted py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
-        {/* Friends list */}
-        {loading ? (
+        {/* Context label */}
+        {isSearching && (
+          <p className="mb-2 mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Search results
+          </p>
+        )}
+        {!isSearching && friends.length > 0 && (
+          <p className="mb-2 mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Following
+          </p>
+        )}
+
+        {/* List */}
+        {loading && !isSearching ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
+        ) : searching ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : displayList.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-sm text-muted-foreground">
+              {isSearching
+                ? "No users found"
+                : friends.length === 0
+                ? "No friends yet — search to find people!"
+                : "No friends match your search"}
+            </p>
+          </div>
         ) : (
           <div className="space-y-0">
-            {filtered.map((friend) => (
-              <div
-                key={friend.id}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left"
-              >
-                <AvatarDisplay
-                  avatar={friend.avatar as AvatarType}
-                  stage={friend.avatar_stage as AvatarStage}
-                  size="md"
-                  photoUrl={friend.profile_photo_url}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">
-                    {friend.username ?? "user"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {friend.streak > 0
-                      ? `🔥 ${friend.streak} week streak`
-                      : "No active streak"}
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-xs text-destructive"
-                  disabled={actionLoading === friend.id}
-                  onClick={() => handleUnfollow(friend.id)}
+            {displayList.map((person) => {
+              const isFollowed = followedIds.has(person.id);
+              return (
+                <div
+                  key={person.id}
+                  className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5"
                 >
-                  Unfollow
-                </Button>
-              </div>
-            ))}
-            {filtered.length === 0 && !loading && (
-              <div className="py-16 text-center">
-                <p className="text-sm text-muted-foreground">
-                  {friends.length === 0
-                    ? "No friends yet — tap Add to find people!"
-                    : "No friends found"}
-                </p>
-              </div>
-            )}
+                  <AvatarDisplay
+                    avatar={person.avatar as AvatarType}
+                    stage={person.avatar_stage as AvatarStage}
+                    size="md"
+                    photoUrl={person.profile_photo_url}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {person.username ?? "user"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {person.streak > 0
+                        ? `🔥 ${person.streak} week streak`
+                        : "No active streak"}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={isFollowed ? "outline" : "default"}
+                    disabled={actionLoading === person.id}
+                    onClick={() =>
+                      isFollowed ? handleUnfollow(person.id) : handleFollow(person.id)
+                    }
+                    className="min-w-[80px] text-xs"
+                  >
+                    {actionLoading === person.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : isFollowed ? (
+                      "Following"
+                    ) : (
+                      "Follow"
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
-
-      {/* Add Friends Modal */}
-      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Find Friends</DialogTitle>
-          </DialogHeader>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by username"
-              autoFocus
-              className="w-full rounded-lg bg-muted py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-          <div className="max-h-72 overflow-y-auto">
-            {searching && (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              </div>
-            )}
-            {!searching && searchResults.length === 0 && searchQuery.trim() && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No users found
-              </p>
-            )}
-            {!searching &&
-              searchResults.map((u) => {
-                const isFollowed = followedIds.has(u.id);
-                return (
-                  <div
-                    key={u.id}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2.5"
-                  >
-                    <AvatarDisplay
-                      avatar={u.avatar as AvatarType}
-                      stage={u.avatar_stage as AvatarStage}
-                      size="sm"
-                      photoUrl={u.profile_photo_url}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-foreground">
-                        {u.username ?? "user"}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant={isFollowed ? "outline" : "default"}
-                      disabled={actionLoading === u.id}
-                      onClick={() =>
-                        isFollowed ? handleUnfollow(u.id) : handleFollow(u.id)
-                      }
-                      className="min-w-[80px] text-xs"
-                    >
-                      {actionLoading === u.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : isFollowed ? (
-                        "Following"
-                      ) : (
-                        "Follow"
-                      )}
-                    </Button>
-                  </div>
-                );
-              })}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
