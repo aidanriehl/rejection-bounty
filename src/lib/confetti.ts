@@ -26,43 +26,37 @@ export function fireConfetti() {
   frame();
 }
 
-/** 5/10 Goal reached — screen-filling confetti storm */
+/** 5+ Goal reached — bigger confetti burst (only ~0.3s longer than regular) */
 export function fireBigConfetti() {
-  const colors = ["#FFD700", "#FFA500", "#FF4500", "#6C5CE7", "#00B894", "#E17055", "#FF69B4"];
+  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE"];
   confetti({
-    particleCount: 150,
+    particleCount: 100,
     spread: 360,
     origin: { x: 0.5, y: 0.4 },
     colors,
-    startVelocity: 45,
-    gravity: 0.8,
-    ticks: 300,
+    startVelocity: 40,
+    gravity: 0.9,
+    ticks: 140,
   });
-  const end = Date.now() + 1500;
+  const end = Date.now() + 700;
   const frame = () => {
     confetti({
-      particleCount: 8,
+      particleCount: 6,
       angle: 60,
       spread: 80,
       origin: { x: 0, y: 0.5 },
       colors,
       startVelocity: 35,
+      ticks: 140,
     });
     confetti({
-      particleCount: 8,
+      particleCount: 6,
       angle: 120,
       spread: 80,
       origin: { x: 1, y: 0.5 },
       colors,
       startVelocity: 35,
-    });
-    confetti({
-      particleCount: 4,
-      angle: 90,
-      spread: 120,
-      origin: { x: 0.5, y: 0 },
-      colors,
-      startVelocity: 25,
+      ticks: 140,
     });
     if (Date.now() < end) requestAnimationFrame(frame);
   };
