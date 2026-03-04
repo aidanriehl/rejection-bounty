@@ -17,37 +17,28 @@ const FAKE_NAMES = [
   "risky_rob", "audacious_amy", "intrepid_ian", "gallant_gina",
 ];
 
-type Phase = "intro" | "spinning" | "slowing" | "winner" | "done";
+type Phase = "spinning" | "slowing" | "winner" | "done";
 
 export default function DrawingReveal({ potAmount, playerCount, winnerName, onContinue }: DrawingRevealProps) {
-  const [phase, setPhase] = useState<Phase>("intro");
+  const [phase, setPhase] = useState<Phase>("spinning");
   const [currentName, setCurrentName] = useState(FAKE_NAMES[0]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const indexRef = useRef(0);
 
-  // Start the spin after intro
-  useEffect(() => {
-    if (phase === "intro") {
-      const t = setTimeout(() => setPhase("spinning"), 1800);
-      return () => clearTimeout(t);
-    }
-  }, [phase]);
-
-  // Fast spinning phase
+  // Fast spinning phase — starts immediately
   useEffect(() => {
     if (phase === "spinning") {
       playPop();
-      let speed = 60;
       const tick = () => {
         indexRef.current = (indexRef.current + 1) % FAKE_NAMES.length;
         setCurrentName(FAKE_NAMES[indexRef.current]);
       };
-      intervalRef.current = setInterval(tick, speed);
+      intervalRef.current = setInterval(tick, 60);
 
-      // After 2s, slow down
+      // After 800ms, slow down
       const slowTimer = setTimeout(() => {
         setPhase("slowing");
-      }, 2000);
+      }, 800);
 
       return () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -56,23 +47,22 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
     }
   }, [phase]);
 
-  // Slowing down phase — increasing intervals until winner
+  // Slowing down phase — ~1.2s with fewer steps
   useEffect(() => {
     if (phase !== "slowing") return;
 
     let speed = 100;
     let steps = 0;
-    const maxSteps = 12;
+    const maxSteps = 6;
 
     const doStep = () => {
       if (steps >= maxSteps) {
-        // Land on winner
         setCurrentName(winnerName);
         setPhase("winner");
         return;
       }
       steps++;
-      speed += 40 + steps * 15;
+      speed += 60 + steps * 25;
       indexRef.current = (indexRef.current + 1) % FAKE_NAMES.length;
       setCurrentName(steps === maxSteps - 1 ? winnerName : FAKE_NAMES[indexRef.current]);
       if (navigator.vibrate) navigator.vibrate(15);
