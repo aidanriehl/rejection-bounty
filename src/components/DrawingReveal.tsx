@@ -482,7 +482,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
             🎰 Spin
           </motion.button>
         )}
-        {phase === "idle" && drawingStatus === "pending" && (
+        {false && phase === "idle" && drawingStatus === "pending" && (
           <motion.div
             key="pending"
             initial={{ opacity: 0, y: 20 }}
