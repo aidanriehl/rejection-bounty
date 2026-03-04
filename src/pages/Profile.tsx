@@ -220,7 +220,7 @@ export default function Profile() {
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg">🔥</span>
               <span className="text-3xl font-extrabold text-foreground">{streak}</span>
-              <span className="text-lg font-semibold text-foreground">Day Streak</span>
+              <span className="text-lg font-semibold text-foreground">Week Streak</span>
             </div>
             <p className="text-[10px] text-muted-foreground/50 mt-1.5">Best Streak: {streak}</p>
           </div>
