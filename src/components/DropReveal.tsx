@@ -190,8 +190,7 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
     <motion.div
       className="fixed inset-0 z-[60] flex flex-col items-center justify-center"
       style={{
-        background:
-          "linear-gradient(135deg, hsl(164 72% 92%) 0%, hsl(180 40% 96%) 25%, hsl(200 30% 95%) 50%, hsl(164 50% 94%) 75%, hsl(140 40% 95%) 100%)",
+        backgroundColor: "hsl(var(--background))",
       }}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
