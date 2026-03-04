@@ -464,7 +464,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
 
       {/* Spin / Continue button */}
       <AnimatePresence mode="wait">
-        {phase === "idle" && (
+        {phase === "idle" && drawingStatus === "complete" && (
           <motion.button
             key="spin"
             initial={{ opacity: 0, y: 20 }}
@@ -481,6 +481,17 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
           >
             🎰 Spin
           </motion.button>
+        )}
+        {phase === "idle" && drawingStatus === "pending" && (
+          <motion.div
+            key="pending"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, type: "spring" }}
+            className="mt-4 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest text-muted-foreground bg-muted"
+          >
+            🕐 Drawing Soon
+          </motion.div>
         )}
         {phase === "done" && (
           <motion.button
