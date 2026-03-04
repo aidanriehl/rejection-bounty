@@ -69,49 +69,42 @@ export function fireBigConfetti() {
   frame();
 }
 
-/** ULTRA 10/10 LEGEND — absolute screen destruction */
+/** ULTRA 8/8 LEGEND — royal confetti explosion */
 export function fireEpicConfetti() {
-  const colors = ["#FFD700", "#FFA500", "#FF4500", "#FF0000", "#FF69B4", "#6C5CE7", "#00B894", "#FFFFFF"];
+  const colors = ["#6C5CE7", "#00B894", "#FDCB6E", "#74B9FF", "#FFD700", "#A29BFE", "#55EFC4"];
 
   // Massive initial starburst
   confetti({
-    particleCount: 250,
+    particleCount: 200,
     spread: 360,
     origin: { x: 0.5, y: 0.4 },
     colors,
-    startVelocity: 55,
-    gravity: 0.6,
-    ticks: 400,
-    scalar: 1.3,
+    startVelocity: 50,
+    gravity: 0.8,
+    ticks: 180,
+    scalar: 1.2,
   });
 
   // Delayed second burst
   setTimeout(() => {
     confetti({
-      particleCount: 200,
+      particleCount: 150,
       spread: 360,
       origin: { x: 0.5, y: 0.5 },
       colors,
-      startVelocity: 50,
-      gravity: 0.7,
-      ticks: 350,
+      startVelocity: 45,
+      gravity: 0.8,
+      ticks: 150,
       scalar: 1.1,
     });
-  }, 400);
+  }, 300);
 
-  // Long-running multi-source cannons for 5 seconds
-  const end = Date.now() + 2500;
+  // Multi-source cannons for 2 seconds
+  const end = Date.now() + 2000;
   const frame = () => {
-    // Left cannon
-    confetti({ particleCount: 10, angle: 60, spread: 90, origin: { x: 0, y: 0.4 }, colors, startVelocity: 45 });
-    // Right cannon
-    confetti({ particleCount: 10, angle: 120, spread: 90, origin: { x: 1, y: 0.4 }, colors, startVelocity: 45 });
-    // Top rain
-    confetti({ particleCount: 6, angle: 90, spread: 160, origin: { x: 0.5, y: 0 }, colors, startVelocity: 30 });
-    // Bottom-left
-    confetti({ particleCount: 4, angle: 45, spread: 60, origin: { x: 0.1, y: 0.9 }, colors, startVelocity: 40 });
-    // Bottom-right
-    confetti({ particleCount: 4, angle: 135, spread: 60, origin: { x: 0.9, y: 0.9 }, colors, startVelocity: 40 });
+    confetti({ particleCount: 8, angle: 60, spread: 90, origin: { x: 0, y: 0.4 }, colors, startVelocity: 40, ticks: 120 });
+    confetti({ particleCount: 8, angle: 120, spread: 90, origin: { x: 1, y: 0.4 }, colors, startVelocity: 40, ticks: 120 });
+    confetti({ particleCount: 4, angle: 90, spread: 160, origin: { x: 0.5, y: 0 }, colors, startVelocity: 25, ticks: 120 });
     if (Date.now() < end) requestAnimationFrame(frame);
   };
   frame();
