@@ -224,7 +224,7 @@ export default function Profile() {
         {/* Why get rejected modal */}
         {showWhyModal && (
           <div
-            className="fixed inset-0 bottom-[72px] z-50 flex items-end sm:items-center justify-center bg-black/50"
+            className="fixed inset-x-0 top-[30%] bottom-[72px] z-50 flex items-end sm:items-center justify-center bg-black/50"
             onClick={() => setShowWhyModal(false)}
           >
             <motion.div
