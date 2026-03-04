@@ -229,10 +229,24 @@ export default function Profile() {
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg">🎯</span>
-              <span className="text-3xl font-extrabold text-foreground">{totalCompleted}/8</span>
-              <span className="text-lg font-semibold text-foreground">This Week</span>
+              <span className="text-3xl font-extrabold text-foreground">{ms.current}/{ms.goal}</span>
+              <span className="text-lg font-semibold text-foreground">challenges completed</span>
             </div>
-            <p className="text-[10px] text-muted-foreground/50 mt-1.5">{totalCompleted >= 5 ? "✅ You're in the draw!" : `${5 - totalCompleted} more to qualify`}</p>
+            {ms.medal && (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <MedalIcon tier={ms.medal.tier} size={16} />
+                <span className="text-[10px] font-semibold text-muted-foreground">{ms.medal.label} unlocked!</span>
+              </div>
+            )}
+            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={false}
+                animate={{ width: `${progressPct}%` }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground/50 mt-1">{ms.goal - ms.current} more to next milestone</p>
           </div>
         </div>
 
