@@ -41,7 +41,14 @@ export default function Challenges() {
   const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>(mockChallenges);
+  const [challenges, setChallenges] = useState<Challenge[]>(() => {
+    const saved = localStorage.getItem(`${weekKey}-completed`);
+    if (saved) {
+      const completedIds: string[] = JSON.parse(saved);
+      return mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) }));
+    }
+    return mockChallenges;
+  });
   const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
   
