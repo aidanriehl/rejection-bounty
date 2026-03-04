@@ -197,7 +197,7 @@ export default function PostPage() {
           <div className="mb-4">
             {/* Video preview card */}
             <div className="relative overflow-hidden rounded-2xl bg-black">
-              <div className="aspect-[9/16] max-h-[360px] w-full">
+              <div className="aspect-[9/16] w-full">
                 <video
                   ref={videoRef}
                   src={videoUrl}
