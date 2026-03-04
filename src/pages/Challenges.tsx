@@ -167,42 +167,42 @@ export default function Challenges() {
           </div>
 
           {/* Premium Cards */}
-          <div data-tour="prize-pool" className="flex gap-3 mb-8">
+          <div data-tour="prize-pool" className="flex gap-2.5 mb-8">
             {/* Subscribers */}
             {isPremium ? (
-                <div data-tour="subscribers-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
-                <Users className="h-5 w-5 text-muted-foreground mb-3" />
-                <p className="text-3xl font-extrabold tracking-tight">{subscribers.toLocaleString()}</p>
-                <p className="text-xs font-semibold text-muted-foreground mt-1">Players</p>
+                <div data-tour="subscribers-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
+                <Users className="h-4 w-4 text-muted-foreground mb-2" />
+                <p className="text-2xl font-extrabold tracking-tight">{subscribers.toLocaleString()}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-0.5">Players</p>
               </div>
             ) : (
               <button
                 onClick={triggerSubscribe}
-                className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground text-left relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]"
+                className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground text-left relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]"
               >
-                <Users className="h-5 w-5 text-muted-foreground mb-3" />
-                <div className="h-9"><p className="text-3xl font-extrabold tracking-tight blur-md select-none">1,832</p></div>
-                <p className="text-xs font-semibold text-muted-foreground mt-1">Subscribers</p>
-                <Crown className="absolute top-4 right-4 h-4 w-4 text-muted-foreground/40" />
+                <Users className="h-4 w-4 text-muted-foreground mb-2" />
+                <div className="h-8"><p className="text-2xl font-extrabold tracking-tight blur-md select-none">1,832</p></div>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-0.5">Subscribers</p>
+                <Crown className="absolute top-3.5 right-3.5 h-3.5 w-3.5 text-muted-foreground/40" />
               </button>
             )}
 
             {/* Prize Pool */}
             {isPremium ? (
-              <div data-tour="prize-pool-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
-                <Trophy className="h-5 w-5 text-muted-foreground mb-3" />
-                <p className="text-3xl font-extrabold tracking-tight">${prizePool.toLocaleString()}</p>
-                <p className="text-xs font-semibold text-muted-foreground mt-1">Prize Pool</p>
+              <div data-tour="prize-pool-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
+                <Trophy className="h-4 w-4 text-muted-foreground mb-2" />
+                <p className="text-2xl font-extrabold tracking-tight">${prizePool.toLocaleString()}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-0.5">Prize Pool</p>
               </div>
             ) : (
               <button
                 onClick={triggerSubscribe}
-                className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground text-left relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]"
+                className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground text-left relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]"
               >
-                <Trophy className="h-5 w-5 text-muted-foreground mb-3" />
-                <div className="h-9"><p className="text-3xl font-extrabold tracking-tight blur-md select-none">$1,247</p></div>
-                <p className="text-xs font-semibold text-muted-foreground mt-1">Prize Pool</p>
-                <Crown className="absolute top-4 right-4 h-4 w-4 text-muted-foreground/40" />
+                <Trophy className="h-4 w-4 text-muted-foreground mb-2" />
+                <div className="h-8"><p className="text-2xl font-extrabold tracking-tight blur-md select-none">$1,247</p></div>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-0.5">Prize Pool</p>
+                <Crown className="absolute top-3.5 right-3.5 h-3.5 w-3.5 text-muted-foreground/40" />
               </button>
             )}
           </div>
