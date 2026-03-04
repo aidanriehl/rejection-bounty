@@ -312,16 +312,17 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
           </div>
         </div>
 
-        {/* Lever arm on the right */}
+        {/* Lever arm on the right - clickable */}
         <div
-          className="absolute flex flex-col items-center"
+          className="absolute flex flex-col items-center cursor-pointer"
           style={{ right: -28, top: "35%" }}
+          onClick={handleSpin}
         >
           {/* Lever rod */}
           <motion.div
             className="flex flex-col items-center origin-bottom"
-            animate={{ rotate: leverPulled ? 25 : 0 }}
-            transition={{ type: "spring", stiffness: 120, damping: 10, delay: 0.1 }}
+            animate={{ rotate: leverPulled ? 25 : -90 }}
+            transition={{ type: "spring", stiffness: 120, damping: 10 }}
           >
             {/* Lever ball */}
             <motion.div
