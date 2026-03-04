@@ -16,21 +16,21 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="challenge-list"]',
     title: "Your challenges for the week",
     description:
-      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5/8 of them. THE GOAL HERE IS TO GET REJECTED!",
+      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5 of them.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
     title: "Upload your challenge videos to enter our prize pool",
     description:
-      "Every video you upload gets you one submission into a lottery for our prize pool. Submitting videos should feel uncomfortable & that's the point.",
+      "Every video will get you one entry. Submitting videos should feel uncomfortable & that's the point.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="subscribers-card"]',
-    title: "Number of players",
+    title: "Number of premium players",
     description:
-      "People who pay to play on this app are 60% more likely to follow through with their challenges.",
+      "People who pay to play on this app are 60% more likely to complete their challenges.",
   },
   {
     route: "/challenges",
@@ -42,9 +42,9 @@ const STEPS: TourStep[] = [
   {
     route: "/challenges",
     selector: '[data-tour="countdown"]',
-    title: "Countdown",
+    title: "Weekly Countdown",
     description:
-      "Every Sunday @ midnight we'll give you new challenges, and a recap of how our players performed the week before.",
+      "Every Sunday we give new challenges, and a recap of how players performed.",
   },
   {
     route: "/profile",
@@ -106,7 +106,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     }
   };
 
-  const skip = () => onComplete();
+  
 
   // Tooltip position: below if spotlight is in top half, above otherwise
   const tooltipBelow = rect ? rect.top + rect.height / 2 < window.innerHeight / 2 : true;
@@ -140,7 +140,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-4 right-4 mx-auto max-w-sm rounded-2xl bg-card p-5 shadow-xl border"
+            className="absolute left-4 right-4 mx-auto max-w-sm rounded-2xl bg-card px-5 pt-5 pb-3.5 shadow-xl border"
             style={{
               zIndex: 2,
               ...(tooltipBelow
@@ -169,32 +169,24 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             })()}
 
             <h2 className="text-lg font-bold text-foreground mb-1">{current.title}</h2>
-            <p className="text-sm text-muted-foreground mb-4">{current.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{current.description}</p>
 
-            {/* Step dots */}
+            {/* Step dots + Next */}
             <div className="flex items-center justify-between">
               <div className="flex gap-1.5">
                 {STEPS.map((_, i) => (
                   <div
                     key={i}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === step ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30"
+                    className={`h-1.5 w-1.5 rounded-full transition-all ${
+                      i === step ? "bg-primary" : "bg-muted-foreground/30"
                     }`}
                   />
                 ))}
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={skip}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Skip
-                </button>
-                <Button size="sm" onClick={next} className="rounded-full px-5">
-                  {step === STEPS.length - 1 ? "Got it! 🎉" : "Next"}
-                </Button>
-              </div>
+              <Button size="sm" onClick={next} className="rounded-full px-5">
+                {step === STEPS.length - 1 ? "Got it! 🎉" : "Next"}
+              </Button>
             </div>
           </motion.div>
         )}
