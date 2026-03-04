@@ -167,7 +167,7 @@ export default function Challenges() {
           </div>
 
           {/* Premium Cards */}
-          <div data-tour="prize-pool" className="flex gap-3 mb-5">
+          <div data-tour="prize-pool" className="flex gap-3 mb-8">
             {/* Subscribers */}
             {isPremium ? (
                 <div data-tour="subscribers-card" className="flex-1 rounded-2xl border-2 border-foreground bg-card p-5 text-foreground relative overflow-hidden shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
