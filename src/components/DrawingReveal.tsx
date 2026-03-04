@@ -115,7 +115,7 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
 
   const handleSpin = () => {
     if (phase !== "idle") return;
-    if (drawingStatus === "pending") return; // Can't spin until winner is selected
+    // if (drawingStatus === "pending") return; // Temporarily allow spin always
     setLeverPulled(true);
     setPhase("spinning");
   };
