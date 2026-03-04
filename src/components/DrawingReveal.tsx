@@ -2,11 +2,12 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { fireEpicConfetti } from "@/lib/confetti";
 import { playBigWin, playReelTick } from "@/lib/sounds";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DrawingRevealProps {
   potAmount: number;
   playerCount: number;
-  winnerName: string;
+  winnerName?: string;
   onContinue: () => void;
 }
 
