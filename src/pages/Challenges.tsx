@@ -265,10 +265,10 @@ export default function Challenges() {
               {challenges.map((challenge, i) => (
                 <motion.div
                   key={challenge.id}
-                  initial={justRevealed ? { opacity: 0, y: -200, scale: 0.6, rotate: -8 } : false}
-                  animate={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 }}
+                  initial={justRevealed ? { opacity: 0, y: -600, scale: 0.95 } : false}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={justRevealed
-                    ? { delay: i * 0.12, type: "spring", stiffness: 300, damping: 18 }
+                    ? { delay: i * 0.15, type: "spring", stiffness: 400, damping: 28 }
                     : { duration: 0 }
                   }
                   className={cn(

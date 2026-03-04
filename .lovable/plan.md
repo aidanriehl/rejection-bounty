@@ -1,21 +1,18 @@
 
 
-## Plan: Brick-drop animation for challenge cards after reveal
+## Plan: Inline stat labels next to numbers
 
-The current `justRevealed` animation drops all cards from above with rotation. The user wants a more deliberate "bricks stacking" effect — each card falls from above and lands in place sequentially, like bricks being laid.
+Move "day streak" and "challenges completed" to sit on the same line as the number, with matching `font-extrabold` weight but roughly half the font size.
 
-### Changes in `src/pages/Challenges.tsx`
+### Changes in `src/pages/Profile.tsx`
 
-Update the `justRevealed` animation on each challenge `motion.div`:
+**Streak card (lines 216-220):**
+- Move "day streak" text into the same flex row as the number
+- Change from `text-[11px] text-muted-foreground` to `text-sm font-extrabold text-foreground` (half of `text-2xl`)
 
-- **Initial state**: `opacity: 0, y: -600, scale: 0.95` — cards start far above, nearly full-size (not shrunk/rotated like before)
-- **Animate to**: `opacity: 1, y: 0, scale: 1`
-- **Transition**: Sequential staggered delay (`i * 0.15`), using a spring with high stiffness (~400) and moderate damping (~28) to create a satisfying "thud" with a subtle bounce when each brick lands
-- **Remove the `rotate: -8`** — bricks fall straight, not tumbling
+**Challenges card (lines 226-230):**
+- Move "challenges completed" text into the same flex row as the number
+- Same styling: `text-sm font-extrabold text-foreground`
 
-This creates the illusion of cards dropping in one by one from the top, stacking like bricks. The spring bounce gives a physical "weight" to each landing.
-
-### Optionally animate the rest of the page content too
-
-The header sections (countdown, prize cards, progress bar) could fade in first before the bricks start dropping, giving a sense of the "stage" being set before the challenges land. A simple `justRevealed` opacity+y fade on those sections with a shorter delay would work.
+Result: `🔥 0 day streak` and `🎯 0/10 challenges completed` all on one line, labels bold but smaller.
 
