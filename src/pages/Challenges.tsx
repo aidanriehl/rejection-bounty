@@ -156,9 +156,9 @@ export default function Challenges() {
           {/* Countdown Card */}
           <div className="mb-4 rounded-2xl border-2 border-foreground bg-card p-4 shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-xl">🎯</span>
-              <p className="text-sm font-bold text-foreground leading-tight">This Week's Drop</p>
-              <span className="text-xs text-muted-foreground">· Resets Sunday</span>
+              <span className="text-xl">⏳</span>
+              <p className="text-sm font-bold text-foreground leading-tight">Time Left to Qualify</p>
+              <span className="text-xs text-muted-foreground">· Deadline Sunday</span>
             </div>
             <div className="flex items-center justify-center gap-4">
               <CountdownDigit value={countdown.days} label="Days" />
