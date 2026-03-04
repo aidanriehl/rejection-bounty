@@ -177,27 +177,24 @@ export default function PostPage() {
           onChange={handleFileChange}
         />
 
-        {/* Video area — fills remaining space */}
-        <div className="flex-1 min-h-0 mb-3">
-          {!videoUrl ? (
-            /* Upload zone — fills available space */
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="group flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                <Upload className="h-6 w-6" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">Tap to add your video</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Max 30 seconds · 100MB</p>
-              </div>
-            </button>
-          ) : (
-            /* Video preview + frame picker */
-            <div className="flex h-full flex-col">
-              {/* Video preview card */}
-              <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl bg-black">
+        {/* Video area — constrained height */}
+        {!videoUrl ? (
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="group mb-3 flex aspect-[9/13] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
+          >
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
+              <Upload className="h-6 w-6" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">Tap to add your video</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Max 30 seconds · 100MB</p>
+            </div>
+          </button>
+        ) : (
+          <div className="mb-3">
+            <div className="relative overflow-hidden rounded-2xl bg-black">
+              <div className="aspect-[9/13] w-full">
                 <video
                   ref={videoRef}
                   src={videoUrl}
@@ -207,87 +204,71 @@ export default function PostPage() {
                   playsInline
                   muted
                 />
-
-                {/* Play/Pause overlay */}
-                <button
-                  onClick={togglePlay}
-                  className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity hover:bg-black/20"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="ml-0.5 h-5 w-5" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Change video button */}
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  disabled={isUploading}
-                  className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
-                >
-                  Change
-                </button>
               </div>
 
-              {/* Frame picker slider */}
-              {duration > 0 && (
-                <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
-                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                    Choose your cover frame
-                  </p>
-                  <Slider
-                    value={[thumbnailTime]}
-                    onValueChange={handleSliderChange}
-                    max={duration}
-                    step={0.1}
-                    className="w-full"
-                  />
-                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                    <span>0:00</span>
-                    <span>
-                      {Math.floor(thumbnailTime)}:{String(Math.round((thumbnailTime % 1) * 10)).padStart(1, "0")}s
-                    </span>
-                    <span>
-                      0:{String(Math.floor(duration)).padStart(2, "0")}
-                    </span>
-                  </div>
+              <button
+                onClick={togglePlay}
+                className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity hover:bg-black/20"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
+                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
                 </div>
-              )}
+              </button>
+
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={isUploading}
+                className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
+              >
+                Change
+              </button>
             </div>
-          )}
-        </div>
+
+            {duration > 0 && (
+              <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
+                <p className="mb-1.5 text-xs font-medium text-muted-foreground">Choose your cover frame</p>
+                <Slider
+                  value={[thumbnailTime]}
+                  onValueChange={handleSliderChange}
+                  max={duration}
+                  step={0.1}
+                  className="w-full"
+                />
+                <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                  <span>0:00</span>
+                  <span>{Math.floor(thumbnailTime)}:{String(Math.round((thumbnailTime % 1) * 10)).padStart(1, "0")}s</span>
+                  <span>0:{String(Math.floor(duration)).padStart(2, "0")}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Upload status */}
         {uploadStatus !== "idle" && (
           <div className="mb-2 flex items-center gap-2 text-sm">
             {isUploading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
             {uploadStatus === "done" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-            <span
-              className={
-                uploadStatus === "error"
-                  ? "text-destructive"
-                  : uploadStatus === "done"
-                  ? "text-green-500"
-                  : "text-muted-foreground"
-              }
-            >
+            <span className={uploadStatus === "error" ? "text-destructive" : uploadStatus === "done" ? "text-green-500" : "text-muted-foreground"}>
               {statusLabel[uploadStatus]}
             </span>
           </div>
         )}
 
-        {/* Upload progress bar */}
         {uploadStatus === "uploading" && (
           <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            />
+            <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
           </div>
         )}
+
+        {/* Caption */}
+        <textarea
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="Add a caption (optional)"
+          rows={2}
+          className="mb-3 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        />
 
         {/* Post button */}
         <button
@@ -296,6 +277,14 @@ export default function PostPage() {
           className="w-full shrink-0 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {isUploading ? "Uploading…" : "Post to Feed"}
+        </button>
+
+        {/* Skip */}
+        <button
+          onClick={() => navigate("/challenges")}
+          className="mt-2 w-full py-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          Skip for now
         </button>
       </div>
     </div>
