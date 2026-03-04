@@ -44,6 +44,7 @@ export default function Challenges() {
   const weekKey = getCurrentWeekKey();
   const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true" || localStorage.getItem("tour_pending") === "true");
+  const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>(() => {
     const saved = localStorage.getItem(`${weekKey}-completed`);
