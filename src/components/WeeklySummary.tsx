@@ -248,6 +248,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }
