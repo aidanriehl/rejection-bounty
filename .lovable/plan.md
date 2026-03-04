@@ -1,20 +1,18 @@
 
 
-## Plan: Fix stats card text alignment
+## Plan: Inline stat labels next to numbers
 
-Two issues to fix in the stats cards in `src/pages/Profile.tsx`:
-
-1. **Left-align (baseline) the text** — currently using `items-center` which vertically centers everything. Switch to `items-baseline` so the emoji, number, and label all sit on the same text baseline ("on the ground").
-
-2. **Make emojis consistent size** — both the 🔥 and 🎯 emojis should use the same font size and have consistent vertical alignment. Use `items-baseline` so they naturally align to the bottom of the text line.
+Move "day streak" and "challenges completed" to sit on the same line as the number, with matching `font-extrabold` weight but roughly half the font size.
 
 ### Changes in `src/pages/Profile.tsx`
 
-**Lines 328-331 (Streak card):**
-- Change `items-center` → `items-baseline`
+**Streak card (lines 216-220):**
+- Move "day streak" text into the same flex row as the number
+- Change from `text-[11px] text-muted-foreground` to `text-sm font-extrabold text-foreground` (half of `text-2xl`)
 
-**Lines 342-345 (Challenges card):**
-- Change `items-center` → `items-baseline`
+**Challenges card (lines 226-230):**
+- Move "challenges completed" text into the same flex row as the number
+- Same styling: `text-sm font-extrabold text-foreground`
 
-Both cards get the same treatment — `items-baseline` makes all elements share the same bottom line, like text sitting on a ruled page.
+Result: `🔥 0 day streak` and `🎯 0/10 challenges completed` all on one line, labels bold but smaller.
 
