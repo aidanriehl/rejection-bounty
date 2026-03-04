@@ -411,10 +411,29 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName, onCo
         )}
       </AnimatePresence>
 
-      {/* Continue button */}
-      <AnimatePresence>
+      {/* Spin / Continue button */}
+      <AnimatePresence mode="wait">
+        {phase === "idle" && (
+          <motion.button
+            key="spin"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ delay: 0.3, type: "spring" }}
+            onClick={handleSpin}
+            className="mt-8 rounded-full px-10 py-3 text-sm font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+            style={{
+              background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 45%))",
+              color: "hsl(0 0% 100%)",
+              boxShadow: "0 4px 20px hsl(45 90% 50% / 0.4)",
+            }}
+          >
+            🎰 Spin
+          </motion.button>
+        )}
         {phase === "done" && (
           <motion.button
+            key="continue"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, type: "spring" }}
