@@ -153,13 +153,10 @@ export default function Challenges() {
       <div className="min-h-screen pb-24 pt-6">
         <div className="mx-auto max-w-lg px-4">
 
-          {/* Countdown Card */}
-          <div className="mb-4 rounded-2xl border-2 border-foreground bg-card p-4 shadow-[4px_4px_0px_0px_hsl(var(--foreground))]">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-xl">⏳</span>
-              <p className="text-sm font-bold text-foreground leading-tight">Time Left to Qualify</p>
-              <span className="text-xs text-muted-foreground">· Deadline Sunday</span>
-            </div>
+          {/* Countdown */}
+          <div className="mb-5 text-center">
+            <p className="text-sm font-bold text-foreground">Time Left to Qualify</p>
+            <p className="text-xs text-muted-foreground mb-3">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-4">
               <CountdownDigit value={countdown.days} label="Days" />
               <span className="text-xl font-bold text-muted-foreground/30 -mt-3">:</span>
