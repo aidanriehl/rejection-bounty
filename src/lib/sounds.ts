@@ -234,6 +234,21 @@ export function playEpicWin() {
     });
   } catch {}
 }
+/** Cascade / pieces clicking into place */
+export function playCascade(count = 10, durationMs = 800) {
+  try {
+    const a = ctx();
+    const t = a.currentTime;
+    const interval = (durationMs / 1000) / count;
+
+    for (let i = 0; i < count; i++) {
+      const start = t + i * interval;
+      const bufSize = a.sampleRate * 0.03;
+      const buf = a.createBuffer(1, bufSize, a.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let j = 0; j < bufSize; j++) {
+        data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 8);
+      }
       const src = a.createBufferSource();
       src.buffer = buf;
 
