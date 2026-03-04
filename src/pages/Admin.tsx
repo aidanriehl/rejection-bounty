@@ -177,7 +177,6 @@ export default function Admin() {
   };
 
   const confirmWinner = async (userId: string, videoUrl?: string) => {
-    // Upsert weekly drawing
     const { data } = await supabase
       .from("weekly_drawings")
       .upsert({
@@ -190,9 +189,25 @@ export default function Admin() {
       .select()
       .single();
 
+    // Send auto congratulations message
+    await supabase.from("winner_messages").insert({
+      week_key: weekKey,
+      winner_user_id: userId,
+      sender: "admin",
+      message: AUTO_MESSAGE,
+    } as any);
+
     setDrawing(data);
     setDrawnUser(null);
     fetchData();
+  };
+
+  const toggleMessaging = async (enabled: boolean) => {
+    setMessagingEnabled(enabled);
+    await supabase
+      .from("app_settings")
+      .update({ winner_messaging_enabled: enabled, updated_at: new Date().toISOString() } as any)
+      .not("id", "is", null);
   };
 
   if (loading || isAdmin === null) {
