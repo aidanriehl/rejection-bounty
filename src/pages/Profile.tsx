@@ -188,7 +188,7 @@ export default function Profile() {
             onClick={() => navigate("/friends")}
             className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
           >
-            <User className="h-3.5 w-3.5" />
+            <Users className="h-3.5 w-3.5" />
             Friends
           </button>
         </div>
