@@ -150,7 +150,7 @@ export default function Challenges() {
         {summaryDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
       </AnimatePresence>
 
-      <div className="min-h-screen pb-24 pt-10">
+      <div className="min-h-screen pb-24 pt-14">
         <div className="mx-auto max-w-lg px-4">
 
           {/* Countdown */}
