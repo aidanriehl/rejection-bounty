@@ -293,7 +293,8 @@ export default function Profile() {
                   Fear and danger are not the same thing.
                 </p>
               </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
         )}
 
