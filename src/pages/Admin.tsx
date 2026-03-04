@@ -127,6 +127,39 @@ export default function Admin() {
       .not("video_url", "is", null);
     setCompletions((comps as CompletionWithVideo[]) ?? []);
 
+    // Get app settings
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+    if (settings) setMessagingEnabled((settings as any).winner_messaging_enabled ?? true);
+
+    // Get past winners
+    const { data: pastDrawings } = await supabase
+      .from("weekly_drawings")
+      .select("*")
+      .eq("status", "complete")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (pastDrawings) {
+      const winnerIds = pastDrawings.map((d: any) => d.winner_user_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar")
+        .in("id", winnerIds);
+
+      const profileMap: Record<string, any> = {};
+      profiles?.forEach((p: any) => { profileMap[p.id] = p; });
+
+      setPastWinners(pastDrawings.map((d: any) => ({
+        ...d,
+        username: profileMap[d.winner_user_id]?.username ?? "Unknown",
+        avatar: profileMap[d.winner_user_id]?.avatar ?? "dragon",
+      })));
+    }
+
     setLoadingData(false);
   };
 
