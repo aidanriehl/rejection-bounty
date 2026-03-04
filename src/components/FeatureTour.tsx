@@ -16,21 +16,21 @@ const STEPS: TourStep[] = [
     selector: '[data-tour="challenge-list"]',
     title: "Your challenges for the week",
     description:
-      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5/8 of them. THE GOAL HERE IS TO GET REJECTED!",
+      "Every week we'll assign you 8 challenges. To beat your week you have to complete 5 of them.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
     title: "Upload your challenge videos to enter our prize pool",
     description:
-      "Every video you upload gets you one submission into a lottery for our prize pool. Submitting videos should feel uncomfortable & that's the point.",
+      "Every video will get you one entry. Submitting videos should feel uncomfortable & that's the point.",
   },
   {
     route: "/challenges",
     selector: '[data-tour="subscribers-card"]',
-    title: "Number of players",
+    title: "Number of premium players",
     description:
-      "People who pay to play on this app are 60% more likely to follow through with their challenges.",
+      "People who pay to play on this app are 60% more likely to complete their challenges.",
   },
   {
     route: "/challenges",
@@ -42,9 +42,9 @@ const STEPS: TourStep[] = [
   {
     route: "/challenges",
     selector: '[data-tour="countdown"]',
-    title: "Countdown",
+    title: "Weekly Countdown",
     description:
-      "Every Sunday @ midnight we'll give you new challenges, and a recap of how our players performed the week before.",
+      "Every Sunday we give new challenges, and a recap of how players performed.",
   },
   {
     route: "/profile",
