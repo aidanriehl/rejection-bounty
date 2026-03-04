@@ -96,7 +96,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0.6, bottom: 0.1 }}
           onDragEnd={handleDragEnd}
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: -300 }}
           transition={{ duration: 0.4 }}
