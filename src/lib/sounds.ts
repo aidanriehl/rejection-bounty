@@ -118,120 +118,109 @@ export function playBigWin() {
   } catch {}
 }
 
-/** ULTRA 8/8 LEGEND — cinematic orchestral crescendo */
+/** ULTRA 8/8 LEGEND — royal castle entrance, herald trumpets + celebration */
 export function playEpicWin() {
   try {
     const a = ctx();
     const t = a.currentTime;
 
-    // Helper: warm brass-like tone using sine + harmonics (no sawtooth/square)
-    const warmBrass = (freq: number, start: number, dur: number, vol: number) => {
-      // Fundamental + overtones create a rich, warm brass timbre
-      const harmonics = [1, 2, 3, 4, 5, 6];
-      const harmVols = [1, 0.6, 0.35, 0.2, 0.1, 0.05];
-      harmonics.forEach((h, i) => {
+    // Bright brass stab helper — punchy, immediate, warm
+    const trumpetStab = (freq: number, start: number, dur: number, vol: number) => {
+      [1, 2, 3, 4, 5].forEach((h, i) => {
+        const vols = [1, 0.7, 0.4, 0.25, 0.12];
         const o = a.createOscillator();
         const g = a.createGain();
         o.type = "sine";
         o.frequency.setValueAtTime(freq * h, start);
-        o.detune.value = Math.random() * 6 - 3;
+        o.detune.value = Math.random() * 4 - 2;
         o.connect(g);
         g.connect(a.destination);
         g.gain.setValueAtTime(0, start);
-        // Slow attack for swell feel
-        g.gain.linearRampToValueAtTime(vol * harmVols[i], start + dur * 0.15);
-        g.gain.setValueAtTime(vol * harmVols[i], start + dur * 0.6);
+        // Quick attack — punchy, not slow
+        g.gain.linearRampToValueAtTime(vol * vols[i], start + 0.015);
+        g.gain.setValueAtTime(vol * vols[i], start + dur * 0.75);
         g.gain.exponentialRampToValueAtTime(0.001, start + dur);
         o.start(start);
         o.stop(start + dur);
       });
     };
 
-    // DEEP BOOM — cinematic impact hit
-    const boomBuf = a.createBuffer(1, a.sampleRate * 0.4, a.sampleRate);
-    const boomData = boomBuf.getChannelData(0);
-    for (let j = 0; j < boomBuf.length; j++) {
-      boomData[j] = Math.sin(2 * Math.PI * (50 + 30 * Math.pow(1 - j / boomBuf.length, 2)) * j / a.sampleRate)
-        * Math.pow(1 - j / boomBuf.length, 1.5) * 0.4;
-    }
-    const boomSrc = a.createBufferSource();
-    boomSrc.buffer = boomBuf;
-    const boomG = a.createGain();
-    boomG.gain.setValueAtTime(0.35, t);
-    boomG.gain.exponentialRampToValueAtTime(0.005, t + 0.8);
-    boomSrc.connect(boomG);
-    boomG.connect(a.destination);
-    boomSrc.start(t);
-    boomSrc.stop(t + 0.8);
+    // HERALD FANFARE — bold, immediate, royal announcement
+    // "BA-BA BA-BAAAA BA-BA BA-BAAAA" (classic royal herald)
+    const f = t;
+    trumpetStab(392, f, 0.12, 0.055);         // G4 — short
+    trumpetStab(392, f + 0.14, 0.12, 0.055);  // G4 — short
+    trumpetStab(523, f + 0.28, 0.12, 0.06);   // C5 — short
+    trumpetStab(659, f + 0.42, 0.4, 0.065);   // E5 — HELD (the announcement!)
 
-    // ORCHESTRAL SWELL — rising brass chord, slow and majestic
-    // C major chord swelling up across 2 octaves
-    const swellStart = t + 0.2;
+    trumpetStab(523, f + 0.9, 0.12, 0.055);   // C5 — short
+    trumpetStab(659, f + 1.04, 0.12, 0.06);   // E5 — short
+    trumpetStab(784, f + 1.18, 0.5, 0.065);   // G5 — HELD HIGH (triumph!)
 
-    // Low brass foundation (C3, E3, G3)
-    warmBrass(131, swellStart, 2.5, 0.04);
-    warmBrass(165, swellStart, 2.5, 0.035);
-    warmBrass(196, swellStart, 2.5, 0.03);
+    // SECOND TRUMPET — harmony, slightly delayed for richness
+    trumpetStab(262, f + 0.01, 0.12, 0.035);
+    trumpetStab(262, f + 0.15, 0.12, 0.035);
+    trumpetStab(330, f + 0.29, 0.12, 0.04);
+    trumpetStab(392, f + 0.43, 0.4, 0.045);
+    trumpetStab(330, f + 0.91, 0.12, 0.035);
+    trumpetStab(392, f + 1.05, 0.12, 0.04);
+    trumpetStab(523, f + 1.19, 0.5, 0.045);
 
-    // Mid brass enters slightly later (C4, E4, G4)
-    warmBrass(262, swellStart + 0.3, 2.2, 0.045);
-    warmBrass(330, swellStart + 0.3, 2.2, 0.04);
-    warmBrass(392, swellStart + 0.3, 2.2, 0.035);
+    // CELEBRATION CHORD — big, warm, joyful (the party!)
+    const partyStart = f + 1.75;
+    [262, 330, 392, 523, 659, 784, 1047].forEach((freq) => {
+      const o = a.createOscillator();
+      const o2 = a.createOscillator();
+      const g = a.createGain();
+      o.type = "sine";
+      o2.type = "sine";
+      o2.detune.value = 6;
+      o.frequency.setValueAtTime(freq, partyStart);
+      o2.frequency.setValueAtTime(freq, partyStart);
+      o.connect(g);
+      o2.connect(g);
+      g.connect(a.destination);
+      g.gain.setValueAtTime(0, partyStart);
+      g.gain.linearRampToValueAtTime(0.03, partyStart + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, partyStart + 1.2);
+      o.start(partyStart);
+      o2.start(partyStart);
+      o.stop(partyStart + 1.2);
+      o2.stop(partyStart + 1.2);
+    });
 
-    // High brass crowning moment (C5, E5, G5)
-    warmBrass(523, swellStart + 0.7, 1.8, 0.04);
-    warmBrass(659, swellStart + 0.7, 1.8, 0.035);
-    warmBrass(784, swellStart + 0.7, 1.8, 0.03);
-
-    // THE RESOLVE — final triumphant high C held with vibrato
-    const resolveStart = swellStart + 1.2;
-    const resolveFreq = 1047; // C6
-    const ro = a.createOscillator();
-    const ro2 = a.createOscillator();
-    const rg = a.createGain();
-    const vibrato = a.createOscillator();
-    const vibratoGain = a.createGain();
-    ro.type = "sine";
-    ro2.type = "sine";
-    ro2.detune.value = 7; // slight chorus
-    vibrato.type = "sine";
-    vibrato.frequency.setValueAtTime(5, resolveStart); // 5Hz vibrato
-    vibratoGain.gain.setValueAtTime(8, resolveStart); // 8 cents depth
-    vibrato.connect(vibratoGain);
-    vibratoGain.connect(ro.frequency);
-    vibratoGain.connect(ro2.frequency);
-    ro.connect(rg);
-    ro2.connect(rg);
-    rg.connect(a.destination);
-    ro.frequency.setValueAtTime(resolveFreq, resolveStart);
-    ro2.frequency.setValueAtTime(resolveFreq, resolveStart);
-    rg.gain.setValueAtTime(0, resolveStart);
-    rg.gain.linearRampToValueAtTime(0.06, resolveStart + 0.2);
-    rg.gain.setValueAtTime(0.06, resolveStart + 1.0);
-    rg.gain.exponentialRampToValueAtTime(0.001, resolveStart + 2.0);
-    ro.start(resolveStart);
-    ro2.start(resolveStart);
-    vibrato.start(resolveStart);
-    ro.stop(resolveStart + 2.0);
-    ro2.stop(resolveStart + 2.0);
-    vibrato.stop(resolveStart + 2.0);
-
-    // SHIMMER — high ethereal sparkles at the peak
-    const shimmerStart = swellStart + 1.5;
-    [2093, 2637, 3136, 3520].forEach((freq, i) => {
+    // SPARKLE RAIN — like confetti sounds, bright little pings
+    const sparkleStart = f + 1.9;
+    [2093, 2637, 3136, 2349, 3520, 2793, 4186].forEach((freq, i) => {
       const o = a.createOscillator();
       const g = a.createGain();
       o.type = "sine";
       o.connect(g);
       g.connect(a.destination);
-      const s = shimmerStart + i * 0.12;
+      const s = sparkleStart + i * 0.09;
       o.frequency.setValueAtTime(freq, s);
       g.gain.setValueAtTime(0, s);
-      g.gain.linearRampToValueAtTime(0.08, s + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.001, s + 0.4);
+      g.gain.linearRampToValueAtTime(0.07, s + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, s + 0.2);
       o.start(s);
-      o.stop(s + 0.4);
+      o.stop(s + 0.2);
     });
+
+    // BASS BOOM on the announcement hit
+    const boomBuf = a.createBuffer(1, a.sampleRate * 0.25, a.sampleRate);
+    const boomData = boomBuf.getChannelData(0);
+    for (let j = 0; j < boomBuf.length; j++) {
+      boomData[j] = Math.sin(2 * Math.PI * 55 * j / a.sampleRate) * Math.pow(1 - j / boomBuf.length, 2);
+    }
+    const boomSrc = a.createBufferSource();
+    boomSrc.buffer = boomBuf;
+    const bg = a.createGain();
+    bg.gain.setValueAtTime(0.3, f + 0.42);
+    bg.gain.exponentialRampToValueAtTime(0.005, f + 0.9);
+    boomSrc.connect(bg);
+    bg.connect(a.destination);
+    boomSrc.start(f + 0.42);
+    boomSrc.stop(f + 0.9);
   } catch {}
 }
 /** Cascade / pieces clicking into place */
