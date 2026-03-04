@@ -224,14 +224,14 @@ export default function Profile() {
         {/* Why get rejected modal */}
         {showWhyModal && (
           <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+            className="fixed inset-0 bottom-[72px] z-50 flex items-end sm:items-center justify-center bg-black/50"
             onClick={() => setShowWhyModal(false)}
           >
             <motion.div
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative mx-2 mb-2 sm:mb-0 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
+              className="relative mx-2 mb-2 sm:mb-0 max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
