@@ -106,7 +106,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     }
   };
 
-  const skip = () => onComplete();
+  
 
   // Tooltip position: below if spotlight is in top half, above otherwise
   const tooltipBelow = rect ? rect.top + rect.height / 2 < window.innerHeight / 2 : true;
