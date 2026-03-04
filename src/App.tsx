@@ -31,6 +31,13 @@ function AppRoutes() {
     }
   }, [profile]);
 
+  // Listen for replay-tour custom event
+  useEffect(() => {
+    const handler = () => setShowTour(true);
+    window.addEventListener("replay-tour", handler);
+    return () => window.removeEventListener("replay-tour", handler);
+  }, []);
+
   const handleTourComplete = () => {
     localStorage.removeItem("tour_pending");
     setShowTour(false);
