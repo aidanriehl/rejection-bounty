@@ -65,21 +65,22 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex flex-col px-6 text-center"
+          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          {/* Branding — pinned at ~38% from top so it never shifts */}
-          <div className="flex flex-col items-center" style={{ marginTop: "32vh" }}>
+          {/* Branding — fixed position via absolute so it never shifts between slides */}
+          <div className="absolute left-0 right-0 flex flex-col items-center" style={{ top: "22%" }}>
             <span className="mb-4 text-7xl">🔥</span>
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
             </h1>
-            <p className="mb-8 text-base text-primary-foreground/60">
+            <p className="text-base text-primary-foreground/60">
               100 rejections will change your life
             </p>
           </div>
 
-          <div className="mx-auto w-full max-w-sm space-y-3">
+          {/* Buttons — fixed position below branding */}
+          <div className="absolute left-6 right-6 mx-auto max-w-sm space-y-3" style={{ top: "52%" }}>
             <AnimatePresence mode="wait">
               {!authMode ? (
                 <motion.div
