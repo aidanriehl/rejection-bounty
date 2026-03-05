@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon, Scale } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
@@ -35,6 +35,7 @@ export default function SettingsPage() {
   }, [authProfile?.username]);
   const [isPublic, setIsPublic] = useState(true);
   const [notifications, setNotifications] = useState(true);
+  const [showRules, setShowRules] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
@@ -359,13 +360,38 @@ export default function SettingsPage() {
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
-          <button className="flex w-full items-center justify-between px-4 py-3">
+          <button className="flex w-full items-center justify-between border-b px-4 py-3">
             <div className="flex items-center gap-3">
               <FileText className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground">Terms & Privacy</span>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
+          <button
+            onClick={() => setShowRules(!showRules)}
+            className="flex w-full items-center justify-between px-4 py-3"
+          >
+            <div className="flex items-center gap-3">
+              <Scale className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Official Sweepstakes Rules</span>
+            </div>
+            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${showRules ? "rotate-90" : ""}`} />
+          </button>
+          {showRules && (
+            <div className="border-t px-4 py-4 text-xs text-muted-foreground leading-relaxed space-y-3">
+              <p className="font-bold text-foreground text-sm">OFFICIAL SWEEPSTAKES RULES</p>
+              <p className="font-semibold text-foreground">NO PURCHASE NECESSARY TO ENTER OR WIN.</p>
+              <p><span className="font-semibold text-foreground">1. Eligibility:</span> Open to users 13 years or older.</p>
+              <p><span className="font-semibold text-foreground">2. How to Enter (Free):</span> Complete at least one challenge with a video upload during the weekly period to receive one (1) free entry.</p>
+              <p><span className="font-semibold text-foreground">3. Bonus Entries (Subscribers):</span> Paid subscribers receive 2 entries per challenge completed with video, plus 3 bonus entries for completing 5 or more challenges.</p>
+              <p><span className="font-semibold text-foreground">4. Drawing Period:</span> Weekly, ending Sunday at midnight.</p>
+              <p><span className="font-semibold text-foreground">5. Winner Selection:</span> One winner selected randomly each week from all eligible entries. Each entry has an equal chance of winning.</p>
+              <p><span className="font-semibold text-foreground">6. Prize:</span> Weekly prize amount varies based on the community pool. Winner will be notified in-app.</p>
+              <p><span className="font-semibold text-foreground">7. Odds:</span> Depend on the total number of entries received.</p>
+              <p><span className="font-semibold text-foreground">8. Sponsor:</span> Rejection Bounty. Apple Inc. is not a sponsor and is not responsible for this promotion.</p>
+              <p><span className="font-semibold text-foreground">9. General:</span> Void where prohibited by law.</p>
+            </div>
+          )}
         </div>
 
         {/* Danger Zone */}
