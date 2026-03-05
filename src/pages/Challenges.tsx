@@ -176,11 +176,11 @@ export default function Challenges() {
           </div>
 
           {/* Premium Cards */}
-          <div data-tour="prize-pool" className="flex justify-center gap-2.5 mb-8 max-w-xs mx-auto">
+          <div data-tour="prize-pool" className="flex justify-center gap-4 mb-8 max-w-xs mx-auto">
             {/* Subscribers */}
             {isPremium ? (
                 <div data-tour="subscribers-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
-                <p className="text-2xl font-bold tracking-tight">{subscribers.toLocaleString()}</p>
+                <p className="text-2xl font-bold tracking-tight">#{subscribers.toLocaleString()}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <Users className="h-3.5 w-3.5 text-muted-foreground" />
                   <p className="text-xs font-semibold text-muted-foreground">Players</p>
