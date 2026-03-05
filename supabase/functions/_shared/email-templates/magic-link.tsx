@@ -36,11 +36,7 @@ export const MagicLinkEmail = ({
         <Text style={text}>
           Enter this code to log in to Rejection Bounty. It expires soon.
         </Text>
-        {token ? (
-          <Text style={codeStyle}>{token}</Text>
-        ) : (
-          <Text style={text}>Check your email for a login code.</Text>
-        )}
+        <Text style={codeStyle}>{token}</Text>
         <Text style={footer}>
           Didn't request this? Just ignore it.
         </Text>
