@@ -18,6 +18,8 @@ import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
 import FeatureTour from "@/components/FeatureTour";
 import { useAuth } from "@/hooks/useAuth";
+import { UploadProvider } from "@/contexts/UploadContext";
+import UploadIndicator from "@/components/UploadIndicator";
 
 const queryClient = new QueryClient();
 
