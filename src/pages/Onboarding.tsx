@@ -184,9 +184,6 @@ export default function Onboarding() {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: trimmed,
-        options: {
-          shouldCreateUser: true,
-        },
       });
       if (error) {
         toast({ title: "Failed to send code", description: error.message, variant: "destructive" });
