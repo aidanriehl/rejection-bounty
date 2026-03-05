@@ -129,7 +129,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   const tooltipBelow = rect ? rect.top + rect.height / 2 < window.innerHeight / 2 : true;
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div className="fixed inset-0 z-[100]" style={{ pointerEvents: rect ? "auto" : "none" }}>
       {/* Dark overlay with spotlight hole */}
       {rect && (
         <div
