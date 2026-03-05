@@ -39,6 +39,7 @@ export default function Onboarding() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [mode, setMode] = useState<"welcome" | "form">("welcome");
 
   const handleSendMagicLink = async () => {
     const trimmed = email.trim();
@@ -67,6 +68,15 @@ export default function Onboarding() {
     }
   };
 
+  const handleBack = () => {
+    if (sent) {
+      setSent(false);
+    } else {
+      setMode("welcome");
+      setEmail("");
+    }
+  };
+
   return (
     <>
       <AnimatePresence>
@@ -81,27 +91,57 @@ export default function Onboarding() {
           className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
-          <div className="-mt-20 flex flex-col items-center">
-            <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
-            <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
-              Rejection Bounty
-            </h1>
-            <p className="mb-6 text-base text-primary-foreground/60">
-              100 rejections will change your life
-            </p>
-          </div>
+          <AnimatePresence mode="wait">
+            {mode === "welcome" && !sent ? (
+              <motion.div
+                key="welcome"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="-mt-20 flex flex-col items-center"
+              >
+                <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
+                <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
+                  Rejection Bounty
+                </h1>
+                <p className="mb-10 text-base text-primary-foreground/60">
+                  100 rejections will change your life
+                </p>
 
-          <div className="w-full max-w-sm space-y-4">
-            <AnimatePresence mode="wait">
-              {!sent ? (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-3"
-                >
+                <div className="w-full max-w-sm space-y-3">
+                  <button
+                    onClick={() => setMode("form")}
+                    className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
+                  >
+                    Join Now
+                  </button>
+                  <button
+                    onClick={() => setMode("form")}
+                    className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-semibold text-primary-foreground"
+                  >
+                    Log In
+                  </button>
+                </div>
+              </motion.div>
+            ) : !sent ? (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="-mt-20 flex flex-col items-center"
+              >
+                <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
+                <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
+                  Rejection Bounty
+                </h1>
+                <p className="mb-6 text-base text-primary-foreground/60">
+                  100 rejections will change your life
+                </p>
+
+                <div className="w-full max-w-sm space-y-3">
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -125,35 +165,47 @@ export default function Onboarding() {
                   <p className="pt-2 text-xs text-primary-foreground/40">
                     We'll send a sign-in link to your email. No password needed.
                   </p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="sent"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-3"
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-4xl">✉️</span>
-                    <h2 className="text-xl font-bold text-primary-foreground">Check your inbox</h2>
-                    <p className="text-sm text-primary-foreground/60">
-                      We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
-                    </p>
-                    <p className="text-xs text-primary-foreground/40">
-                      Click the link in the email to sign in.
-                    </p>
-                  </div>
+                  <button
+                    onClick={handleBack}
+                    className="pt-1 text-sm font-medium text-primary-foreground/60"
+                  >
+                    ← Back
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="sent"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center gap-3"
+              >
+                <span className="text-5xl">✉️</span>
+                <h2 className="text-2xl font-bold text-primary-foreground">Check your inbox</h2>
+                <p className="text-sm text-primary-foreground/60">
+                  We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
+                </p>
+                <p className="text-xs text-primary-foreground/40">
+                  Click the link in the email to sign in.
+                </p>
+                <div className="mt-4 flex flex-col items-center gap-2">
                   <button
                     onClick={() => { setSent(false); setEmail(""); }}
-                    className="pt-2 text-sm font-medium text-primary-foreground/60"
+                    className="text-sm font-medium text-primary-foreground/70"
                   >
                     Use a different email
                   </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  <button
+                    onClick={handleBack}
+                    className="text-sm font-medium text-primary-foreground/50"
+                  >
+                    ← Back
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </>
