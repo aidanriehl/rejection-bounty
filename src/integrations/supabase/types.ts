@@ -95,6 +95,48 @@ export type Database = {
           },
         ]
       }
+      posts: {
+        Row: {
+          caption: string | null
+          challenge_id: string
+          created_at: string
+          id: string
+          likes: number
+          thumbnail_time: number | null
+          trim_end: number | null
+          trim_start: number | null
+          user_id: string
+          video_id: string | null
+          video_url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          thumbnail_time?: number | null
+          trim_end?: number | null
+          trim_start?: number | null
+          user_id: string
+          video_id?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          thumbnail_time?: number | null
+          trim_end?: number | null
+          trim_start?: number | null
+          user_id?: string
+          video_id?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       prize_pool: {
         Row: {
           id: string
