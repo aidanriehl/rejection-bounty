@@ -152,7 +152,7 @@ export default function PostPage() {
   const isUploading = ["getting-url", "uploading", "processing"].includes(uploadStatus);
 
   return (
-    <div className="fixed inset-0 bottom-[72px] flex flex-col pt-10">
+    <div className="fixed inset-0 bottom-[72px] flex flex-col pt-6">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-hidden px-4">
         {/* Header */}
         <div className="mb-3 flex items-center justify-between">
@@ -166,7 +166,7 @@ export default function PostPage() {
         </div>
 
         {/* Challenge name */}
-        <p className="mb-3 text-sm font-medium text-foreground">{challengeTitle}</p>
+        <p className="mb-3 text-sm font-medium text-foreground -mt-1">{challengeTitle}</p>
 
         {/* Hidden file input */}
         <input
@@ -279,13 +279,8 @@ export default function PostPage() {
           {isUploading ? "Uploading…" : "Post to Feed"}
         </button>
 
-        {/* Skip */}
-        <button
-          onClick={() => navigate("/challenges")}
-          className="mt-2 w-full py-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          Skip for now
-        </button>
+
+
       </div>
     </div>
   );
