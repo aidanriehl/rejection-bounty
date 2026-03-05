@@ -11,7 +11,7 @@ import CameraRecorder from "@/components/CameraRecorder";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
-import DropReveal from "@/components/DropReveal";
+
 import WinnerShowcase from "@/pages/WinnerShowcase";
 
 const progressMessages: Record<number, string> = {
@@ -42,7 +42,7 @@ export default function Challenges() {
   const navigate = useNavigate();
   const { user, profile, setProfile } = useAuth();
   const weekKey = getCurrentWeekKey();
-  const [dropRevealed, setDropRevealed] = useState(() => localStorage.getItem(weekKey) === "true");
+  const [dropRevealed] = useState(true);
   const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true" || localStorage.getItem("tour_pending") === "true");
   const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
@@ -98,7 +98,6 @@ export default function Challenges() {
 
   const handleRevealComplete = () => {
     localStorage.setItem(weekKey, "true");
-    setDropRevealed(true);
     setJustRevealed(true);
     playCascade(10, 900);
     setTimeout(() => setJustRevealed(false), 2500);
@@ -156,9 +155,6 @@ export default function Challenges() {
           }} />
         )}
       </AnimatePresence>
-      <AnimatePresence>
-        {summaryDone && showcaseDone && !dropRevealed && <DropReveal onRevealComplete={handleRevealComplete} />}
-      </AnimatePresence>
 
       <div className="min-h-screen pb-24 pt-14">
         <div className="mx-auto max-w-lg px-4">
@@ -178,7 +174,6 @@ export default function Challenges() {
                 window.dispatchEvent(new CustomEvent("dismiss-tour"));
                 setSummaryDone(true);
                 setShowcaseDone(true);
-                setDropRevealed(false);
               }}
               className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
             >
