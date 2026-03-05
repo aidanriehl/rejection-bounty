@@ -1,14 +1,10 @@
 import { lovable } from "@/integrations/lovable";
-import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
 
 const SPLASH_DURATION = 2200;
-const PUBLISHED_URL = "https://rejection-bounty.lovable.app";
 
 function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
@@ -46,36 +42,19 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
-      const isNative = Capacitor.isNativePlatform();
-
-      if (isNative) {
-        // Native: get OAuth URL directly from Supabase, open in SFSafariViewController.
-        // After OAuth completes, Supabase redirects to our bounce page which
-        // triggers a custom-scheme redirect → DeepLinkHandler sets the session.
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider,
-          options: {
-            redirectTo: `${PUBLISHED_URL}/auth/callback?native=1`,
-            skipBrowserRedirect: true,
-          },
-        });
-
-        if (error || !data?.url) {
-          toast({ title: "Sign in failed", description: error?.message || "Could not start sign in", variant: "destructive" });
-          return;
-        }
-
-        console.log("[OAuth Native] Opening in-app browser:", data.url);
-        await Browser.open({ url: data.url, presentationStyle: "popover" });
-      } else {
-        // Web: use Lovable Cloud auth (popup in iframe, redirect otherwise)
-        const result = await lovable.auth.signInWithOAuth(provider, {
-          redirect_uri: window.location.origin,
-        });
-        if (result.error) {
-          toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
-        }
+      // Works for BOTH web and native Capacitor:
+      // - In iframe (Lovable preview): opens popup, returns tokens via postMessage
+      // - NOT in iframe (native WKWebView or standalone browser): full page redirect
+      //   to /~oauth/initiate → Google/Apple → redirect back to origin with tokens
+      //   in URL hash → Supabase auto-detects and sets session
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
       }
+      // If result.redirected === true, the page is navigating away.
+      // On return, Supabase detectSessionFromURL picks up the tokens automatically.
     } catch (err) {
       console.error("[OAuth] Error:", err);
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
