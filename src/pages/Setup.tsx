@@ -1,13 +1,11 @@
 import { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Camera, X } from "lucide-react";
+import { motion } from "framer-motion";
 import type { Profile } from "@/hooks/useAuth";
 
-// Safe, avatar-appropriate emojis — no flags, symbols, weapons, inappropriate items
 const AVATAR_EMOJIS = [
   "🐶", "🐱", "🐻", "🦊", "🐼", "🐨", "🐯", "🦁",
   "🐸", "🐵", "🐔", "🐧", "🐦", "🦉", "🦄", "🐢",
@@ -33,7 +31,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Pick a stable random emoji for this user
   const randomEmoji = useMemo(() => {
     let hash = 0;
     for (let i = 0; i < userId.length; i++) {
@@ -73,7 +70,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       toast({ title: "Username must be at least 3 characters", variant: "destructive" });
       return;
     }
-
     if (!/^[a-z0-9_]+$/.test(trimmed)) {
       toast({ title: "Only letters, numbers, and underscores", variant: "destructive" });
       return;
@@ -84,7 +80,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     try {
       let profilePhotoUrl: string | null = null;
 
-      // Upload photo if selected
       if (photoFile) {
         setUploading(true);
         const ext = photoFile.name.split(".").pop() || "jpg";
@@ -131,88 +126,95 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     }
   };
 
+  const isValid = username.trim().length >= 3;
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 -mt-10">
-      <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col items-center gap-6">
-        {/* Profile photo picker */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex h-24 w-24 items-center justify-center rounded-full bg-muted ring-2 ring-border overflow-hidden transition-transform active:scale-95"
-            >
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="Profile preview"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="text-4xl">{randomEmoji}</span>
-              )}
-            </button>
-
-            {/* Camera badge */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-0.5 -right-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
-            >
-              <Camera className="h-4 w-4" />
-            </button>
-
-            {/* Remove photo button */}
-            {photoPreview && (
-              <button
-                type="button"
-                onClick={clearPhoto}
-                className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm"
-              >
-                <X className="h-3 w-3" />
-              </button>
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center px-6"
+      style={{ backgroundColor: "hsl(var(--primary))" }}
+    >
+      <motion.form
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        onSubmit={handleSubmit}
+        className="-mt-12 flex w-full max-w-xs flex-col items-center"
+      >
+        {/* ─── Avatar hero ─── */}
+        <div className="relative mb-3">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex h-28 w-28 items-center justify-center rounded-full bg-primary-foreground/15 ring-[3px] ring-primary-foreground/25 overflow-hidden transition-transform active:scale-95"
+          >
+            {photoPreview ? (
+              <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-5xl">{randomEmoji}</span>
             )}
-          </div>
+          </button>
 
-          <p className="text-xs text-muted-foreground">
-            {photoPreview ? "Tap to change · or remove" : "Add a photo (optional)"}
-          </p>
+          {/* Camera badge */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground text-primary shadow-lg"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
+          {/* Remove photo */}
+          {photoPreview && (
+            <button
+              type="button"
+              onClick={clearPhoto}
+              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
 
-        {/* Username section */}
-        <div className="flex w-full flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold text-foreground">Pick a username</h1>
-          <p className="text-sm text-muted-foreground">
-            This is how others will see you
-          </p>
-        </div>
+        <p className="mb-8 text-xs text-primary-foreground/50">
+          {photoPreview ? "Tap to change" : "Add a photo"}
+        </p>
 
-        <Input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="@codymaverick"
-          maxLength={20}
-          className="h-12 text-center text-lg"
-          autoFocus
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileSelect}
         />
 
-        <Button
+        {/* ─── Title ─── */}
+        <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-primary-foreground">
+          Create your profile
+        </h1>
+        <p className="mb-5 text-sm text-primary-foreground/50">
+          Choose a name others will know you by
+        </p>
+
+        {/* ─── Username input ─── */}
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="username"
+          maxLength={20}
+          autoFocus
+          className="mb-4 flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-center text-lg font-medium text-primary-foreground placeholder:text-primary-foreground/30 focus:border-primary-foreground/40 focus:outline-none"
+        />
+
+        {/* ─── CTA ─── */}
+        <button
           type="submit"
-          size="lg"
-          className="h-12 w-full text-base font-semibold"
-          disabled={saving || username.trim().length < 3}
+          disabled={!isValid || saving}
+          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
         >
           {uploading ? "Uploading photo…" : saving ? "Saving…" : "Let's go 🚀"}
-        </Button>
-      </form>
+        </button>
+      </motion.form>
     </div>
   );
 }
