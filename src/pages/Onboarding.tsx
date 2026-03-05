@@ -194,36 +194,11 @@ export default function Onboarding() {
                 </div>
               </motion.div>
             ) : (
-              <motion.div
-                key="sent"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="-mt-20 flex flex-col items-center gap-3"
-              >
-                <span className="text-5xl">✉️</span>
-                <h2 className="text-2xl font-bold text-primary-foreground">Check your inbox</h2>
-                <p className="text-sm text-primary-foreground/60">
-                  We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
-                </p>
-                <p className="-mt-2 text-xs text-primary-foreground/40">
-                  Click the link in the email to sign in.
-                </p>
-                <div className="mt-3 flex flex-col items-center gap-1">
-                  <button
-                    onClick={() => { setSent(false); setEmail(""); }}
-                    className="text-sm font-medium text-primary-foreground/70"
-                  >
-                    Use a different email
-                  </button>
-                  <button
-                    onClick={handleBack}
-                    className="text-sm font-medium text-primary-foreground/50"
-                  >
-                    ← Back
-                  </button>
-                </div>
-              </motion.div>
+              <SentScreen
+                email={email}
+                onDifferentEmail={() => { setSent(false); setEmail(""); }}
+                onBack={handleBack}
+              />
             )}
           </AnimatePresence>
         </motion.div>
