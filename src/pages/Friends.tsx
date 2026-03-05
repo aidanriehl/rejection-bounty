@@ -175,7 +175,7 @@ export default function FriendsPage() {
               {isSearching ?
             "No users found" :
             friends.length === 0 ?
-            "No friends yet — search to find people!" :
+            "No friends yet" :
             "No friends match your search"}
             </p>
           </div> :
