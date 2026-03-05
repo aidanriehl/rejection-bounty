@@ -32,11 +32,19 @@ function AppRoutes() {
     }
   }, [profile]);
 
-  // Listen for replay-tour custom event
+  // Listen for replay-tour and dismiss-tour custom events
   useEffect(() => {
-    const handler = () => setShowTour(true);
-    window.addEventListener("replay-tour", handler);
-    return () => window.removeEventListener("replay-tour", handler);
+    const replayHandler = () => setShowTour(true);
+    const dismissHandler = () => {
+      localStorage.removeItem("tour_pending");
+      setShowTour(false);
+    };
+    window.addEventListener("replay-tour", replayHandler);
+    window.addEventListener("dismiss-tour", dismissHandler);
+    return () => {
+      window.removeEventListener("replay-tour", replayHandler);
+      window.removeEventListener("dismiss-tour", dismissHandler);
+    };
   }, []);
 
   const handleTourComplete = () => {
