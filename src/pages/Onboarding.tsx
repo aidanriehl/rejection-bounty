@@ -40,6 +40,23 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<"welcome" | "form">("welcome");
+  const sendingRef = useRef(false);
+
+  // Detect error hash from failed magic link verification
+  useEffect(() => {
+    const hash = window.location.hash?.substring(1);
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const error = params.get("error_description") || params.get("error");
+    if (error) {
+      window.history.replaceState(null, "", window.location.pathname);
+      toast({
+        title: "Sign-in link expired",
+        description: "Please request a new magic link.",
+        variant: "destructive",
+      });
+    }
+  }, []);
 
   const handleSendMagicLink = async () => {
     const trimmed = email.trim();
