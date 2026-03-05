@@ -246,10 +246,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     })
   }
 
-  // Build dynamic subject for magiclink (include OTP code)
+  // Build dynamic subject with OTP code for signup and magiclink
   let subject = EMAIL_SUBJECTS[emailType] || 'Notification'
-  if (emailType === 'magiclink' && payload.data.token) {
-    subject = `${payload.data.token} — your Rejection Bounty login code`
+  if ((emailType === 'magiclink' || emailType === 'signup') && payload.data.token) {
+    subject = `${payload.data.token} — your Rejection Bounty code`
   }
 
   let result: { message_id?: string }
