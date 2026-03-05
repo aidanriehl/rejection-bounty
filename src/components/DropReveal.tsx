@@ -182,7 +182,7 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
       setExiting(true);
       setTimeout(() => {
         onRevealComplete();
-      }, 900);
+      }, 500);
     }
   }, [stage, exiting, onRevealComplete]);
 
