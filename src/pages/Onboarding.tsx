@@ -3,14 +3,7 @@ import { useState, useEffect } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
-
 const SPLASH_DURATION = 2200;
-
-// The published app URL — used for native OAuth redirect
-const PUBLISHED_URL = "https://rejection-bounty.lovable.app";
-const NATIVE_SCHEME = "app.lovable.1f0608baf7f94f668530c5e415e76d58";
 
 function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
