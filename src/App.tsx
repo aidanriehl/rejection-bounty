@@ -87,7 +87,7 @@ function AppRoutes() {
 
   // Fully authenticated
   return (
-    <UploadProvider>
+    <>
       <Routes>
         <Route path="/" element={<Feed />} />
         <Route path="/challenges" element={<Challenges />} />
@@ -103,7 +103,7 @@ function AppRoutes() {
       <BottomNav />
       <UploadIndicator />
       {showTour && <FeatureTour onComplete={handleTourComplete} />}
-    </UploadProvider>
+    </>
   );
 }
 
@@ -114,9 +114,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="mx-auto max-w-lg">
-            <AppRoutes />
-          </div>
+          <UploadProvider>
+            <div className="mx-auto max-w-lg">
+              <AppRoutes />
+            </div>
+          </UploadProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
