@@ -198,9 +198,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                 {STEPS.map((_, i) => (
                   <div
                     key={i}
-                    className={`h-1.5 w-1.5 rounded-full transition-all ${
-                      i === step ? "bg-primary" : i < step ? "bg-[hsl(45_90%_50%)]" : "bg-muted-foreground/30"
+                    className={`h-2 w-2 rounded-full transition-all ${
+                      i === step
+                        ? "bg-primary shadow-[0_0_4px_hsl(var(--primary)/0.5)]"
+                        : i < step
+                          ? "bg-gradient-to-br from-[hsl(50_100%_70%)] via-[hsl(43_96%_56%)] to-[hsl(35_90%_40%)] shadow-[0_0_3px_hsl(45_90%_50%/0.4)]"
+                          : "bg-muted-foreground/30"
                     }`}
+                    style={i < step ? { boxShadow: "inset 0 -1px 1px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.4), 0 0 3px hsla(45,90%,50%,0.4)" } : undefined}
                   />
                 ))}
               </div>
