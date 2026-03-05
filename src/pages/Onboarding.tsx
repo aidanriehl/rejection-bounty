@@ -109,6 +109,7 @@ function SentScreen({
 }
 
 export default function Onboarding() {
+  const [showSplash, setShowSplash] = useState(true);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
