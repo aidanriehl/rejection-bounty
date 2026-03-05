@@ -206,10 +206,10 @@ export default function Onboarding() {
                 <p className="text-sm text-primary-foreground/60">
                   We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
                 </p>
-                <p className="-mt-1 text-xs text-primary-foreground/40">
+                <p className="-mt-2 text-xs text-primary-foreground/40">
                   Click the link in the email to sign in.
                 </p>
-                <div className="mt-1 flex flex-col items-center gap-2">
+                <div className="mt-3 flex flex-col items-center gap-1">
                   <button
                     onClick={() => { setSent(false); setEmail(""); }}
                     className="text-sm font-medium text-primary-foreground/70"
@@ -220,7 +220,7 @@ export default function Onboarding() {
                     onClick={handleBack}
                     className="text-sm font-medium text-primary-foreground/50"
                   >
-                    ← Back
+                    ←
                   </button>
                 </div>
               </motion.div>
