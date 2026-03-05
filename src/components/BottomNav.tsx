@@ -28,7 +28,7 @@ export default function BottomNav() {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <tab.icon className="h-6 w-6" strokeWidth={active ? 2.5 : 1.5} />
+              <tab.icon className={cn("h-6 w-6", tab.path === "/challenges" && "-rotate-45")} strokeWidth={active ? 2.5 : 1.5} />
             </button>
           );
         })}
