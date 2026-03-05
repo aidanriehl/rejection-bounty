@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
 
 const SPLASH_DURATION = 2200;
 
@@ -42,8 +43,13 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
+      const isNative = Capacitor.isNativePlatform();
+      const redirectUri = isNative
+        ? "app.lovable.1f0608baf7f94f668530c5e415e76d58://callback"
+        : window.location.origin;
+
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
       });
       if (result.error) {
         toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });

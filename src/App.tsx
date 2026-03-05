@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { Capacitor } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
+import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -107,6 +110,36 @@ function AppRoutes() {
   );
 }
 
+function DeepLinkHandler() {
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const handler = CapApp.addListener("appUrlOpen", async ({ url }) => {
+      // Extract tokens from the deep link URL hash
+      const hashIndex = url.indexOf("#");
+      if (hashIndex === -1) return;
+
+      const hash = url.substring(hashIndex + 1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+      }
+    });
+
+    return () => {
+      handler.then((h) => h.remove());
+    };
+  }, []);
+
+  return null;
+}
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" storageKey="app-theme">
     <QueryClientProvider client={queryClient}>
@@ -115,6 +148,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <UploadProvider>
+            <DeepLinkHandler />
             <div className="mx-auto max-w-lg">
               <AppRoutes />
             </div>
