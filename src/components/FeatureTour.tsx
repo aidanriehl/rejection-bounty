@@ -199,7 +199,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                   <div
                     key={i}
                     className={`h-1.5 w-1.5 rounded-full transition-all ${
-                      i === step ? "bg-primary" : "bg-muted-foreground/30"
+                      i === step ? "bg-primary" : i < step ? "bg-[hsl(45_90%_50%)]" : "bg-muted-foreground/30"
                     }`}
                   />
                 ))}
