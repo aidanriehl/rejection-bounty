@@ -48,31 +48,11 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
-      const isNative = Capacitor.isNativePlatform();
-
-      if (isNative) {
-        // NATIVE FLOW: Open OAuth in SFSafariViewController (in-app browser)
-        // This browser auto-closes when it hits a custom URL scheme
-        const redirectUri = `${PUBLISHED_URL}/auth/callback?native=1`;
-        const oauthUrl = `${PUBLISHED_URL}/~oauth/initiate?provider=${provider}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-        
-        console.log("[OAuth Native] Opening in-app browser:", oauthUrl);
-        console.log("[OAuth Native] Redirect URI:", redirectUri);
-        
-        await Browser.open({ 
-          url: oauthUrl,
-          presentationStyle: "popover",
-        });
-        // The rest happens via deep link handler in App.tsx
-        // SFSafariViewController will close when it encounters the custom URL scheme
-      } else {
-        // WEB FLOW: Use the standard lovable auth (popup in iframe, redirect otherwise)
-        const result = await lovable.auth.signInWithOAuth(provider, {
-          redirect_uri: window.location.origin,
-        });
-        if (result.error) {
-          toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
-        }
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
       }
     } catch (err) {
       console.error("[OAuth] Error:", err);
