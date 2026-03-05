@@ -25,7 +25,7 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
         className="-mt-16 flex flex-col items-center gap-3"
       >
-        <span className="text-7xl">🔥</span>
+        <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
         <h1 className="text-3xl font-extrabold tracking-tight text-white">
           Rejection Bounty
         </h1>
