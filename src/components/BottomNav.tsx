@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { path: "/", icon: Home },
-  { path: "/challenges", icon: Flame },
+  { path: "/challenges", icon: Dumbbell },
   { path: "/profile", icon: User },
 ];
 
