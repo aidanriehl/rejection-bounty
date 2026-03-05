@@ -6,11 +6,12 @@ import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import MilestoneCelebration from "@/components/MilestoneCelebration";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 const MILESTONES = [10, 50, 100, 150, 200] as const;
 
-type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
+export type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
 
 const MEDAL_COLORS: Record<MedalTier, { fill: string; stroke: string; ribbon: string }> = {
   bronze:   { fill: "#CD7F32", stroke: "#A0522D", ribbon: "#8B4513" },
@@ -72,6 +73,23 @@ export default function Profile() {
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
+  // Milestone celebration — check if a new milestone was just reached
+  const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
+
+  useEffect(() => {
+    if (!user || totalCompleted === 0) return;
+    const storageKey = `milestone_celebrated_${user.id}`;
+    const celebrated = JSON.parse(localStorage.getItem(storageKey) || "[]") as number[];
+    // Find the highest milestone the user has reached but not celebrated
+    for (let i = MILESTONES.length - 1; i >= 0; i--) {
+      const m = MILESTONES[i];
+      if (totalCompleted >= m && !celebrated.includes(m)) {
+        setCelebrateMilestone({ tier: MEDALS[m].tier, milestone: m });
+        localStorage.setItem(storageKey, JSON.stringify([...celebrated, m]));
+        break;
+      }
+    }
+  }, [totalCompleted, user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,6 +156,13 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen pb-24 pt-4">
+      {celebrateMilestone && (
+        <MilestoneCelebration
+          tier={celebrateMilestone.tier}
+          milestone={celebrateMilestone.milestone}
+          onDone={() => setCelebrateMilestone(null)}
+        />
+      )}
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
