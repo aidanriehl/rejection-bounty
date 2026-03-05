@@ -114,9 +114,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="mx-auto max-w-lg">
-            <AppRoutes />
-          </div>
+          <UploadProvider>
+            <div className="mx-auto max-w-lg">
+              <AppRoutes />
+            </div>
+          </UploadProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
