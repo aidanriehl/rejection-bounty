@@ -6,6 +6,7 @@ import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import MilestoneCelebration from "@/components/MilestoneCelebration";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 const MILESTONES = [10, 50, 100, 150, 200] as const;
