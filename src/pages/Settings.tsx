@@ -25,7 +25,14 @@ export default function SettingsPage() {
   const [searchParams] = useSearchParams();
   const { user, profile: authProfile, signOut, setProfile: setAuthProfile } = useAuth();
   const [editingName, setEditingName] = useState(false);
-  const [nameValue, setNameValue] = useState(authProfile?.username || "");
+  const [nameValue, setNameValue] = useState("");
+  
+  // Keep nameValue in sync with profile data
+  useEffect(() => {
+    if (authProfile?.username) {
+      setNameValue(authProfile.username);
+    }
+  }, [authProfile?.username]);
   const [isPublic, setIsPublic] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const [uploading, setUploading] = useState(false);
