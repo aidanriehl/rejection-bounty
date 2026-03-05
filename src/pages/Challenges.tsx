@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Crown, Trophy, Upload, Users, Video, FolderOpen, RotateCcw, Box } from "lucide-react";
+import { Check, Crown, Trophy, Upload, Users, Video, FolderOpen, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
@@ -156,36 +156,24 @@ export default function Challenges() {
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen pb-24 pt-14">
+      <div className="min-h-screen pb-24 pt-6">
         <div className="mx-auto max-w-lg px-4">
 
-          {/* Dev nav buttons */}
-          <div className="flex items-center justify-between mb-4">
+          {/* Recap icon - top right */}
+          <div className="flex justify-end mb-2">
             <button
               onClick={() => setSummaryDone(false)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+              className="flex items-center justify-center rounded-full h-8 w-8 text-muted-foreground transition-colors hover:bg-muted"
+              aria-label="View last week recap"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Last Week
-            </button>
-            <button
-              onClick={() => {
-                localStorage.removeItem("tour_pending");
-                window.dispatchEvent(new CustomEvent("dismiss-tour"));
-                setSummaryDone(true);
-                setShowcaseDone(true);
-              }}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
-            >
-              <Box className="h-3.5 w-3.5" />
-              Drop Reveal
+              <RotateCcw className="h-4 w-4" />
             </button>
           </div>
 
           {/* Countdown */}
-          <div data-tour="countdown" className="mb-8 text-center">
+          <div data-tour="countdown" className="mb-6 text-center">
             <p className="text-lg font-extrabold text-foreground">Time Left Until the Next Drawing</p>
-            <p className="text-sm text-muted-foreground mb-4 -mt-0.5">Deadline Sunday @ Midnight</p>
+            <p className="text-sm text-muted-foreground mb-3 -mt-0.5">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-2">
               <CountdownDigit value={countdown.days} label="Days" />
               <span className="text-2xl font-bold text-muted-foreground/30 -mt-3">:</span>
