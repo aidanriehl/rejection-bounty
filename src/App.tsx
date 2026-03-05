@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
+import { Browser } from "@capacitor/browser";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -115,21 +116,44 @@ function DeepLinkHandler() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
+    console.log("[DeepLinkHandler] Setting up appUrlOpen listener");
+
     const handler = CapApp.addListener("appUrlOpen", async ({ url }) => {
+      console.log("[DeepLinkHandler] appUrlOpen received:", url);
+      
+      // Close the in-app browser (SFSafariViewController) immediately
+      try {
+        await Browser.close();
+        console.log("[DeepLinkHandler] Browser closed");
+      } catch (e) {
+        console.log("[DeepLinkHandler] Browser.close() error (may already be closed):", e);
+      }
+
       // Extract tokens from the deep link URL hash
       const hashIndex = url.indexOf("#");
-      if (hashIndex === -1) return;
+      if (hashIndex === -1) {
+        console.log("[DeepLinkHandler] No hash fragment in URL");
+        return;
+      }
 
       const hash = url.substring(hashIndex + 1);
       const params = new URLSearchParams(hash);
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
 
+      console.log("[DeepLinkHandler] access_token present:", !!accessToken);
+      console.log("[DeepLinkHandler] refresh_token present:", !!refreshToken);
+
       if (accessToken && refreshToken) {
-        await supabase.auth.setSession({
+        const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
+        if (error) {
+          console.error("[DeepLinkHandler] setSession error:", error);
+        } else {
+          console.log("[DeepLinkHandler] Session set successfully!");
+        }
       }
     });
 
