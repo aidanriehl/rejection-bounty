@@ -46,11 +46,35 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) {
-        toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
+      const isNative = Capacitor.isNativePlatform();
+
+      if (isNative) {
+        // Native: get OAuth URL directly from Supabase, open in SFSafariViewController.
+        // After OAuth completes, Supabase redirects to our bounce page which
+        // triggers a custom-scheme redirect → DeepLinkHandler sets the session.
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${PUBLISHED_URL}/auth/callback?native=1`,
+            skipBrowserRedirect: true,
+          },
+        });
+
+        if (error || !data?.url) {
+          toast({ title: "Sign in failed", description: error?.message || "Could not start sign in", variant: "destructive" });
+          return;
+        }
+
+        console.log("[OAuth Native] Opening in-app browser:", data.url);
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
+      } else {
+        // Web: use Lovable Cloud auth (popup in iframe, redirect otherwise)
+        const result = await lovable.auth.signInWithOAuth(provider, {
+          redirect_uri: window.location.origin,
+        });
+        if (result.error) {
+          toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
+        }
       }
     } catch (err) {
       console.error("[OAuth] Error:", err);
