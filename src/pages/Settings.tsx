@@ -35,6 +35,7 @@ export default function SettingsPage() {
   }, [authProfile?.username]);
   const [isPublic, setIsPublic] = useState(true);
   const [notifications, setNotifications] = useState(true);
+  const [showRules, setShowRules] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
