@@ -4,6 +4,15 @@ import { toast } from "@/hooks/use-toast";
 
 type UploadStatus = "idle" | "uploading" | "done" | "error";
 
+interface UploadMeta {
+  challengeTitle: string;
+  challengeId: string;
+  caption: string;
+  trimStart: number;
+  trimEnd: number;
+  thumbnailTime: number;
+}
+
 interface UploadState {
   status: UploadStatus;
   progress: number;
@@ -16,13 +25,7 @@ interface UploadState {
 }
 
 interface UploadContextValue extends UploadState {
-  startUpload: (file: File, meta: {
-    challengeTitle: string;
-    caption: string;
-    trimStart: number;
-    trimEnd: number;
-    thumbnailTime: number;
-  }) => void;
+  startUpload: (file: File, meta: UploadMeta) => void;
   retry: () => void;
   clearUpload: () => void;
 }
@@ -49,6 +52,7 @@ export function useUpload() {
 export function UploadProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<UploadState>(initialState);
   const fileRef = useRef<File | null>(null);
+  const metaRef = useRef<UploadMeta | null>(null);
 
   const doUpload = useCallback(async (file: File) => {
     try {
@@ -87,6 +91,23 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         xhr.send(formData);
       });
 
+      // Insert post into database
+      const meta = metaRef.current;
+      if (meta) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.from("posts").insert({
+            user_id: session.user.id,
+            challenge_id: meta.challengeId,
+            video_id: videoId,
+            thumbnail_time: meta.thumbnailTime,
+            trim_start: meta.trimStart,
+            trim_end: meta.trimEnd,
+            caption: meta.caption,
+          } as any);
+        }
+      }
+
       setState((s) => ({ ...s, status: "done", progress: 100 }));
       toast({ title: "Video uploaded! 🎬" });
 
@@ -94,6 +115,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       setTimeout(() => {
         setState(initialState);
         fileRef.current = null;
+        metaRef.current = null;
       }, 3000);
     } catch (err: any) {
       console.error("Upload error:", err);
@@ -106,14 +128,9 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const startUpload = useCallback((file: File, meta: {
-    challengeTitle: string;
-    caption: string;
-    trimStart: number;
-    trimEnd: number;
-    thumbnailTime: number;
-  }) => {
+  const startUpload = useCallback((file: File, meta: UploadMeta) => {
     fileRef.current = file;
+    metaRef.current = meta;
     setState({
       status: "uploading",
       progress: 0,
@@ -136,6 +153,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const clearUpload = useCallback(() => {
     setState(initialState);
     fileRef.current = null;
+    metaRef.current = null;
   }, []);
 
   return (

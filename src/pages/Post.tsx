@@ -133,6 +133,7 @@ export default function PostPage() {
     if (!videoFile) return;
     startUpload(videoFile, {
       challengeTitle,
+      challengeId,
       caption,
       trimStart,
       trimEnd,
