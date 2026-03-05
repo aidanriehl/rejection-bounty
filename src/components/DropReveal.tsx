@@ -92,17 +92,10 @@ function PackageSVG({ stage }: { stage: number }) {
         );
       })}
 
-      {/* 🔥 Logo on front */}
-      <text
-        x="100"
-        y="175"
-        textAnchor="middle"
-        fontSize="64"
-        dominantBaseline="middle"
-        style={{ filter: stage >= 2 ? "brightness(1.2)" : "none" }}
-      >
-        🔥
-      </text>
+      {/* Logo on front */}
+      <foreignObject x="55" y="130" width="90" height="90">
+        <img src={logoImg} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", filter: stage >= 2 ? "brightness(1.2)" : "none" }} />
+      </foreignObject>
 
       {/* Top zigzag seal line (static part under flap) */}
       <path

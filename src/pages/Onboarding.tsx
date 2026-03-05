@@ -70,7 +70,7 @@ export default function Onboarding() {
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
           <div className="-mt-28 flex flex-col items-center">
-            <span className="mb-4 text-7xl">🔥</span>
+            <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
             </h1>
