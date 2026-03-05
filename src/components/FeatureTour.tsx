@@ -21,9 +21,9 @@ const STEPS: TourStep[] = [
   {
     route: "/challenges",
     selector: '[data-tour="upload-btn"]',
-    title: "Upload a video of the challenge to enter the prize pool",
+    title: "Upload challenge videos for prize entries",
     description:
-      "Each video will get you one entry, but if you complete 5 videos your entries double.",
+      "Free users get 1 entry. Subscribers get 2 per challenge + 3 bonus for completing 5 (the max).",
   },
   {
     route: "/challenges",
