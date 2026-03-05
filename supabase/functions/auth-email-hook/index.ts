@@ -18,7 +18,7 @@ const corsHeaders = {
 const EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'Welcome to Rejection Bounty — confirm your email',
   invite: "You're invited to Rejection Bounty",
-  magiclink: 'Your Rejection Bounty login link',
+  magiclink: '', // Dynamic — set below with OTP code in subject
   recovery: 'Reset your Rejection Bounty password',
   email_change: 'Confirm your new email — Rejection Bounty',
   reauthentication: 'Your Rejection Bounty verification code',
