@@ -150,9 +150,14 @@ const App = () => (
         <BrowserRouter>
           <UploadProvider>
             <DeepLinkHandler />
-            <div className="mx-auto max-w-lg">
-              <AppRoutes />
-            </div>
+            <Routes>
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="*" element={
+                <div className="mx-auto max-w-lg">
+                  <AppRoutes />
+                </div>
+              } />
+            </Routes>
           </UploadProvider>
         </BrowserRouter>
       </TooltipProvider>
