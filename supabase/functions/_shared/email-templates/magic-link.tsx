@@ -75,3 +75,9 @@ const codeStyle = {
   margin: '0 0 28px',
 }
 const footer = { fontSize: '12px', color: '#a3a3a3', margin: '28px 0 0' }
+const errorText = {
+  fontSize: '14px',
+  color: '#ef4444',
+  fontWeight: 'bold' as const,
+  margin: '0 0 24px',
+}
