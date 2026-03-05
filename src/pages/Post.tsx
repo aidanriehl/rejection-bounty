@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload, Loader2, CheckCircle2, Play, Pause } from "lucide-react";
+import { X, Upload, Play, Pause } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { useUpload } from "@/contexts/UploadContext";
+import VideoTrimmer from "@/components/VideoTrimmer";
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -25,6 +26,7 @@ export default function PostPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -36,38 +38,36 @@ export default function PostPage() {
     };
   }, [videoUrl]);
 
-  // Enforce trim bounds during playback
+  // Track currentTime for playhead
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !isPlaying) return;
-    const onTimeUpdate = () => {
-      if (video.currentTime >= trimEnd) {
+    if (!video) return;
+    const onTime = () => {
+      setCurrentTime(video.currentTime);
+      if (video.currentTime >= trimEnd && trimEnd > 0) {
         video.pause();
         setIsPlaying(false);
-        video.currentTime = trimEnd;
       }
     };
-    video.addEventListener("timeupdate", onTimeUpdate);
-    return () => video.removeEventListener("timeupdate", onTimeUpdate);
-  }, [isPlaying, trimEnd]);
+    video.addEventListener("timeupdate", onTime);
+    return () => video.removeEventListener("timeupdate", onTime);
+  }, [trimEnd]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 100 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 100MB", variant: "destructive" });
       return;
     }
-
     if (videoUrl) URL.revokeObjectURL(videoUrl);
-
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
     setThumbnailTime(0);
     setTrimStart(0);
     setTrimEnd(0);
+    setCurrentTime(0);
     setIsPlaying(false);
   };
 
@@ -81,22 +81,14 @@ export default function PostPage() {
     }
   };
 
-  const handleTrimChange = (value: number[]) => {
-    const [start, end] = value;
+  const handleTrimChange = (start: number, end: number) => {
     setTrimStart(start);
     setTrimEnd(end);
     if (thumbnailTime < start) setThumbnailTime(start);
     if (thumbnailTime > end) setThumbnailTime(end);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-      videoRef.current.currentTime = start;
-    }
   };
 
-  const handleCoverDrag = (value: number[]) => {
-    const time = value[0];
-    setThumbnailTime(time);
+  const handleScrub = (time: number) => {
     if (videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -105,7 +97,14 @@ export default function PostPage() {
       } else {
         videoRef.current.currentTime = time;
       }
+      setCurrentTime(time);
     }
+  };
+
+  const handleCoverDrag = (value: number[]) => {
+    const time = value[0];
+    setThumbnailTime(time);
+    handleScrub(time);
   };
 
   const handleCoverCommit = (value: number[]) => {
@@ -131,8 +130,6 @@ export default function PostPage() {
 
   const handlePost = () => {
     if (!videoFile) return;
-
-    // Start background upload via context and navigate away immediately
     startUpload(videoFile, {
       challengeTitle,
       caption,
@@ -140,7 +137,6 @@ export default function PostPage() {
       trimEnd,
       thumbnailTime,
     });
-
     toast({ title: "Posting to feed…" });
     navigate("/challenges");
   };
@@ -159,10 +155,8 @@ export default function PostPage() {
           </button>
         </div>
 
-        {/* Challenge name */}
         <p className="mb-5 text-sm font-medium text-foreground">{challengeTitle}</p>
 
-        {/* Hidden file input */}
         <input
           ref={fileRef}
           type="file"
@@ -171,7 +165,6 @@ export default function PostPage() {
           onChange={handleFileChange}
         />
 
-        {/* Video area */}
         {!videoUrl ? (
           <button
             onClick={() => fileRef.current?.click()}
@@ -186,56 +179,53 @@ export default function PostPage() {
             </div>
           </button>
         ) : (
-          <div className="mb-3 w-2/3 mx-auto">
-            <div className="relative overflow-hidden rounded-2xl bg-black">
-              <div className="aspect-[9/13] w-full">
-                <video
-                  ref={videoRef}
-                  src={videoUrl}
-                  className="h-full w-full object-contain"
-                  onLoadedMetadata={handleVideoLoaded}
-                  onEnded={() => setIsPlaying(false)}
-                  playsInline
-                  muted
-                />
-              </div>
-
-              <button
-                onClick={togglePlay}
-                className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity hover:bg-black/20"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+          <div className="mb-3">
+            {/* Video preview */}
+            <div className="w-2/3 mx-auto">
+              <div className="relative overflow-hidden rounded-2xl bg-black">
+                <div className="aspect-[9/13] w-full">
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className="h-full w-full object-contain"
+                    onLoadedMetadata={handleVideoLoaded}
+                    onEnded={() => setIsPlaying(false)}
+                    playsInline
+                    muted
+                  />
                 </div>
-              </button>
 
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
-              >
-                Change
-              </button>
+                <button
+                  onClick={togglePlay}
+                  className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity hover:bg-black/20"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm">
+                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+                >
+                  Change
+                </button>
+              </div>
             </div>
 
+            {/* iOS-style trim bar */}
             {duration > 0 && (
               <>
-                {/* Trim slider */}
-                <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
-                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">Trim video</p>
-                  <Slider
-                    value={[trimStart, trimEnd]}
-                    onValueChange={handleTrimChange}
-                    min={0}
-                    max={duration}
-                    step={0.1}
-                    minStepsBetweenThumbs={5}
-                    className="w-full"
-                  />
-                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                    <span>{formatTime(trimStart)}</span>
-                    <span>{formatTime(trimEnd)}</span>
-                  </div>
-                </div>
+                <VideoTrimmer
+                  videoUrl={videoUrl}
+                  duration={duration}
+                  trimStart={trimStart}
+                  trimEnd={trimEnd}
+                  onTrimChange={handleTrimChange}
+                  onScrub={handleScrub}
+                  currentTime={currentTime}
+                  isPlaying={isPlaying}
+                />
 
                 {/* Cover frame slider */}
                 <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
@@ -245,7 +235,7 @@ export default function PostPage() {
                     onValueChange={handleCoverDrag}
                     onValueCommit={handleCoverCommit}
                     min={trimStart}
-                    max={trimEnd}
+                    max={trimEnd || duration}
                     step={0.1}
                     className="w-full"
                   />
