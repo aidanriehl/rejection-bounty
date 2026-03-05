@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Flame, User } from "lucide-react";
+import { Home, Dumbbell, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
