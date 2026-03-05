@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockFeedPosts, getWeeklyScore, type FeedPost } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import WinnerBanner from "@/components/WinnerBanner";
+import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
   { key: "week", label: "This Week" },
@@ -12,11 +13,34 @@ const TABS = [
   { key: "alltime", label: "All Time" },
 ] as const;
 
-function ReelCard({ post }: { post: FeedPost }) {
-  const [liked, setLiked] = useState(post.liked);
+interface FeedPostData {
+  id: string;
+  user_id: string;
+  challenge_id: string;
+  video_id: string | null;
+  video_url: string | null;
+  thumbnail_time: number;
+  trim_start: number;
+  trim_end: number | null;
+  caption: string;
+  likes: number;
+  created_at: string;
+  profiles: {
+    username: string | null;
+    avatar: string;
+    avatar_stage: number;
+  } | null;
+}
+
+function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }) {
+  const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const lastTapRef = useRef(0);
+
+  const thumbnailUrl = post.video_id
+    ? `https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
+    : post.video_url || "/placeholder.svg";
 
   const doLike = useCallback(() => {
     if (!liked) {
@@ -40,14 +64,18 @@ function ReelCard({ post }: { post: FeedPost }) {
     lastTapRef.current = now;
   }, [doLike]);
 
+  const avatar = (post.profiles?.avatar || "dragon") as any;
+  const avatarStage = (post.profiles?.avatar_stage || 0) as any;
+  const username = post.profiles?.username || "Anonymous";
+
   return (
     <div
       className="relative h-[calc(100dvh-4.5rem)] w-full snap-start snap-always flex-shrink-0"
       onClick={handleDoubleTap}
     >
       <img
-        src={post.thumbnailUrl}
-        alt={post.challengeTitle}
+        src={thumbnailUrl}
+        alt={post.caption || "Post"}
         className="h-full w-full object-cover select-none"
         draggable={false}
       />
@@ -67,10 +95,7 @@ function ReelCard({ post }: { post: FeedPost }) {
       </AnimatePresence>
 
       <div className="absolute right-3 bottom-32 flex flex-col items-center gap-5">
-        {/* Profile avatar */}
-        <AvatarDisplay avatar={post.avatar} stage={post.avatarStage} size="sm" />
-
-        {/* Like */}
+        <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
         <button
           onClick={(e) => { e.stopPropagation(); toggleLike(); }}
           className="flex flex-col items-center gap-1 transition-transform active:scale-90"
@@ -89,15 +114,22 @@ function ReelCard({ post }: { post: FeedPost }) {
 
       <div className="absolute bottom-6 left-4 right-16">
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="text-sm font-semibold text-white drop-shadow-md">{post.username}</span>
+          <span className="text-sm font-semibold text-white drop-shadow-md">{username}</span>
         </div>
-        <p className="text-xs text-white/80 drop-shadow-md">{post.challengeTitle}</p>
+        <p className="text-xs text-white/80 drop-shadow-md">{post.caption}</p>
       </div>
     </div>
   );
 }
 
-function FeedPane({ posts, emptyMessage }: { posts: FeedPost[]; emptyMessage: string }) {
+function FeedPane({ posts, emptyMessage, loading }: { posts: FeedPostData[]; emptyMessage: string; loading?: boolean }) {
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-white/40" />
+      </div>
+    );
+  }
   if (posts.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -116,11 +148,47 @@ function FeedPane({ posts, emptyMessage }: { posts: FeedPost[]; emptyMessage: st
 
 export default function Feed() {
   const [tabIndex, setTabIndex] = useState(0);
+  const [posts, setPosts] = useState<FeedPostData[]>([]);
+  const [friendIds, setFriendIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const dragX = useMotionValue(0);
 
-  const weekPosts = [...mockFeedPosts].sort((a, b) => getWeeklyScore(b) - getWeeklyScore(a));
-  const allTimePosts = [...mockFeedPosts].sort((a, b) => b.likes - a.likes);
-  const friendPosts = mockFeedPosts.filter((p) => p.isFriend).sort((a, b) => a.daysAgo - b.daysAgo);
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const { data } = await supabase
+        .from("posts")
+        .select("*, profiles:user_id(username, avatar, avatar_stage)")
+        .order("created_at", { ascending: false }) as any;
+
+      setPosts((data || []) as FeedPostData[]);
+
+      if (user) {
+        const { data: friendData } = await supabase
+          .from("friendships")
+          .select("friend_id")
+          .eq("user_id", user.id);
+        setFriendIds((friendData || []).map((f: any) => f.friend_id));
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, [user]);
+
+  // Sort posts for different tabs
+  const now = Date.now();
+  const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+  const weekPosts = posts
+    .filter((p) => new Date(p.created_at).getTime() > oneWeekAgo)
+    .sort((a, b) => b.likes - a.likes);
+
+  const friendPosts = posts
+    .filter((p) => friendIds.includes(p.user_id))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const allTimePosts = [...posts].sort((a, b) => b.likes - a.likes);
 
   const panes = [weekPosts, friendPosts, allTimePosts];
 
@@ -133,7 +201,6 @@ export default function Feed() {
     }
   };
 
-  // Indicator position: fraction across the tab bar
   const indicatorX = useTransform(
     dragX,
     [200, 0, -200],
@@ -146,11 +213,9 @@ export default function Feed() {
 
   return (
     <div data-tour="feed" className="relative h-[calc(100dvh-4.5rem)] w-full overflow-hidden bg-black">
-      {/* Winner Banner */}
       <div className="absolute top-0 inset-x-0 z-20 px-4 pt-2">
         <WinnerBanner />
       </div>
-      {/* Tab bar overlay */}
       <div className="absolute top-0 inset-x-0 z-10 pt-9 px-4">
         <div className="flex items-center justify-center gap-6">
           {TABS.map((tab, i) => (
@@ -168,7 +233,6 @@ export default function Feed() {
         </div>
       </div>
 
-      {/* Swipeable panes */}
       <motion.div
         className="flex h-full"
         style={{ x: dragX }}
@@ -179,11 +243,12 @@ export default function Feed() {
         dragElastic={0.15}
         onDragEnd={handleDragEnd}
       >
-        {panes.map((posts, i) => (
+        {panes.map((panePosts, i) => (
           <div key={TABS[i].key} className="h-full w-full flex-shrink-0">
             <FeedPane
-              posts={posts}
+              posts={panePosts}
               emptyMessage="No videos uploaded yet"
+              loading={loading}
             />
           </div>
         ))}

@@ -16,6 +16,7 @@ export default function PostPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const challengeTitle = (location.state as any)?.challengeTitle || "Challenge";
+  const challengeId = (location.state as any)?.challengeId || "";
   const { startUpload, status: globalStatus } = useUpload();
 
   const [caption, setCaption] = useState("");
@@ -132,6 +133,7 @@ export default function PostPage() {
     if (!videoFile) return;
     startUpload(videoFile, {
       challengeTitle,
+      challengeId,
       caption,
       trimStart,
       trimEnd,
