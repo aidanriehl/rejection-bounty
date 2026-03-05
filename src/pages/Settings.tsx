@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon, Scale } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
