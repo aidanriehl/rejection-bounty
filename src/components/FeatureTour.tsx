@@ -86,8 +86,25 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     if (location.pathname !== current.route) {
       navigate(current.route);
     }
-    // Wait for page to render before measuring
-    measureTimeout.current = setTimeout(measure, location.pathname === current.route ? 50 : 350);
+    // Wait for page to render before measuring; retry a few times if element not found
+    let attempts = 0;
+    const tryMeasure = () => {
+      const el = document.querySelector(current.selector);
+      if (el) {
+        measure();
+      } else if (attempts < 10) {
+        attempts++;
+        measureTimeout.current = setTimeout(tryMeasure, 300);
+      } else {
+        // Element never appeared — skip this step or complete tour
+        if (step < STEPS.length - 1) {
+          setStep(step + 1);
+        } else {
+          onComplete();
+        }
+      }
+    };
+    measureTimeout.current = setTimeout(tryMeasure, location.pathname === current.route ? 50 : 350);
     return () => clearTimeout(measureTimeout.current);
   }, [step, location.pathname, current.route, navigate, measure]);
 
