@@ -44,9 +44,9 @@ export default function Onboarding() {
     setLoading(provider);
     try {
       // In Capacitor, redirect to the published URL so the deep link can bring the user back
-      const isCapacitor = !!(window as any).Capacitor;
-      const redirectUri = isCapacitor
-        ? "https://rejection-bounty.lovable.app"
+      const isNative = Capacitor.isNativePlatform();
+      const redirectUri = isNative
+        ? "rejectionbounty://"
         : window.location.origin;
 
       const result = await lovable.auth.signInWithOAuth(provider, {
