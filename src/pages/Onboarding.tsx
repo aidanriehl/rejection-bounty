@@ -125,7 +125,7 @@ export default function Onboarding() {
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
                   Rejection Bounty
                 </h1>
-                <p className="-mt-1 mb-10 text-base text-primary-foreground/60">
+                <p className="-mt-1 mb-6 text-base text-primary-foreground/60">
                   100 rejections will change your life
                 </p>
 
