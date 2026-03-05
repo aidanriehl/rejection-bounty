@@ -11,7 +11,7 @@ import CameraRecorder from "@/components/CameraRecorder";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
-import DropReveal from "@/components/DropReveal";
+
 import WinnerShowcase from "@/pages/WinnerShowcase";
 
 const progressMessages: Record<number, string> = {
