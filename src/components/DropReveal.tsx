@@ -203,7 +203,7 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <p className="text-xl font-extrabold tracking-tight text-foreground">
+        <p className="text-3xl font-extrabold tracking-tight text-foreground">
           8 new challenges await
         </p>
       </motion.div>
