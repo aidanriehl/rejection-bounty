@@ -354,13 +354,6 @@ export default function SettingsPage() {
         {/* Support */}
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Support</p>
         <div className="mb-5 overflow-hidden rounded-xl border bg-card">
-          <button className="flex w-full items-center justify-between border-b px-4 py-3">
-            <div className="flex items-center gap-3">
-              <CircleHelp className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Help & FAQ</span>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </button>
           <button
             onClick={() => setShowTerms(!showTerms)}
             className="flex w-full items-center justify-between border-b px-4 py-3"
