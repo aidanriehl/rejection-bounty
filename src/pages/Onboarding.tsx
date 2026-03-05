@@ -1,5 +1,6 @@
 import { lovable } from "@/integrations/lovable";
 import { useState, useEffect } from "react";
+import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -24,7 +25,7 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
         className="-mt-16 flex flex-col items-center gap-3"
       >
-        <span className="text-7xl">🔥</span>
+        <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
         <h1 className="text-3xl font-extrabold tracking-tight text-white">
           Rejection Bounty
         </h1>
@@ -69,7 +70,7 @@ export default function Onboarding() {
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
           <div className="-mt-28 flex flex-col items-center">
-            <span className="mb-4 text-7xl">🔥</span>
+            <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
             <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
               Rejection Bounty
             </h1>
