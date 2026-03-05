@@ -56,6 +56,8 @@ function getMilestone(completed: number) {
 export default function Profile() {
   const { user, profile, loading, setProfile } = useAuth();
   const [showWhyModal, setShowWhyModal] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
