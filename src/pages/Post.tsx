@@ -155,7 +155,7 @@ export default function PostPage() {
     <div className="fixed inset-0 bottom-[72px] flex flex-col pt-6">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-hidden px-4">
         {/* Header */}
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-0 flex items-center justify-between">
           <h1 className="text-xl font-bold text-foreground">Post to Feed</h1>
           <button
             onClick={() => navigate("/challenges")}
