@@ -279,13 +279,8 @@ export default function PostPage() {
           {isUploading ? "Uploading…" : "Post to Feed"}
         </button>
 
-        {/* Skip */}
-        <button
-          onClick={() => navigate("/challenges")}
-          className="mt-2 w-full py-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          Skip for now
-        </button>
+
+
       </div>
     </div>
   );
