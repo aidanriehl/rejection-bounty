@@ -100,18 +100,14 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         setUploading(false);
       }
 
-      const updateData: Record<string, unknown> = {
-        id: userId,
-        username: trimmed,
-        avatar: randomEmoji,
-      };
-      if (profilePhotoUrl) {
-        updateData.profile_photo_url = profilePhotoUrl;
-      }
-
       const { data, error } = await supabase
         .from("profiles")
-        .upsert(updateData)
+        .upsert({
+          id: userId,
+          username: trimmed,
+          avatar: randomEmoji,
+          ...(profilePhotoUrl ? { profile_photo_url: profilePhotoUrl } : {}),
+        })
         .select()
         .single();
 
