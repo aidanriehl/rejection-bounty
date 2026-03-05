@@ -4,7 +4,6 @@ import * as React from 'npm:react@18.3.1'
 
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -17,6 +16,7 @@ import {
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  token?: string
 }
 
 const LOGO_URL = 'https://uxjjfbxpednwxggeicld.supabase.co/storage/v1/object/public/email-assets/logo.png'
@@ -24,20 +24,23 @@ const LOGO_URL = 'https://uxjjfbxpednwxggeicld.supabase.co/storage/v1/object/pub
 export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
+  token,
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your login link for Rejection Bounty</Preview>
+    <Preview>Your Rejection Bounty login code{token ? `: ${token}` : ''}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img src={LOGO_URL} alt="Rejection Bounty" width="48" height="48" style={logo} />
-        <Heading style={h1}>Your login link</Heading>
+        <Heading style={h1}>Your login code</Heading>
         <Text style={text}>
-          Tap the button below to log in to Rejection Bounty. This link expires soon.
+          Enter this code to log in to Rejection Bounty. It expires soon.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Log In
-        </Button>
+        {token ? (
+          <Text style={codeStyle}>{token}</Text>
+        ) : (
+          <Text style={text}>Check your email for a login code.</Text>
+        )}
         <Text style={footer}>
           Didn't request this? Just ignore it.
         </Text>
@@ -63,13 +66,12 @@ const text = {
   lineHeight: '1.6',
   margin: '0 0 24px',
 }
-const button = {
-  backgroundColor: 'hsl(164, 72%, 40%)',
-  color: '#ffffff',
-  fontSize: '14px',
+const codeStyle = {
+  fontFamily: "'SF Mono', Courier, monospace",
+  fontSize: '28px',
   fontWeight: 'bold' as const,
-  borderRadius: '12px',
-  padding: '12px 24px',
-  textDecoration: 'none',
+  color: 'hsl(164, 72%, 40%)',
+  letterSpacing: '4px',
+  margin: '0 0 28px',
 }
 const footer = { fontSize: '12px', color: '#a3a3a3', margin: '28px 0 0' }

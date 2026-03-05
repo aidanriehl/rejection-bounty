@@ -18,7 +18,7 @@ const corsHeaders = {
 const EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'Welcome to Rejection Bounty — confirm your email',
   invite: "You're invited to Rejection Bounty",
-  magiclink: 'Your Rejection Bounty login link',
+  magiclink: '', // Dynamic — set below with OTP code in subject
   recovery: 'Reset your Rejection Bounty password',
   email_change: 'Confirm your new email — Rejection Bounty',
   reauthentication: 'Your Rejection Bounty verification code',
@@ -245,6 +245,12 @@ async function handleWebhook(req: Request): Promise<Response> {
     })
   }
 
+  // Build dynamic subject for magiclink (include OTP code)
+  let subject = EMAIL_SUBJECTS[emailType] || 'Notification'
+  if (emailType === 'magiclink' && payload.data.token) {
+    subject = `${payload.data.token} — your Rejection Bounty login code`
+  }
+
   let result: { message_id?: string }
   try {
     result = await sendLovableEmail(
@@ -253,7 +259,7 @@ async function handleWebhook(req: Request): Promise<Response> {
         to: payload.data.email,
         from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
-        subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+        subject,
         html,
         text,
         purpose: 'transactional',
