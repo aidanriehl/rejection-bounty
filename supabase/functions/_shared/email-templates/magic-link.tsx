@@ -36,7 +36,11 @@ export const MagicLinkEmail = ({
         <Text style={text}>
           Enter this code to log in to Rejection Bounty. It expires soon.
         </Text>
-        <Text style={codeStyle}>{token}</Text>
+        {token ? (
+          <Text style={codeStyle}>{token}</Text>
+        ) : (
+          <Text style={errorText}>Code unavailable — please request a new one.</Text>
+        )}
         <Text style={footer}>
           Didn't request this? Just ignore it.
         </Text>
@@ -71,3 +75,9 @@ const codeStyle = {
   margin: '0 0 28px',
 }
 const footer = { fontSize: '12px', color: '#a3a3a3', margin: '28px 0 0' }
+const errorText = {
+  fontSize: '14px',
+  color: '#ef4444',
+  fontWeight: 'bold' as const,
+  margin: '0 0 24px',
+}
