@@ -64,6 +64,8 @@ export default function Onboarding() {
       toast({ title: "Please enter your email", variant: "destructive" });
       return;
     }
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
@@ -82,6 +84,7 @@ export default function Onboarding() {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
+      setTimeout(() => { sendingRef.current = false; }, 3000);
     }
   };
 
