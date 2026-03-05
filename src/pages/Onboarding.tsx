@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,6 +40,23 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<"welcome" | "form">("welcome");
+  const sendingRef = useRef(false);
+
+  // Detect error hash from failed magic link verification
+  useEffect(() => {
+    const hash = window.location.hash?.substring(1);
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const error = params.get("error_description") || params.get("error");
+    if (error) {
+      window.history.replaceState(null, "", window.location.pathname);
+      toast({
+        title: "Sign-in link expired",
+        description: "Please request a new magic link.",
+        variant: "destructive",
+      });
+    }
+  }, []);
 
   const handleSendMagicLink = async () => {
     const trimmed = email.trim();
@@ -47,6 +64,8 @@ export default function Onboarding() {
       toast({ title: "Please enter your email", variant: "destructive" });
       return;
     }
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
@@ -65,6 +84,7 @@ export default function Onboarding() {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
+      setTimeout(() => { sendingRef.current = false; }, 3000);
     }
   };
 
