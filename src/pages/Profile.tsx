@@ -56,6 +56,8 @@ function getMilestone(completed: number) {
 export default function Profile() {
   const { user, profile, loading, setProfile } = useAuth();
   const [showWhyModal, setShowWhyModal] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -251,12 +253,31 @@ export default function Profile() {
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="pointer-events-auto relative mx-4 max-h-[60vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
+                className="pointer-events-auto relative mx-4 max-h-[60vh] w-full max-w-lg rounded-2xl bg-card shadow-xl overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
+              >
+              {/* Scroll progress bar */}
+              <div className="absolute right-1.5 top-14 bottom-3 w-1 rounded-full bg-muted z-10">
+                <motion.div
+                  className="w-full rounded-full bg-primary"
+                  initial={false}
+                  animate={{ height: `${scrollProgress}%` }}
+                  transition={{ type: "tween", duration: 0.1 }}
+                />
+              </div>
+
+              <div
+                ref={scrollViewportRef}
+                className="max-h-[60vh] overflow-y-auto p-6 pr-5"
+                onScroll={(e) => {
+                  const el = e.currentTarget;
+                  const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+                  setScrollProgress(Math.min(pct, 100));
+                }}
               >
               <button
                 onClick={() => setShowWhyModal(false)}
-                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground active:bg-muted/70"
+                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground active:bg-muted/70 z-20"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -266,53 +287,55 @@ export default function Profile() {
               </h2>
 
               <div className="space-y-4 text-[15px] leading-relaxed text-foreground/90">
-                <p>
+                <p className="font-semibold text-foreground">
                   We live in a world where you never have to experience rejection if you don't want to.
                 </p>
 
                 <p>
-                  You can remain tongue-tied, stay comfortable, and survive fine.
+                  You can remain tongue-tied,<br />
+                  stay comfortable,<br />
+                  and survive fine.
                 </p>
 
                 <p className="text-base font-semibold text-foreground">
-                  But we know life can be so much more than that.
+                  But we want more in life than that.
                 </p>
 
                 <p>
-                  Yet it isn't because our brains still think rejection is dangerous.
+                  Yet it isn't — because our brains still think rejection is dangerous.
                 </p>
 
                 <p>
-                  Because for most of human history, getting cast out from the social group was the difference between <strong>life and death.</strong>
+                  You see for most of human history, getting cast out from the social group could be the difference between <strong>life and death.</strong>
+                </p>
+
+                <p className="text-primary italic">
+                  Now that threat is gone, but the alarm isn't.
                 </p>
 
                 <p>
-                  So your brain pulls you away from anything that risks rejection — a conversation, a pitch, an audition.
+                  And what people don't realize is rejection, confidence, and not giving a f*** is a muscle we can work on just like anything else.
                 </p>
 
-                <p className="text-base font-semibold text-foreground">
-                  That threat is gone, but the alarm isn't.
-                </p>
-
-                <p>
-                  What people don't realize though is that rejection is a muscle we can work just like anything else.
-                </p>
-
-                <p className="text-muted-foreground text-sm">
-                  We don't realize this because we never start to practice it.
+                <p className="text-primary italic">
+                  We don't realize this, because we never practice it.
                 </p>
 
                 <p>
-                  Start small and have consistency, and 100 rejections later you'll become completely unphased of them.
+                  Start small, have consistency, and after 100 rejections people will start to ask what changed.
                 </p>
 
-                <p className="text-base font-semibold text-foreground">
-                  And remember that danger is real but fear isn't.
+                <p className="text-foreground">
+                  And remember:
                 </p>
 
-                <p className="text-lg font-extrabold text-foreground">
-                  It's made up and it's a muscle that gets trained
-                </p>
+                <blockquote className="border-l-4 border-primary pl-4">
+                  <p className="text-lg font-bold text-foreground">
+                    Danger is real — but fear isn't.<br />
+                    It's made up, and we can control it.
+                  </p>
+                </blockquote>
+              </div>
               </div>
               </motion.div>
             </div>
