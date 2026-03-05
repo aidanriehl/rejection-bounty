@@ -1,6 +1,5 @@
 import { lovable } from "@/integrations/lovable";
 import { useState, useEffect } from "react";
-import { Capacitor } from "@capacitor/core";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -44,13 +43,8 @@ export default function Onboarding() {
     setLoading(provider);
     try {
       // In Capacitor, redirect to the published URL so the deep link can bring the user back
-      const isNative = Capacitor.isNativePlatform();
-      const redirectUri = isNative
-        ? "rejectionbounty://"
-        : window.location.origin;
-
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: redirectUri,
+        redirect_uri: window.location.origin,
       });
       if (result.error) {
         toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
