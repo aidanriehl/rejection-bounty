@@ -1,11 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload, Film, Loader2, CheckCircle2, Play, Pause } from "lucide-react";
+import { X, Upload, Loader2, CheckCircle2, Play, Pause } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
-
-type UploadStatus = "idle" | "getting-url" | "uploading" | "processing" | "done" | "error";
+import { useUpload } from "@/contexts/UploadContext";
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -17,13 +15,11 @@ export default function PostPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const challengeTitle = (location.state as any)?.challengeTitle || "Challenge";
+  const { startUpload, status: globalStatus } = useUpload();
 
   const [caption, setCaption] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [videoId, setVideoId] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
   const [thumbnailTime, setThumbnailTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -69,8 +65,6 @@ export default function PostPage() {
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
-    setUploadStatus("idle");
-    setVideoId(null);
     setThumbnailTime(0);
     setTrimStart(0);
     setTrimEnd(0);
@@ -87,15 +81,12 @@ export default function PostPage() {
     }
   };
 
-  // Trim slider
   const handleTrimChange = (value: number[]) => {
     const [start, end] = value;
     setTrimStart(start);
     setTrimEnd(end);
-    // Clamp thumbnail to new trim range
     if (thumbnailTime < start) setThumbnailTime(start);
     if (thumbnailTime > end) setThumbnailTime(end);
-    // Seek to the nearest changed handle
     if (videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -103,7 +94,6 @@ export default function PostPage() {
     }
   };
 
-  // Cover frame - drag (fast seek)
   const handleCoverDrag = (value: number[]) => {
     const time = value[0];
     setThumbnailTime(time);
@@ -118,7 +108,6 @@ export default function PostPage() {
     }
   };
 
-  // Cover frame - release (precise seek)
   const handleCoverCommit = (value: number[]) => {
     const time = value[0];
     setThumbnailTime(time);
@@ -132,7 +121,6 @@ export default function PostPage() {
     if (isPlaying) {
       videoRef.current.pause();
     } else {
-      // Start from trimStart if at the end or outside trim range
       if (videoRef.current.currentTime < trimStart || videoRef.current.currentTime >= trimEnd) {
         videoRef.current.currentTime = trimStart;
       }
@@ -141,76 +129,21 @@ export default function PostPage() {
     setIsPlaying(!isPlaying);
   };
 
-  const uploadVideo = useCallback(async () => {
+  const handlePost = () => {
     if (!videoFile) return;
 
-    try {
-      setUploadStatus("getting-url");
-      const { data, error } = await supabase.functions.invoke("upload-video", {
-        body: { maxDurationSeconds: 30 },
-      });
+    // Start background upload via context and navigate away immediately
+    startUpload(videoFile, {
+      challengeTitle,
+      caption,
+      trimStart,
+      trimEnd,
+      thumbnailTime,
+    });
 
-      if (error || !data?.uploadURL) {
-        throw new Error(error?.message || "Failed to get upload URL");
-      }
-
-      const { uploadURL, videoId: vid } = data;
-      setVideoId(vid);
-
-      setUploadStatus("uploading");
-      const formData = new FormData();
-      formData.append("file", videoFile);
-
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", uploadURL);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          setUploadProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      };
-
-      await new Promise<void>((resolve, reject) => {
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) resolve();
-          else reject(new Error(`Upload failed with status ${xhr.status}`));
-        };
-        xhr.onerror = () => reject(new Error("Upload failed"));
-        xhr.send(formData);
-      });
-
-      setUploadStatus("done");
-      toast({ title: "Video uploaded! 🎬" });
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      setUploadStatus("error");
-      toast({
-        title: "Upload failed",
-        description: err.message || "Something went wrong",
-        variant: "destructive",
-      });
-    }
-  }, [videoFile]);
-
-  const handlePost = async () => {
-    if (videoFile && uploadStatus === "idle") {
-      await uploadVideo();
-    }
-    // TODO: save post to database with videoId + caption + thumbnailTime + trimStart + trimEnd
-    toast({ title: "Posted to feed!" });
+    toast({ title: "Posting to feed…" });
     navigate("/challenges");
   };
-
-  const statusLabel: Record<UploadStatus, string> = {
-    idle: "",
-    "getting-url": "Preparing upload…",
-    uploading: `Uploading… ${uploadProgress}%`,
-    processing: "Processing video…",
-    done: "Ready!",
-    error: "Upload failed",
-  };
-
-  const isUploading = ["getting-url", "uploading", "processing"].includes(uploadStatus);
 
   return (
     <div className="fixed inset-0 bottom-[72px] flex flex-col pt-6">
@@ -278,8 +211,7 @@ export default function PostPage() {
 
               <button
                 onClick={() => fileRef.current?.click()}
-                disabled={isUploading}
-                className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
+                className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
               >
                 Change
               </button>
@@ -328,23 +260,6 @@ export default function PostPage() {
           </div>
         )}
 
-        {/* Upload status */}
-        {uploadStatus !== "idle" && (
-          <div className="mb-2 flex items-center gap-2 text-sm">
-            {isUploading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
-            {uploadStatus === "done" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-            <span className={uploadStatus === "error" ? "text-destructive" : uploadStatus === "done" ? "text-green-500" : "text-muted-foreground"}>
-              {statusLabel[uploadStatus]}
-            </span>
-          </div>
-        )}
-
-        {uploadStatus === "uploading" && (
-          <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-          </div>
-        )}
-
         {/* Caption */}
         <textarea
           value={caption}
@@ -357,10 +272,10 @@ export default function PostPage() {
         {/* Post button */}
         <button
           onClick={handlePost}
-          disabled={isUploading || !videoFile}
+          disabled={!videoFile || globalStatus === "uploading"}
           className="w-full shrink-0 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
-          {isUploading ? "Uploading…" : "Post to Feed"}
+          Post to Feed
         </button>
       </div>
     </div>
