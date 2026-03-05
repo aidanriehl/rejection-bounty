@@ -6,82 +6,17 @@ interface DropRevealProps {
   onRevealComplete: () => void;
 }
 
-const stageText = ["Tap to break out", "Keep going...", "Almost free..."];
+const stageText = ["Tap to open", "Keep going…", "One more…"];
 
-function CrackLines({ stage }: { stage: number }) {
-  if (stage === 0) return null;
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 200 200"
-    >
-      {/* Stage 1 cracks */}
-      <motion.path
-        d="M100 30 L95 60 L105 80 L90 110"
-        fill="none"
-        stroke="hsl(var(--primary))"
-        strokeWidth="2"
-        strokeLinecap="round"
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 0.8 }}
-        transition={{ duration: 0.4 }}
-      />
-      <motion.path
-        d="M140 50 L120 70 L130 95"
-        fill="none"
-        stroke="hsl(var(--primary))"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 0.7 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      />
-
-      {/* Stage 2 — more dramatic cracks */}
-      {stage >= 2 && (
-        <>
-          <motion.path
-            d="M60 40 L80 75 L70 100 L85 140"
-            fill="none"
-            stroke="hsl(var(--destructive))"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.9 }}
-            transition={{ duration: 0.4 }}
-          />
-          <motion.path
-            d="M150 80 L125 100 L140 130 L110 160"
-            fill="none"
-            stroke="hsl(var(--destructive))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.8 }}
-            transition={{ duration: 0.35, delay: 0.1 }}
-          />
-          <motion.path
-            d="M90 140 L100 165 L80 180"
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.7 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-          />
-        </>
-      )}
-    </svg>
-  );
-}
+// The top flap angles at each stage (0 = sealed, final = wide open)
+const flapAngles = [0, -25, -55, -110];
 
 function Sparks({ count }: { count: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => {
         const angle = (i / count) * 360;
-        const distance = 50 + Math.random() * 50;
+        const distance = 60 + Math.random() * 60;
         const x = Math.cos((angle * Math.PI) / 180) * distance;
         const y = Math.sin((angle * Math.PI) / 180) * distance;
         return (
@@ -108,57 +43,147 @@ function Sparks({ count }: { count: number }) {
   );
 }
 
-function ShatterPieces() {
-  const pieces = Array.from({ length: 12 }).map((_, i) => {
-    const angle = (i / 12) * 360;
-    const dist = 80 + Math.random() * 60;
-    return {
-      x: Math.cos((angle * Math.PI) / 180) * dist,
-      y: Math.sin((angle * Math.PI) / 180) * dist,
-      rotate: Math.random() * 360,
-      size: 12 + Math.random() * 20,
-    };
-  });
+function PackageSVG({ stage }: { stage: number }) {
+  const flapAngle = flapAngles[Math.min(stage, 3)];
+  const bodyColor = "hsl(var(--primary))";
+  const bodyColorDark = "hsl(var(--primary) / 0.8)";
+  const sealColor = "hsl(var(--primary) / 0.6)";
 
   return (
-    <>
-      {pieces.map((p, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-sm"
-          style={{
-            width: p.size,
-            height: p.size,
-            background:
-              i % 3 === 0
-                ? "hsl(var(--primary) / 0.7)"
-                : i % 3 === 1
-                ? "hsl(var(--gold) / 0.6)"
-                : "hsl(var(--muted-foreground) / 0.4)",
-            top: "50%",
-            left: "50%",
-          }}
-          initial={{ x: 0, y: 0, opacity: 1, scale: 1, rotate: 0 }}
-          animate={{
-            x: p.x,
-            y: p.y,
-            opacity: 0,
-            scale: 0.3,
-            rotate: p.rotate,
-          }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+    <svg viewBox="0 0 200 280" className="w-full h-full" style={{ filter: "drop-shadow(0 8px 24px hsl(var(--primary) / 0.2))" }}>
+      {/* Package body */}
+      <path
+        d="M40 70 L40 230 Q40 245 50 250 L80 260 Q100 268 120 260 L150 250 Q160 245 160 230 L160 70 Z"
+        fill={bodyColor}
+        stroke="hsl(var(--foreground) / 0.15)"
+        strokeWidth="1.5"
+      />
+
+      {/* Side shadow */}
+      <path
+        d="M150 70 L160 70 L160 230 Q160 245 150 250 L150 70Z"
+        fill={bodyColorDark}
+        opacity="0.4"
+      />
+
+      {/* Bottom crimp */}
+      <path
+        d="M50 250 Q60 265 80 260 Q90 270 100 268 Q110 270 120 260 Q140 265 150 250"
+        fill="none"
+        stroke="hsl(var(--foreground) / 0.2)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+
+      {/* Bottom zigzag */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const x1 = 50 + i * 13;
+        const x2 = x1 + 6.5;
+        const x3 = x1 + 13;
+        return (
+          <path
+            key={`bottom-${i}`}
+            d={`M${x1} 258 L${x2} 268 L${x3} 258`}
+            fill={bodyColor}
+            stroke="hsl(var(--foreground) / 0.1)"
+            strokeWidth="0.5"
+          />
+        );
+      })}
+
+      {/* 🔥 Logo on front */}
+      <text
+        x="100"
+        y="175"
+        textAnchor="middle"
+        fontSize="64"
+        dominantBaseline="middle"
+        style={{ filter: stage >= 2 ? "brightness(1.2)" : "none" }}
+      >
+        🔥
+      </text>
+
+      {/* Top zigzag seal line (static part under flap) */}
+      <path
+        d="M45 72 Q55 60 65 72 Q75 60 85 72 Q95 60 105 72 Q115 60 125 72 Q135 60 145 72 Q155 60 160 68"
+        fill="none"
+        stroke="hsl(var(--foreground) / 0.15)"
+        strokeWidth="1"
+      />
+
+      {/* Top flap - animates open */}
+      <motion.g
+        style={{ transformOrigin: "100px 70px" }}
+        animate={{ rotateX: flapAngle }}
+        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+      >
+        {/* Flap shape */}
+        <path
+          d="M40 70 L40 30 Q40 15 55 10 L80 5 Q100 0 120 5 L145 10 Q160 15 160 30 L160 70 Z"
+          fill={bodyColor}
+          stroke="hsl(var(--foreground) / 0.15)"
+          strokeWidth="1.5"
         />
-      ))}
-    </>
+        {/* Flap inner shadow */}
+        <path
+          d="M40 70 L40 30 Q40 15 55 10 L80 5 Q100 0 120 5 L145 10 Q160 15 160 30 L160 70 Z"
+          fill={sealColor}
+          opacity="0.3"
+        />
+        {/* Top zigzag */}
+        {Array.from({ length: 8 }).map((_, i) => {
+          const x1 = 44 + i * 14.5;
+          const x2 = x1 + 7.25;
+          const x3 = x1 + 14.5;
+          return (
+            <path
+              key={`top-${i}`}
+              d={`M${x1} 5 L${x2} -5 L${x3} 5`}
+              fill={bodyColor}
+              stroke="hsl(var(--foreground) / 0.1)"
+              strokeWidth="0.5"
+            />
+          );
+        })}
+        {/* Seal circle */}
+        <motion.circle
+          cx="100"
+          cy="40"
+          r="14"
+          fill="hsl(var(--background))"
+          stroke="hsl(var(--foreground) / 0.15)"
+          strokeWidth="1.5"
+          animate={{ opacity: stage >= 2 ? 0.3 : 0.8 }}
+        />
+        <motion.text
+          x="100"
+          y="45"
+          textAnchor="middle"
+          fontSize="14"
+          fontWeight="bold"
+          fill="hsl(var(--foreground))"
+          animate={{ opacity: stage >= 2 ? 0.2 : 0.6 }}
+        >
+          NEW
+        </motion.text>
+      </motion.g>
+
+      {/* Glow from inside when opening */}
+      {stage >= 2 && (
+        <motion.ellipse
+          cx="100"
+          cy="70"
+          rx="40"
+          ry="10"
+          fill="hsl(var(--gold) / 0.4)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.6, 0.3] }}
+          transition={{ duration: 0.6 }}
+        />
+      )}
+    </svg>
   );
 }
-
-const shakeVariants = {
-  shake: {
-    x: [0, -8, 8, -6, 6, -3, 3, 0],
-    transition: { duration: 0.5 },
-  },
-};
 
 export default function DropReveal({ onRevealComplete }: DropRevealProps) {
   const [stage, setStage] = useState(0);
@@ -175,32 +200,29 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
       if (navigator.vibrate) navigator.vibrate(30);
       playPop();
     } else {
-      // Stage 2 → final shatter
+      // Final open
       setStage(3);
       if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
       playBigWin();
       setExiting(true);
       setTimeout(() => {
         onRevealComplete();
-      }, 500);
+      }, 600);
     }
   }, [stage, exiting, onRevealComplete]);
 
   return (
     <motion.div
       className="fixed inset-0 z-[60] flex flex-col items-center justify-center"
-      style={{
-        backgroundColor: "hsl(var(--background))",
-      }}
+      style={{ backgroundColor: "hsl(var(--background))" }}
       initial={{ opacity: 1 }}
-  exit={{ opacity: 0 }}
-  transition={{ duration: 0.25 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
       onClick={handleTap}
     >
-      {/* Header text — hide on shatter */}
+      {/* Header */}
       <motion.div
-        className="mb-12 text-center"
-        initial={{ opacity: 0, y: -10 }}
+        className="mb-8 text-center"
         animate={{ opacity: stage >= 3 ? 0 : 1, y: stage >= 3 ? -20 : 0 }}
         transition={{ duration: 0.3 }}
       >
@@ -209,103 +231,44 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         </p>
       </motion.div>
 
-      {/* Glow behind logo */}
+      {/* Glow */}
       <motion.div
-        className="absolute rounded-full"
+        className="absolute rounded-full pointer-events-none"
         style={{
-          background:
-            "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
+          background: "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, transparent 70%)",
         }}
         animate={{
-          width: stage === 0 ? 240 : stage === 1 ? 300 : stage >= 2 ? 400 : 240,
-          height: stage === 0 ? 240 : stage === 1 ? 300 : stage >= 2 ? 400 : 240,
-          opacity: stage >= 3 ? 0 : 0.8,
+          width: stage === 0 ? 280 : stage === 1 ? 340 : stage >= 2 ? 420 : 280,
+          height: stage === 0 ? 280 : stage === 1 ? 340 : stage >= 2 ? 420 : 280,
+          opacity: stage >= 3 ? 0 : 0.7,
         }}
         transition={{ type: "spring", stiffness: 100 }}
       />
 
-      {/* Logo + effects */}
+      {/* Package */}
       <motion.div
-        className="relative cursor-pointer select-none flex items-center justify-center"
-        variants={shakeVariants}
-        animate={stage > 0 && stage < 3 ? "shake" : undefined}
-        whileTap={{ scale: 0.95 }}
+        className="relative cursor-pointer select-none w-44 h-64"
+        whileTap={{ scale: 0.96 }}
+        animate={
+          stage >= 3
+            ? { scale: 1.2, opacity: 0, y: -40 }
+            : { scale: 1, opacity: 1, y: 0 }
+        }
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <motion.div
-          className="relative"
-          animate={
-            stage >= 3
-              ? { scale: 1.4, opacity: 0 }
-              : { scale: 1, opacity: 1 }
-          }
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          {/* Frozen/icy border effect */}
-          <motion.div
-            className="w-36 h-36 rounded-3xl flex items-center justify-center relative overflow-hidden"
-            style={{
-              background:
-                stage === 0
-                  ? "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(200 40% 90%))"
-                  : stage === 1
-                  ? "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--gold) / 0.15))"
-                  : "linear-gradient(135deg, hsl(var(--destructive) / 0.15), hsl(var(--gold) / 0.2))",
-              border: "2px solid hsl(var(--primary) / 0.25)",
-              boxShadow:
-                stage === 0
-                  ? "0 0 30px hsl(var(--primary) / 0.1), inset 0 0 20px hsl(200 60% 95% / 0.5)"
-                  : "0 0 40px hsl(var(--gold) / 0.2)",
-            }}
-          >
-            {/* Logo emoji */}
-            <motion.span
-              className="text-7xl select-none"
-              style={{
-                filter: stage === 0 ? "brightness(0.9) saturate(0.7)" : "none",
-              }}
-              animate={{
-                filter:
-                  stage === 0
-                    ? "brightness(0.9) saturate(0.7)"
-                    : stage === 1
-                    ? "brightness(1) saturate(1)"
-                    : "brightness(1.1) saturate(1.2)",
-              }}
-            >
-              🔥
-            </motion.span>
-
-            {/* Crack overlay */}
-            <CrackLines stage={stage} />
-
-            {/* Frost overlay — fades on taps */}
-            <motion.div
-              className="absolute inset-0 rounded-3xl pointer-events-none"
-              style={{
-                background:
-                  "linear-gradient(135deg, hsl(200 80% 95% / 0.4) 0%, transparent 60%)",
-              }}
-              animate={{ opacity: stage === 0 ? 1 : stage === 1 ? 0.4 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Shatter pieces on stage 3 */}
-        <AnimatePresence>
-          {stage >= 3 && <ShatterPieces />}
-        </AnimatePresence>
+        <PackageSVG stage={stage} />
 
         {/* Sparks */}
-        {sparks.map((key) => (
-          <Sparks key={key} count={stage >= 2 ? 16 : 8} />
-        ))}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {sparks.map((key) => (
+            <Sparks key={key} count={stage >= 2 ? 16 : 8} />
+          ))}
+        </div>
       </motion.div>
 
-
-      {/* Prompt text */}
+      {/* Prompt */}
       <motion.p
-        className="mt-10 text-lg font-bold text-foreground"
+        className="mt-8 text-lg font-bold text-foreground"
         animate={{ opacity: stage >= 3 ? 0 : [0.5, 1, 0.5] }}
         transition={
           stage >= 3
