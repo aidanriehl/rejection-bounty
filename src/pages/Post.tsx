@@ -7,6 +7,12 @@ import { Slider } from "@/components/ui/slider";
 
 type UploadStatus = "idle" | "getting-url" | "uploading" | "processing" | "done" | "error";
 
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
 export default function PostPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +27,8 @@ export default function PostPage() {
   const [duration, setDuration] = useState(0);
   const [thumbnailTime, setThumbnailTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [trimStart, setTrimStart] = useState(0);
+  const [trimEnd, setTrimEnd] = useState(0);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -32,6 +40,21 @@ export default function PostPage() {
     };
   }, [videoUrl]);
 
+  // Enforce trim bounds during playback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isPlaying) return;
+    const onTimeUpdate = () => {
+      if (video.currentTime >= trimEnd) {
+        video.pause();
+        setIsPlaying(false);
+        video.currentTime = trimEnd;
+      }
+    };
+    video.addEventListener("timeupdate", onTimeUpdate);
+    return () => video.removeEventListener("timeupdate", onTimeUpdate);
+  }, [isPlaying, trimEnd]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -41,7 +64,6 @@ export default function PostPage() {
       return;
     }
 
-    // Revoke old URL
     if (videoUrl) URL.revokeObjectURL(videoUrl);
 
     const url = URL.createObjectURL(file);
@@ -50,22 +72,57 @@ export default function PostPage() {
     setUploadStatus("idle");
     setVideoId(null);
     setThumbnailTime(0);
+    setTrimStart(0);
+    setTrimEnd(0);
     setIsPlaying(false);
   };
 
   const handleVideoLoaded = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration);
+      const dur = videoRef.current.duration;
+      setDuration(dur);
+      setTrimEnd(dur);
+      setThumbnailTime(0);
       videoRef.current.currentTime = 0;
     }
   };
 
-  const handleSliderChange = (value: number[]) => {
+  // Trim slider
+  const handleTrimChange = (value: number[]) => {
+    const [start, end] = value;
+    setTrimStart(start);
+    setTrimEnd(end);
+    // Clamp thumbnail to new trim range
+    if (thumbnailTime < start) setThumbnailTime(start);
+    if (thumbnailTime > end) setThumbnailTime(end);
+    // Seek to the nearest changed handle
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      videoRef.current.currentTime = start;
+    }
+  };
+
+  // Cover frame - drag (fast seek)
+  const handleCoverDrag = (value: number[]) => {
     const time = value[0];
     setThumbnailTime(time);
     if (videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
+      if ((videoRef.current as any).fastSeek) {
+        (videoRef.current as any).fastSeek(time);
+      } else {
+        videoRef.current.currentTime = time;
+      }
+    }
+  };
+
+  // Cover frame - release (precise seek)
+  const handleCoverCommit = (value: number[]) => {
+    const time = value[0];
+    setThumbnailTime(time);
+    if (videoRef.current) {
       videoRef.current.currentTime = time;
     }
   };
@@ -75,6 +132,10 @@ export default function PostPage() {
     if (isPlaying) {
       videoRef.current.pause();
     } else {
+      // Start from trimStart if at the end or outside trim range
+      if (videoRef.current.currentTime < trimStart || videoRef.current.currentTime >= trimEnd) {
+        videoRef.current.currentTime = trimStart;
+      }
       videoRef.current.play();
     }
     setIsPlaying(!isPlaying);
@@ -135,7 +196,7 @@ export default function PostPage() {
     if (videoFile && uploadStatus === "idle") {
       await uploadVideo();
     }
-    // TODO: save post to database with videoId + caption + thumbnailTime
+    // TODO: save post to database with videoId + caption + thumbnailTime + trimStart + trimEnd
     toast({ title: "Posted to feed!" });
     navigate("/challenges");
   };
@@ -153,7 +214,7 @@ export default function PostPage() {
 
   return (
     <div className="fixed inset-0 bottom-[72px] flex flex-col pt-6">
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-hidden px-4">
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col overflow-y-auto px-4 pb-4">
         {/* Header */}
         <div className="mb-0 flex items-center justify-between">
           <h1 className="text-xl font-bold text-foreground">Post to Feed</h1>
@@ -177,7 +238,7 @@ export default function PostPage() {
           onChange={handleFileChange}
         />
 
-        {/* Video area — constrained height */}
+        {/* Video area */}
         {!videoUrl ? (
           <button
             onClick={() => fileRef.current?.click()}
@@ -225,21 +286,44 @@ export default function PostPage() {
             </div>
 
             {duration > 0 && (
-              <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
-                <p className="mb-1.5 text-xs font-medium text-muted-foreground">Choose your cover frame</p>
-                <Slider
-                  value={[thumbnailTime]}
-                  onValueChange={handleSliderChange}
-                  max={duration}
-                  step={0.1}
-                  className="w-full"
-                />
-                <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                  <span>0:00</span>
-                  <span>{Math.floor(thumbnailTime)}:{String(Math.round((thumbnailTime % 1) * 10)).padStart(1, "0")}s</span>
-                  <span>0:{String(Math.floor(duration)).padStart(2, "0")}</span>
+              <>
+                {/* Trim slider */}
+                <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">Trim video</p>
+                  <Slider
+                    value={[trimStart, trimEnd]}
+                    onValueChange={handleTrimChange}
+                    min={0}
+                    max={duration}
+                    step={0.1}
+                    minStepsBetweenThumbs={5}
+                    className="w-full"
+                  />
+                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                    <span>{formatTime(trimStart)}</span>
+                    <span>{formatTime(trimEnd)}</span>
+                  </div>
                 </div>
-              </div>
+
+                {/* Cover frame slider */}
+                <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">Choose your cover frame</p>
+                  <Slider
+                    value={[thumbnailTime]}
+                    onValueChange={handleCoverDrag}
+                    onValueCommit={handleCoverCommit}
+                    min={trimStart}
+                    max={trimEnd}
+                    step={0.1}
+                    className="w-full"
+                  />
+                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                    <span>{formatTime(trimStart)}</span>
+                    <span>{formatTime(thumbnailTime)}</span>
+                    <span>{formatTime(trimEnd)}</span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
@@ -278,9 +362,6 @@ export default function PostPage() {
         >
           {isUploading ? "Uploading…" : "Post to Feed"}
         </button>
-
-
-
       </div>
     </div>
   );
