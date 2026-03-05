@@ -1,9 +1,14 @@
 import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+
 const SPLASH_DURATION = 2200;
+const PUBLISHED_URL = "https://rejection-bounty.lovable.app";
 
 function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
