@@ -220,7 +220,7 @@ export default function Onboarding() {
                     onClick={handleBack}
                     className="text-sm font-medium text-primary-foreground/50"
                   >
-                    ←
+                    ← Back
                   </button>
                 </div>
               </motion.div>
