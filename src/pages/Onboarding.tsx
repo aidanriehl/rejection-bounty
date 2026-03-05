@@ -199,7 +199,7 @@ export default function Onboarding() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col items-center gap-3"
+                className="-mt-20 flex flex-col items-center gap-3"
               >
                 <span className="text-5xl">✉️</span>
                 <h2 className="text-2xl font-bold text-primary-foreground">Check your inbox</h2>
