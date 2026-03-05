@@ -34,7 +34,81 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
-export default function Onboarding() {
+function SentScreen({
+  email,
+  onDifferentEmail,
+  onBack,
+}: {
+  email: string;
+  onDifferentEmail: () => void;
+  onBack: () => void;
+}) {
+  const [checking, setChecking] = useState(false);
+
+  // Poll for session every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        window.location.reload();
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleManualCheck = async () => {
+    setChecking(true);
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      window.location.reload();
+    } else {
+      toast({ title: "Not signed in yet", description: "Click the link in your email first.", variant: "destructive" });
+      setChecking(false);
+    }
+  };
+
+  return (
+    <motion.div
+      key="sent"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className="-mt-20 flex flex-col items-center gap-3"
+    >
+      <span className="text-5xl">✉️</span>
+      <h2 className="text-2xl font-bold text-primary-foreground">Check your inbox</h2>
+      <p className="text-sm text-primary-foreground/60">
+        We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
+      </p>
+      <p className="-mt-2 text-xs text-primary-foreground/40">
+        Click the link in the email to sign in.
+      </p>
+      <div className="mt-3 flex flex-col items-center gap-2">
+        <button
+          onClick={handleManualCheck}
+          disabled={checking}
+          className="rounded-xl bg-primary-foreground/15 px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
+        >
+          {checking ? "Checking…" : "I've signed in →"}
+        </button>
+        <button
+          onClick={onDifferentEmail}
+          className="text-sm font-medium text-primary-foreground/70"
+        >
+          Use a different email
+        </button>
+        <button
+          onClick={onBack}
+          className="text-sm font-medium text-primary-foreground/50"
+        >
+          ← Back
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+
   const [showSplash, setShowSplash] = useState(true);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
