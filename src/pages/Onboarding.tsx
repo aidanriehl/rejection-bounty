@@ -42,8 +42,14 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
+      // In Capacitor, redirect to the published URL so the deep link can bring the user back
+      const isCapacitor = !!(window as any).Capacitor;
+      const redirectUri = isCapacitor
+        ? "https://rejection-bounty.lovable.app"
+        : window.location.origin;
+
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
       });
       if (result.error) {
         toast({ title: "Sign in failed", description: String(result.error), variant: "destructive" });
