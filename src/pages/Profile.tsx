@@ -10,7 +10,7 @@ import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 const MILESTONES = [10, 50, 100, 150, 200] as const;
 
-type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
+export type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
 
 const MEDAL_COLORS: Record<MedalTier, { fill: string; stroke: string; ribbon: string }> = {
   bronze:   { fill: "#CD7F32", stroke: "#A0522D", ribbon: "#8B4513" },
