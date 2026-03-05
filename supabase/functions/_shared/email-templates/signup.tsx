@@ -4,13 +4,11 @@ import * as React from 'npm:react@18.3.1'
 
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
   Html,
   Img,
-  Link,
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
@@ -20,6 +18,7 @@ interface SignupEmailProps {
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  token?: string
 }
 
 const LOGO_URL = 'https://uxjjfbxpednwxggeicld.supabase.co/storage/v1/object/public/email-assets/logo.png'
@@ -29,24 +28,23 @@ export const SignupEmail = ({
   siteUrl,
   recipient,
   confirmationUrl,
+  token,
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Welcome to Rejection Bounty — confirm your email</Preview>
+    <Preview>Your Rejection Bounty code{token ? `: ${token}` : ''}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img src={LOGO_URL} alt="Rejection Bounty" width="48" height="48" style={logo} />
         <Heading style={h1}>Welcome aboard</Heading>
         <Text style={text}>
-          You signed up for{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>Rejection Bounty</strong>
-          </Link>
-          . Confirm your email to get started.
+          Enter this code to confirm your email and get started with Rejection Bounty.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Confirm Email
-        </Button>
+        {token ? (
+          <Text style={codeStyle}>{token}</Text>
+        ) : (
+          <Text style={errorText}>Code unavailable — please request a new one.</Text>
+        )}
         <Text style={footer}>
           Didn't sign up? Just ignore this email, no worries.
         </Text>
@@ -72,14 +70,18 @@ const text = {
   lineHeight: '1.6',
   margin: '0 0 24px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: 'hsl(164, 72%, 40%)',
-  color: '#ffffff',
-  fontSize: '14px',
+const codeStyle = {
+  fontFamily: "'SF Mono', Courier, monospace",
+  fontSize: '28px',
   fontWeight: 'bold' as const,
-  borderRadius: '12px',
-  padding: '12px 24px',
-  textDecoration: 'none',
+  color: 'hsl(164, 72%, 40%)',
+  letterSpacing: '4px',
+  margin: '0 0 28px',
+}
+const errorText = {
+  fontSize: '14px',
+  color: '#ef4444',
+  fontWeight: 'bold' as const,
+  margin: '0 0 24px',
 }
 const footer = { fontSize: '12px', color: '#a3a3a3', margin: '28px 0 0' }

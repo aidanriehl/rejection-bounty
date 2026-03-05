@@ -16,7 +16,7 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Welcome to Rejection Bounty — confirm your email',
+  signup: 'Your Rejection Bounty code',
   invite: "You're invited to Rejection Bounty",
   magiclink: 'Your Rejection Bounty login code',
   recovery: 'Reset your Rejection Bounty password',
@@ -53,6 +53,7 @@ const SAMPLE_DATA: Record<string, object> = {
     siteUrl: SAMPLE_PROJECT_URL,
     recipient: SAMPLE_EMAIL,
     confirmationUrl: SAMPLE_PROJECT_URL,
+    token: '1234',
   },
   magiclink: {
     siteName: SITE_NAME,
@@ -246,10 +247,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     })
   }
 
-  // Build dynamic subject for magiclink (include OTP code)
+  // Build dynamic subject with OTP code for signup and magiclink
   let subject = EMAIL_SUBJECTS[emailType] || 'Notification'
-  if (emailType === 'magiclink' && payload.data.token) {
-    subject = `${payload.data.token} — your Rejection Bounty login code`
+  if ((emailType === 'magiclink' || emailType === 'signup') && payload.data.token) {
+    subject = `${payload.data.token} — your Rejection Bounty code`
   }
 
   let result: { message_id?: string }
