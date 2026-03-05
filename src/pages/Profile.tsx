@@ -346,8 +346,8 @@ export default function Profile() {
         <div className="mb-5 space-y-3">
           {/* Streak */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-end gap-2">
-              <span className="text-xl leading-none -translate-y-0.5">🔥</span>
+            <div className="flex items-center gap-2">
+              <span className="text-4xl leading-none flex items-center justify-center" style={{ width: '1em', height: '1em' }}>🔥</span>
               <span className="text-3xl font-extrabold leading-none text-foreground">{streak}</span>
               <span className="text-lg font-semibold leading-none text-foreground">Week Streak</span>
             </div>
@@ -360,8 +360,8 @@ export default function Profile() {
 
           {/* Challenges */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-end gap-2">
-              <span className="text-xl leading-none -translate-y-0.5">🎯</span>
+            <div className="flex items-center gap-2">
+              <span className="text-4xl leading-none flex items-center justify-center" style={{ width: '1em', height: '1em' }}>🎯</span>
               <span className="text-3xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
               <span className="text-lg font-semibold leading-none text-foreground">challenges completed</span>
             </div>
