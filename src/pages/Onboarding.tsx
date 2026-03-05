@@ -43,16 +43,16 @@ function OtpScreen({
 }) {
   const [otp, setOtp] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const verifyingRef = useRef(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
-    const newOtp = otp.split("");
-    newOtp[index] = value.slice(-1);
-    const joined = newOtp.join("");
-    setOtp(joined.padEnd(6, "").slice(0, 6).trimEnd());
+    const chars = otp.padEnd(6, " ").split("");
+    chars[index] = value.slice(-1) || " ";
+    const joined = chars.join("").replace(/ +$/, "");
+    setOtp(joined);
 
-    // Auto-focus next
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -72,16 +72,14 @@ function OtpScreen({
     inputRefs.current[focusIndex]?.focus();
   };
 
-  const handleVerify = async () => {
-    if (otp.length !== 6) {
-      toast({ title: "Enter the full 6-digit code", variant: "destructive" });
-      return;
-    }
+  const doVerify = async (code: string) => {
+    if (code.length !== 6 || verifyingRef.current) return;
+    verifyingRef.current = true;
     setVerifying(true);
     try {
       const { error } = await supabase.auth.verifyOtp({
         email,
-        token: otp,
+        token: code,
         type: "email",
       });
       if (error) {
@@ -89,19 +87,19 @@ function OtpScreen({
         setOtp("");
         inputRefs.current[0]?.focus();
       }
-      // If successful, the auth state listener in App.tsx will handle the redirect
     } catch (err) {
       console.error("[OTP] Error:", err);
       toast({ title: "Something went wrong", variant: "destructive" });
     } finally {
       setVerifying(false);
+      verifyingRef.current = false;
     }
   };
 
   // Auto-submit when 6 digits entered
   useEffect(() => {
     if (otp.length === 6) {
-      handleVerify();
+      doVerify(otp);
     }
   }, [otp]);
 
