@@ -1,6 +1,5 @@
 import { lovable } from "@/integrations/lovable";
 import { useState, useEffect } from "react";
-import { Capacitor } from "@capacitor/core";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
