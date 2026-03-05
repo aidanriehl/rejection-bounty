@@ -16,7 +16,7 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Welcome to Rejection Bounty — confirm your email',
+  signup: 'Your Rejection Bounty code',
   invite: "You're invited to Rejection Bounty",
   magiclink: 'Your Rejection Bounty login code',
   recovery: 'Reset your Rejection Bounty password',
