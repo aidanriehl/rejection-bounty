@@ -139,7 +139,7 @@ export default function PostPage() {
       trimEnd,
       thumbnailTime,
     });
-    toast({ title: "Posting to feed…" });
+    // No toast - the UploadIndicator handles feedback
     navigate("/challenges");
   };
 
