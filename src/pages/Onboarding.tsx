@@ -34,76 +34,134 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
-function SentScreen({
+function OtpScreen({
   email,
-  onDifferentEmail,
   onBack,
 }: {
   email: string;
-  onDifferentEmail: () => void;
   onBack: () => void;
 }) {
-  const [checking, setChecking] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Poll for session every 3 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        window.location.reload();
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = otp.split("");
+    newOtp[index] = value.slice(-1);
+    const joined = newOtp.join("");
+    setOtp(joined.padEnd(6, "").slice(0, 6).trimEnd());
 
-  const handleManualCheck = async () => {
-    setChecking(true);
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      window.location.reload();
-    } else {
-      toast({ title: "Not signed in yet", description: "Click the link in your email first.", variant: "destructive" });
-      setChecking(false);
+    // Auto-focus next
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    setOtp(pasted);
+    const focusIndex = Math.min(pasted.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+  };
+
+  const handleVerify = async () => {
+    if (otp.length !== 6) {
+      toast({ title: "Enter the full 6-digit code", variant: "destructive" });
+      return;
+    }
+    setVerifying(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: "email",
+      });
+      if (error) {
+        toast({ title: "Invalid code", description: error.message, variant: "destructive" });
+        setOtp("");
+        inputRefs.current[0]?.focus();
+      }
+      // If successful, the auth state listener in App.tsx will handle the redirect
+    } catch (err) {
+      console.error("[OTP] Error:", err);
+      toast({ title: "Something went wrong", variant: "destructive" });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  // Auto-submit when 6 digits entered
+  useEffect(() => {
+    if (otp.length === 6) {
+      handleVerify();
+    }
+  }, [otp]);
+
   return (
     <motion.div
-      key="sent"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="-mt-20 flex flex-col items-center gap-3"
+      key="otp"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="-mt-20 flex flex-col items-center"
     >
-      <span className="text-5xl">✉️</span>
-      <h2 className="text-2xl font-bold text-primary-foreground">Check your inbox</h2>
-      <p className="text-sm text-primary-foreground/60">
-        We sent a magic link to <span className="font-medium text-primary-foreground/80">{email}</span>
+      <span className="mb-3 text-5xl">✉️</span>
+      <h2 className="mb-1 text-2xl font-bold text-primary-foreground">Enter your code</h2>
+      <p className="mb-1 text-sm text-primary-foreground/60">
+        We sent a 6-digit code to
       </p>
-      <p className="-mt-2 text-xs text-primary-foreground/40">
-        Click the link in the email to sign in.
-      </p>
-      <div className="mt-3 flex flex-col items-center gap-2">
-        <button
-          onClick={handleManualCheck}
-          disabled={checking}
-          className="rounded-xl bg-primary-foreground/15 px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
-        >
-          {checking ? "Checking…" : "I've signed in →"}
-        </button>
-        <button
-          onClick={onDifferentEmail}
-          className="text-sm font-medium text-primary-foreground/70"
-        >
-          Use a different email
-        </button>
-        <button
-          onClick={onBack}
-          className="text-sm font-medium text-primary-foreground/50"
-        >
-          ← Back
-        </button>
+      <p className="mb-6 text-sm font-medium text-primary-foreground/80">{email}</p>
+
+      {/* OTP input boxes */}
+      <div className="mb-4 flex gap-2.5" onPaste={handlePaste}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <input
+            key={i}
+            ref={(el) => { inputRefs.current[i] = el; }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={otp[i] || ""}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            disabled={verifying}
+            autoFocus={i === 0}
+            className="flex h-14 w-11 items-center justify-center rounded-xl border-2 border-primary-foreground/20 bg-primary-foreground/10 text-center text-xl font-bold text-primary-foreground focus:border-primary-foreground/50 focus:outline-none disabled:opacity-50"
+          />
+        ))}
       </div>
+
+      <button
+        onClick={handleVerify}
+        disabled={otp.length !== 6 || verifying}
+        className="mb-4 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40"
+      >
+        {verifying ? (
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        ) : (
+          "Verify"
+        )}
+      </button>
+
+      <p className="mb-3 text-xs text-primary-foreground/40">
+        Didn't get the code? Check your spam folder.
+      </p>
+
+      <button
+        onClick={onBack}
+        className="text-sm font-medium text-primary-foreground/60"
+      >
+        ← Use a different email
+      </button>
     </motion.div>
   );
 }
@@ -116,23 +174,7 @@ export default function Onboarding() {
   const [mode, setMode] = useState<"welcome" | "form">("welcome");
   const sendingRef = useRef(false);
 
-  // Detect error hash from failed magic link verification
-  useEffect(() => {
-    const hash = window.location.hash?.substring(1);
-    if (!hash) return;
-    const params = new URLSearchParams(hash);
-    const error = params.get("error_description") || params.get("error");
-    if (error) {
-      window.history.replaceState(null, "", window.location.pathname);
-      toast({
-        title: "Sign-in link expired",
-        description: "Please request a new magic link.",
-        variant: "destructive",
-      });
-    }
-  }, []);
-
-  const handleSendMagicLink = async () => {
+  const handleSendOtp = async () => {
     const trimmed = email.trim();
     if (!trimmed) {
       toast({ title: "Please enter your email", variant: "destructive" });
@@ -145,16 +187,16 @@ export default function Onboarding() {
       const { error } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {
-          emailRedirectTo: window.location.origin,
+          shouldCreateUser: true,
         },
       });
       if (error) {
-        toast({ title: "Failed to send link", description: error.message, variant: "destructive" });
+        toast({ title: "Failed to send code", description: error.message, variant: "destructive" });
       } else {
         setSent(true);
       }
     } catch (err) {
-      console.error("[MagicLink] Error:", err);
+      console.error("[OTP] Error:", err);
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -165,6 +207,7 @@ export default function Onboarding() {
   const handleBack = () => {
     if (sent) {
       setSent(false);
+      setEmail("");
     } else {
       setMode("welcome");
       setEmail("");
@@ -241,23 +284,23 @@ export default function Onboarding() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMagicLink()}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
                     disabled={loading}
                     className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50"
                   />
                   <button
-                    onClick={handleSendMagicLink}
+                    onClick={handleSendOtp}
                     disabled={loading}
                     className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-50"
                   >
                     {loading ? (
                       <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     ) : (
-                      "Send Magic Link"
+                      "Continue"
                     )}
                   </button>
                   <p className="pt-2 text-xs text-primary-foreground/40">
-                    We'll send a sign-in link to your email. No password needed.
+                    We'll send a 6-digit code to your email. No password needed.
                   </p>
                   <button
                     onClick={handleBack}
@@ -268,11 +311,7 @@ export default function Onboarding() {
                 </div>
               </motion.div>
             ) : (
-              <SentScreen
-                email={email}
-                onDifferentEmail={() => { setSent(false); setEmail(""); }}
-                onBack={handleBack}
-              />
+              <OtpScreen email={email} onBack={handleBack} />
             )}
           </AnimatePresence>
         </motion.div>
