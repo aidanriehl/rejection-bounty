@@ -170,12 +170,18 @@ export default function DrawingReveal({ potAmount, playerCount, winnerName: prop
       const progress = Math.min(elapsed / spinDuration, 1);
 
       let eased: number;
-      if (elapsed < fastEnd) {
-        eased = (elapsed / spinDuration) * 0.45;
+      if (elapsed < 300) {
+        // Quick acceleration (ease-in) for first 300ms
+        const accelProgress = elapsed / 300;
+        eased = Math.pow(accelProgress, 2) * 0.15;
+      } else if (elapsed < fastEnd) {
+        // Fast constant speed
+        eased = 0.15 + ((elapsed - 300) / (fastEnd - 300)) * 0.35;
       } else {
+        // Deceleration (ease-out)
         const slowProgress = (elapsed - fastEnd) / (spinDuration - fastEnd);
         const decel = 1 - Math.pow(1 - slowProgress, 3.5);
-        eased = 0.45 + decel * 0.55;
+        eased = 0.50 + decel * 0.50;
       }
 
       reelY.set(-eased * totalDistance);
