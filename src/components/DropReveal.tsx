@@ -197,11 +197,12 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
       transition={{ duration: 0.5 }}
       onClick={handleTap}
     >
-      {/* Header text — positioned relative to the logo, not absolute top */}
+      {/* Header text — hide on shatter */}
       <motion.div
         className="mb-12 text-center"
         initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: stage >= 3 ? 0 : 1, y: stage >= 3 ? -20 : 0 }}
+        transition={{ duration: 0.3 }}
       >
         <p className="text-3xl font-extrabold tracking-tight text-foreground">
           8 new challenges await
