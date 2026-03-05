@@ -42,7 +42,6 @@ export default function Onboarding() {
   const handleSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
-      // In Capacitor, redirect to the published URL so the deep link can bring the user back
       const result = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: window.location.origin,
       });
