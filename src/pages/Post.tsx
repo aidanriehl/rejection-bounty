@@ -166,7 +166,7 @@ export default function PostPage() {
         </div>
 
         {/* Challenge name */}
-        <p className="mb-3 text-sm font-medium text-foreground">{challengeTitle}</p>
+        <p className="mb-5 text-sm font-medium text-foreground">{challengeTitle}</p>
 
         {/* Hidden file input */}
         <input
