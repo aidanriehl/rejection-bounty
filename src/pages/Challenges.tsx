@@ -98,7 +98,6 @@ export default function Challenges() {
 
   const handleRevealComplete = () => {
     localStorage.setItem(weekKey, "true");
-    setDropRevealed(true);
     setJustRevealed(true);
     playCascade(10, 900);
     setTimeout(() => setJustRevealed(false), 2500);
