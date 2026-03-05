@@ -16,12 +16,12 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Welcome to Rejection Bounty — confirm your email',
+  invite: "You're invited to Rejection Bounty",
+  magiclink: 'Your Rejection Bounty login link',
+  recovery: 'Reset your Rejection Bounty password',
+  email_change: 'Confirm your new email — Rejection Bounty',
+  reauthentication: 'Your Rejection Bounty verification code',
 }
 
 // Template mapping
