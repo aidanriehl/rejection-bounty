@@ -73,6 +73,23 @@ export default function Profile() {
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
+  // Milestone celebration — check if a new milestone was just reached
+  const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
+
+  useEffect(() => {
+    if (!user || totalCompleted === 0) return;
+    const storageKey = `milestone_celebrated_${user.id}`;
+    const celebrated = JSON.parse(localStorage.getItem(storageKey) || "[]") as number[];
+    // Find the highest milestone the user has reached but not celebrated
+    for (let i = MILESTONES.length - 1; i >= 0; i--) {
+      const m = MILESTONES[i];
+      if (totalCompleted >= m && !celebrated.includes(m)) {
+        setCelebrateMilestone({ tier: MEDALS[m].tier, milestone: m });
+        localStorage.setItem(storageKey, JSON.stringify([...celebrated, m]));
+        break;
+      }
+    }
+  }, [totalCompleted, user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
