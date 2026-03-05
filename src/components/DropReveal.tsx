@@ -182,7 +182,7 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
       setExiting(true);
       setTimeout(() => {
         onRevealComplete();
-      }, 900);
+      }, 500);
     }
   }, [stage, exiting, onRevealComplete]);
 
@@ -193,8 +193,8 @@ export default function DropReveal({ onRevealComplete }: DropRevealProps) {
         backgroundColor: "hsl(var(--background))",
       }}
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.25 }}
       onClick={handleTap}
     >
       {/* Header text — hide on shatter */}
