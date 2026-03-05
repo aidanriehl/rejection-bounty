@@ -1,9 +1,40 @@
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, X, Ticket } from "lucide-react";
 import { useUpload } from "@/contexts/UploadContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function UploadIndicator() {
-  const { status, progress, challengeTitle, retry, clearUpload } = useUpload();
+  const { status, progress, retry, clearUpload } = useUpload();
+  const [entryCount, setEntryCount] = useState<number | null>(null);
+
+  // Fetch entry count when upload completes
+  useEffect(() => {
+    if (status !== "done") {
+      setEntryCount(null);
+      return;
+    }
+
+    const fetchEntries = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      // Get current week key (YYYY-WW)
+      const now = new Date();
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
+      const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+
+      const { count } = await supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", session.user.id);
+
+      setEntryCount(count ?? 0);
+    };
+
+    fetchEntries();
+  }, [status]);
 
   if (status === "idle") return null;
 
@@ -15,7 +46,7 @@ export default function UploadIndicator() {
         exit={{ y: 60, opacity: 0 }}
         className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-lg"
       >
-        <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg">
+        <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg relative">
           {/* Icon */}
           {status === "uploading" && (
             <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
@@ -33,12 +64,18 @@ export default function UploadIndicator() {
               {status === "uploading"
                 ? `Uploading video… ${progress}%`
                 : status === "done"
-                ? "Upload complete!"
+                ? "Upload complete! 🎬"
                 : "Upload failed"}
             </p>
-            {challengeTitle && (
-              <p className="text-[10px] text-muted-foreground truncate">{challengeTitle}</p>
-            )}
+            <p className="text-[10px] text-muted-foreground truncate">
+              {status === "uploading"
+                ? "Don't leave the app until upload finishes"
+                : status === "done" && entryCount !== null
+                ? `🎟️ You have ${entryCount} ${entryCount === 1 ? "entry" : "entries"} in this week's draw`
+                : status === "error"
+                ? "Tap retry to try again"
+                : ""}
+            </p>
           </div>
 
           {/* Actions */}
