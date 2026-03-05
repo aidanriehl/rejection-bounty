@@ -44,8 +44,10 @@ export default function Onboarding() {
     setLoading(provider);
     try {
       const isNative = Capacitor.isNativePlatform();
+      // For native: redirect to the published web callback with native=1 flag
+      // That page will bounce the user back to the native app via custom URL scheme
       const redirectUri = isNative
-        ? "app.lovable.1f0608baf7f94f668530c5e415e76d58://callback"
+        ? "https://rejection-bounty.lovable.app/auth/callback?native=1"
         : window.location.origin;
 
       const result = await lovable.auth.signInWithOAuth(provider, {
