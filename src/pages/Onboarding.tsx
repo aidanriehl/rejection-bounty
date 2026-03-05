@@ -1,5 +1,6 @@
 import { lovable } from "@/integrations/lovable";
 import { useState, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,9 +44,9 @@ export default function Onboarding() {
     setLoading(provider);
     try {
       // In Capacitor, redirect to the published URL so the deep link can bring the user back
-      const isCapacitor = !!(window as any).Capacitor;
-      const redirectUri = isCapacitor
-        ? "https://rejection-bounty.lovable.app"
+      const isNative = Capacitor.isNativePlatform();
+      const redirectUri = isNative
+        ? "rejectionbounty://"
         : window.location.origin;
 
       const result = await lovable.auth.signInWithOAuth(provider, {
