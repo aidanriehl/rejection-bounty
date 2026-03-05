@@ -139,7 +139,7 @@ function OtpScreen({
       </div>
 
       <button
-        onClick={handleVerify}
+        onClick={() => doVerify(otp)}
         disabled={otp.length !== 6 || verifying}
         className="mb-4 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40"
       >
