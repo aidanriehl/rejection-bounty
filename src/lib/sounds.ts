@@ -357,59 +357,60 @@ export function playCascade(count = 10, durationMs = 800) {
   } catch {}
 }
 
-/** Satisfying "thud" — deep hit + woody knock, pitched by index for cascade feel */
+/** Satisfying heavy "thud" — deep impact + crunch, pitched slightly by index */
 export function playBrickLand(index: number) {
   try {
     const a = ctx();
     const t = a.currentTime;
 
-    // Deep sub-bass thud
+    // Heavy sub-bass impact — deep and punchy
     const subOsc = a.createOscillator();
     const subGain = a.createGain();
     subOsc.type = "sine";
-    subOsc.frequency.setValueAtTime(80 + index * 8, t);
-    subOsc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
-    subGain.gain.setValueAtTime(0.35, t);
-    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    subOsc.frequency.setValueAtTime(60 + index * 3, t);
+    subOsc.frequency.exponentialRampToValueAtTime(25, t + 0.2);
+    subGain.gain.setValueAtTime(0.5, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
     subOsc.connect(subGain);
     subGain.connect(a.destination);
     subOsc.start(t);
-    subOsc.stop(t + 0.15);
+    subOsc.stop(t + 0.2);
 
-    // Woody "knock" — short noise burst through a resonant filter
-    const bufSize = a.sampleRate * 0.04;
+    // Gritty impact noise — short burst, low-pass filtered for weight
+    const bufSize = a.sampleRate * 0.06;
     const buf = a.createBuffer(1, bufSize, a.sampleRate);
     const data = buf.getChannelData(0);
     for (let j = 0; j < bufSize; j++) {
-      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 6);
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 4);
     }
     const src = a.createBufferSource();
     src.buffer = buf;
-    const bp = a.createBiquadFilter();
-    bp.type = "bandpass";
-    bp.frequency.value = 800 + index * 120; // pitch up each successive brick
-    bp.Q.value = 8;
-    const knockGain = a.createGain();
-    knockGain.gain.setValueAtTime(0.3, t);
-    knockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-    src.connect(bp);
-    bp.connect(knockGain);
-    knockGain.connect(a.destination);
+    const lp = a.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 600 + index * 40;
+    lp.Q.value = 2;
+    const impactGain = a.createGain();
+    impactGain.gain.setValueAtTime(0.4, t);
+    impactGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    src.connect(lp);
+    lp.connect(impactGain);
+    impactGain.connect(a.destination);
     src.start(t);
-    src.stop(t + 0.06);
+    src.stop(t + 0.08);
 
-    // Bright "ping" overtone — satisfying high-end click
-    const pingOsc = a.createOscillator();
-    const pingGain = a.createGain();
-    pingOsc.type = "sine";
-    pingOsc.frequency.setValueAtTime(1200 + index * 150, t);
-    pingGain.gain.setValueAtTime(0.08, t);
-    pingGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-    pingOsc.connect(pingGain);
-    pingGain.connect(a.destination);
-    pingOsc.start(t);
-    pingOsc.stop(t + 0.08);
+    // Secondary low rumble for weight
+    const rumbleOsc = a.createOscillator();
+    const rumbleGain = a.createGain();
+    rumbleOsc.type = "triangle";
+    rumbleOsc.frequency.setValueAtTime(45 + index * 2, t);
+    rumbleOsc.frequency.exponentialRampToValueAtTime(20, t + 0.12);
+    rumbleGain.gain.setValueAtTime(0.2, t + 0.01);
+    rumbleGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    rumbleOsc.connect(rumbleGain);
+    rumbleGain.connect(a.destination);
+    rumbleOsc.start(t);
+    rumbleOsc.stop(t + 0.12);
 
-    if (navigator.vibrate) navigator.vibrate(20);
+    if (navigator.vibrate) navigator.vibrate(30);
   } catch {}
 }
