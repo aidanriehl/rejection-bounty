@@ -209,7 +209,7 @@ export default function Onboarding() {
                 <p className="text-xs text-primary-foreground/40">
                   Click the link in the email to sign in.
                 </p>
-                <div className="mt-4 flex flex-col items-center gap-2">
+                <div className="mt-2 flex flex-col items-center gap-2">
                   <button
                     onClick={() => { setSent(false); setEmail(""); }}
                     className="text-sm font-medium text-primary-foreground/70"
