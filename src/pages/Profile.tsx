@@ -156,6 +156,13 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen pb-24 pt-4">
+      {celebrateMilestone && (
+        <MilestoneCelebration
+          tier={celebrateMilestone.tier}
+          milestone={celebrateMilestone.milestone}
+          onDone={() => setCelebrateMilestone(null)}
+        />
+      )}
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
