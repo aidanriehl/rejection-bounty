@@ -69,29 +69,14 @@ export default function PostPage() {
     setCurrentTime(0);
   };
 
-  const handleVideoLoaded = async () => {
+  const handleVideoLoaded = () => {
     const video = videoRef.current;
     if (video) {
       const dur = video.duration;
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
       setThumbnailTime(0);
-
-      // iOS Safari requires playing to display any frame
-      // We mute, play briefly, then pause to show first frame
-      video.muted = true;
-      video.currentTime = 0.001;
-
-      try {
-        await video.play();
-        // Immediately pause after play starts to show first frame
-        video.pause();
-        video.currentTime = 0.001;
-      } catch (e) {
-        // Fallback: try seeking again
-        video.currentTime = 0.001;
-        console.log("Video play/pause failed:", e);
-      }
+      // autoPlay + muted handles iOS frame rendering
     }
   };
 
