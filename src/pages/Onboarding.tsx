@@ -47,17 +47,6 @@ function OtpScreen({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (index: number, value: string) => {
-    const digits = value.replace(/\D/g, "");
-
-    // iOS autofill might paste full code into first input
-    if (digits.length > 1) {
-      const code = digits.slice(0, 6);
-      setOtp(code);
-      const focusIndex = Math.min(code.length, 5);
-      inputRefs.current[focusIndex]?.focus();
-      return;
-    }
-
     if (!/^\d*$/.test(value)) return;
     const chars = otp.padEnd(6, " ").split("");
     chars[index] = value.slice(-1) || " ";
@@ -144,7 +133,6 @@ function OtpScreen({
             onKeyDown={(e) => handleKeyDown(i, e)}
             disabled={verifying}
             autoFocus={i === 0}
-            autoComplete={i === 0 ? "one-time-code" : "off"}
             className="flex h-14 w-11 items-center justify-center rounded-xl border-2 border-primary-foreground/20 bg-primary-foreground/10 text-center text-xl font-bold text-primary-foreground focus:border-primary-foreground/50 focus:outline-none disabled:opacity-50"
           />
         ))}
