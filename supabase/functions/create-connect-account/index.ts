@@ -48,6 +48,7 @@ serve(async (req) => {
         type: "express",
         email: user.email,
         capabilities: {
+          card_payments: { requested: true },
           transfers: { requested: true },
         },
       });
