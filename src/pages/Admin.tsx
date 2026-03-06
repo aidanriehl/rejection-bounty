@@ -212,11 +212,11 @@ export default function Admin() {
     }
 
     // Get featured videos
-    const { data: featured } = await supabase
-      .from("featured_videos")
+    const { data: featured } = await (supabase
+      .from("featured_videos" as any)
       .select("*")
       .eq("week_key", weekKey)
-      .order("display_order", { ascending: true });
+      .order("display_order", { ascending: true }) as any);
 
     if (featured) {
       setFeaturedVideos(featured as FeaturedVideo[]);

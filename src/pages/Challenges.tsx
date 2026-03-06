@@ -59,6 +59,8 @@ export default function Challenges() {
   });
     
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
+  const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
+  const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
 
   // Persist completed challenges to localStorage + sync to DB
