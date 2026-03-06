@@ -130,7 +130,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center px-6"
+      className="fixed inset-0 flex flex-col items-center justify-center px-6 overflow-hidden"
       style={{ backgroundColor: "hsl(var(--primary))" }}
     >
       <motion.form

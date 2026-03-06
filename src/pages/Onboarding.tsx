@@ -110,7 +110,7 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="-mt-20 flex flex-col items-center"
+      className="flex flex-col items-center"
     >
       <span className="mb-3 text-5xl">✉️</span>
       <h2 className="mb-1 text-2xl font-bold text-primary-foreground">Enter your code</h2>
@@ -220,7 +220,7 @@ export default function Onboarding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center"
+          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center overflow-hidden"
           style={{ backgroundColor: "hsl(var(--primary))" }}
         >
           <AnimatePresence mode="wait">
@@ -231,7 +231,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="-mt-20 flex flex-col items-center"
+                className="flex flex-col items-center"
               >
                 <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
@@ -263,7 +263,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="-mt-20 flex flex-col items-center"
+                className="flex flex-col items-center"
               >
                 <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">

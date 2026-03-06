@@ -140,3 +140,27 @@ html.dark body {
   display: none; /* Chrome/Safari */
 }
 
+/* iOS keyboard and scroll fixes */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+

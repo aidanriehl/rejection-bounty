@@ -19,6 +19,15 @@ const config: CapacitorConfig = {
   },
   plugins: {
     CapacitorHttp: { enabled: true },
+    Keyboard: {
+      resize: 'none',
+      style: 'dark',
+      resizeOnFullScreen: false,
+    },
+  },
+  ios: {
+    scrollEnabled: false,
+    allowsLinkPreview: false,
   },
 };
 

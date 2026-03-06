@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
+import { Keyboard } from "@capacitor/keyboard";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -112,6 +113,17 @@ function AppRoutes() {
   );
 }
 
+function KeyboardSetup() {
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    // Hide the iOS form accessory bar (the toolbar with arrows and checkmark)
+    Keyboard.setAccessoryBarVisible({ isVisible: false });
+  }, []);
+
+  return null;
+}
+
 function DeepLinkHandler() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -173,6 +185,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <UploadProvider>
+            <KeyboardSetup />
             <DeepLinkHandler />
             <Routes>
               <Route path="/auth/callback" element={<AuthCallback />} />
