@@ -35,21 +35,26 @@ async function fetchProfile(userId: string, retries = 3): Promise<Profile | null
         .single();
 
       if (error) {
-        console.error("[AuthContext] Profile fetch error:", error);
+        console.error("[AuthContext] ❌ Profile fetch error:", error.message, error.code, error.details);
+        // Show visible alert for debugging on device
+        if (attempt === retries) {
+          console.error("[AuthContext] ❌ FINAL ATTEMPT FAILED - User will be redirected to setup");
+        }
         if (attempt < retries) {
           await new Promise(r => setTimeout(r, 500 * attempt));
           continue;
         }
         return null;
       }
-      console.log("[AuthContext] Profile fetched successfully:", {
+      console.log("[AuthContext] ✅ Profile fetched successfully:", {
         id: data?.id,
         username: data?.username,
-        hasUsername: !!data?.username
+        hasUsername: !!data?.username,
+        hasProfilePhoto: !!data?.profile_photo_url
       });
       return data as Profile;
     } catch (err) {
-      console.error("[AuthContext] Profile fetch exception:", err);
+      console.error("[AuthContext] ❌ Profile fetch exception:", err);
       if (attempt < retries) {
         await new Promise(r => setTimeout(r, 500 * attempt));
         continue;

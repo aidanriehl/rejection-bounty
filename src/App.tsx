@@ -85,6 +85,11 @@ function AppRoutes() {
 
   // Signed in but no username → setup
   if (!profile?.username) {
+    console.log("[AppRoutes] ⚠️ Redirecting to setup - profile state:", {
+      profileExists: !!profile,
+      username: profile?.username,
+      userId: user.id
+    });
     return (
       <Routes>
         <Route
