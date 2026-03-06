@@ -147,16 +147,16 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       >
         <div className="-mt-16 flex flex-col items-center text-center">
           <h1 className="mb-3 text-2xl font-extrabold tracking-tight text-primary">
-            How This App Works
+            Quick App Demo
           </h1>
           <p className="mb-8 text-base text-primary/60">
-            Please don't skip through — it'll help you understand everything
+            Takes 30 seconds — don't skip!
           </p>
           <Button
             onClick={() => setShowIntro(false)}
-            className="h-14 w-full max-w-xs rounded-2xl text-base font-bold"
+            className="h-14 w-48 rounded-2xl text-base font-bold"
           >
-            Let's Go
+            ▶️ Start
           </Button>
         </div>
       </motion.div>
