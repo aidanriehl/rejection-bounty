@@ -150,7 +150,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
           <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-primary">
             Quick App Demo
           </h1>
-          <p className="mb-8 text-base text-primary/60">
+          <p className="mb-6 text-base text-primary/60">
             understand how the app works
           </p>
           <Button
