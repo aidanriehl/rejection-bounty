@@ -192,7 +192,7 @@ export default function Admin() {
     }
 
     // Get challenges (try from Supabase, fallback to mock)
-    const { data: dbChallenges } = await supabase
+    const { data: dbChallenges } = await (supabase as any)
       .from("challenges")
       .select("*")
       .order("created_at", { ascending: false });
