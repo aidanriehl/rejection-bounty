@@ -186,6 +186,7 @@ export default function PostPage() {
                         else vid.pause();
                       }}
                       playsInline
+                      autoPlay
                       muted
                       loop
                       preload="auto"
