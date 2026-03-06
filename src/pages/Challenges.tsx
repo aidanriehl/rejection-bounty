@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Crown, Trophy, Upload, Users, RotateCcw } from "lucide-react";
+import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
