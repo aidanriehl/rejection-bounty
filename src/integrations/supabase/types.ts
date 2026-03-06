@@ -89,6 +89,45 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_videos: {
+        Row: {
+          avatar: string | null
+          challenge_title: string | null
+          completion_id: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          thumbnail_url: string | null
+          username: string | null
+          video_url: string
+          week_key: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          challenge_title?: string | null
+          completion_id?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          thumbnail_url?: string | null
+          username?: string | null
+          video_url: string
+          week_key?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          challenge_title?: string | null
+          completion_id?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          thumbnail_url?: string | null
+          username?: string | null
+          video_url?: string
+          week_key?: string | null
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string
