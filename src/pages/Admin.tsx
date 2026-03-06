@@ -75,7 +75,6 @@ function getAdminWeekKey() {
 
 export default function Admin() {
   const { user, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [weekKey] = useState(getAdminWeekKey);
   const [tickets, setTickets] = useState<TicketEntry[]>([]);
   const [completions, setCompletions] = useState<CompletionWithVideo[]>([]);
@@ -101,13 +100,8 @@ export default function Admin() {
   const [allVideosThisWeek, setAllVideosThisWeek] = useState<any[]>([]);
   const [showVideoSelector, setShowVideoSelector] = useState(false);
 
-  // Check admin access
-  useEffect(() => {
-    if (!user) return;
-    supabase.auth.getUser().then(({ data }) => {
-      setIsAdmin(data.user?.email === ADMIN_EMAIL);
-    });
-  }, [user]);
+  // Check admin access - use same method as BottomNav
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   // Fetch data
   useEffect(() => {
@@ -360,7 +354,7 @@ export default function Admin() {
     fetchData();
   };
 
-  if (loading || isAdmin === null) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <span className="text-2xl animate-pulse">⚙️</span>
@@ -368,7 +362,7 @@ export default function Admin() {
     );
   }
 
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   const getUserCompletions = (userId: string) =>
     completions.filter((c) => c.user_id === userId);
