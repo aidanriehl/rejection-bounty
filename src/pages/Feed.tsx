@@ -176,31 +176,46 @@ export default function Feed() {
   const { user } = useAuth();
   const dragX = useMotionValue(0);
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*, profiles:user_id(username, avatar, avatar_stage)")
-        .order("created_at", { ascending: false }) as any;
+  const fetchData = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*, profiles:user_id(username, avatar, avatar_stage)")
+      .order("created_at", { ascending: false }) as any;
 
-      if (error) {
-        console.error("Failed to fetch posts:", error);
-      }
-      console.log("Fetched posts:", data?.length || 0, "posts");
-      setPosts((data || []) as FeedPostData[]);
-
-      if (user) {
-        const { data: friendData } = await supabase
-          .from("friendships")
-          .select("friend_id")
-          .eq("user_id", user.id);
-        setFriendIds((friendData || []).map((f: any) => f.friend_id));
-      }
-      setLoading(false);
+    if (error) {
+      console.error("[Feed] Failed to fetch posts:", error);
     }
+    console.log("[Feed] Fetched posts:", data?.length || 0, "posts");
+    if (data?.length > 0) {
+      console.log("[Feed] First post:", data[0]?.id, "video_id:", data[0]?.video_id);
+    }
+    setPosts((data || []) as FeedPostData[]);
+
+    if (user) {
+      const { data: friendData } = await supabase
+        .from("friendships")
+        .select("friend_id")
+        .eq("user_id", user.id);
+      setFriendIds((friendData || []).map((f: any) => f.friend_id));
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchData();
   }, [user]);
+
+  // Refresh feed when a new video is uploaded
+  useEffect(() => {
+    const handleUploadComplete = () => {
+      console.log("[Feed] Challenge completed, refreshing feed...");
+      // Delay to allow database to commit
+      setTimeout(fetchData, 2000);
+    };
+    window.addEventListener("challenge-completed", handleUploadComplete);
+    return () => window.removeEventListener("challenge-completed", handleUploadComplete);
+  }, []);
 
   // Sort posts for different tabs
   const now = Date.now();
@@ -252,7 +267,7 @@ export default function Feed() {
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
-        style={{ top: "calc(env(safe-area-inset-top) + 36px)" }}
+        style={{ top: "calc(env(safe-area-inset-top) + 20px)" }}
       >
         <div className="flex items-center justify-center gap-6">
           {TABS.map((tab, i) => (

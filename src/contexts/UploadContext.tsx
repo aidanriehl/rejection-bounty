@@ -96,35 +96,53 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       if (meta) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Get current week key
+          // Get current week key - MUST match format in UploadIndicator.tsx
           const now = new Date();
           const startOfYear = new Date(now.getFullYear(), 0, 1);
           const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
           const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
-          // Insert post
-          const { error: insertError } = await supabase.from("posts").insert({
+          console.log("[Upload] Inserting post with video_id:", videoId);
+          console.log("[Upload] Week key:", weekKey);
+          console.log("[Upload] User ID:", session.user.id);
+          console.log("[Upload] Challenge ID:", meta.challengeId);
+
+          // Insert post with all required fields
+          const { data: postData, error: insertError } = await supabase.from("posts").insert({
             user_id: session.user.id,
             challenge_id: meta.challengeId,
             video_id: videoId,
             thumbnail_time: meta.thumbnailTime,
             trim_start: meta.trimStart,
             trim_end: meta.trimEnd,
-            caption: meta.caption,
-          } as any);
+            caption: meta.caption || "",
+            likes: 0,
+          } as any).select().single();
 
           if (insertError) {
-            console.error("Failed to insert post:", insertError);
+            console.error("[Upload] Failed to insert post:", insertError);
             throw new Error("Failed to save post to feed: " + insertError.message);
           }
 
-          // Mark challenge as complete in challenge_completions
-          await supabase.from("challenge_completions").upsert({
-            user_id: session.user.id,
-            challenge_id: meta.challengeId,
-            week_key: weekKey,
-            video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
-          } as any, { onConflict: "user_id,challenge_id,week_key" });
+          console.log("[Upload] Post inserted successfully:", postData?.id);
+
+          // Mark challenge as complete in challenge_completions - WITH ERROR HANDLING
+          const { data: completionData, error: completionError } = await supabase
+            .from("challenge_completions")
+            .upsert({
+              user_id: session.user.id,
+              challenge_id: meta.challengeId,
+              week_key: weekKey,
+              video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
+            } as any, { onConflict: "user_id,challenge_id,week_key" })
+            .select();
+
+          if (completionError) {
+            console.error("[Upload] Failed to insert challenge completion:", completionError);
+            // Don't throw - post was saved, completion is secondary
+          } else {
+            console.log("[Upload] Challenge completion saved:", completionData);
+          }
 
           // Dispatch event so Challenges page can trigger confetti
           window.dispatchEvent(new CustomEvent("challenge-completed", {
@@ -136,7 +154,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       }
 
       setState((s) => ({ ...s, status: "done", progress: 100 }));
-      toast({ title: "Video uploaded! 🎬" });
+      // No toast - the UploadIndicator banner already shows success
 
       // Auto-clear after a few seconds
       setTimeout(() => {

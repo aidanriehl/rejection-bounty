@@ -30,6 +30,7 @@ import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
 import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
+import logo from "@/assets/logo.png";
 
 const queryClient = new QueryClient();
 
@@ -66,8 +67,8 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="text-2xl animate-pulse">🔥</span>
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <img src={logo} alt="Logo" className="h-16 w-16 animate-pulse" />
       </div>
     );
   }

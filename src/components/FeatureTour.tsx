@@ -115,11 +115,26 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     return () => window.removeEventListener("resize", measure);
   }, [measure]);
 
-  // Disable scrolling while tour is active
+  // Disable scrolling while tour is active (iOS requires touchmove prevention)
   useEffect(() => {
+    const preventScroll = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.top = `-${window.scrollY}px`;
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+
     return () => {
+      const scrollY = document.body.style.top;
       document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.top = "";
+      document.removeEventListener("touchmove", preventScroll);
+      window.scrollTo(0, parseInt(scrollY || "0") * -1);
     };
   }, []);
 

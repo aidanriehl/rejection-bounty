@@ -59,6 +59,36 @@ export type Database = {
         }
         Relationships: []
       }
+      challenges: {
+        Row: {
+          id: string
+          title: string
+          emoji: string
+          description: string | null
+          week_key: string
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          emoji?: string
+          description?: string | null
+          week_key: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          emoji?: string
+          description?: string | null
+          week_key?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string

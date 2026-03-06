@@ -69,15 +69,29 @@ export default function PostPage() {
     setCurrentTime(0);
   };
 
-  const handleVideoLoaded = () => {
+  const handleVideoLoaded = async () => {
     const video = videoRef.current;
     if (video) {
       const dur = video.duration;
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
       setThumbnailTime(0);
-      // Seek to first frame
+
+      // iOS Safari requires playing to display any frame
+      // We mute, play briefly, then pause to show first frame
+      video.muted = true;
       video.currentTime = 0.001;
+
+      try {
+        await video.play();
+        // Immediately pause after play starts to show first frame
+        video.pause();
+        video.currentTime = 0.001;
+      } catch (e) {
+        // Fallback: try seeking again
+        video.currentTime = 0.001;
+        console.log("Video play/pause failed:", e);
+      }
     }
   };
 
@@ -134,7 +148,7 @@ export default function PostPage() {
         className="flex-1 overflow-y-auto"
         style={{ paddingBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
       >
-        <div className="mx-auto w-full max-w-lg px-4 pb-6">
+        <div className="mx-auto w-full max-w-lg px-4 pb-6 pt-4">
           {/* Header */}
           <div className="mb-1 flex items-center justify-between">
             <h1 className="text-xl font-bold text-foreground">Post to Feed</h1>
@@ -179,14 +193,17 @@ export default function PostPage() {
                       ref={videoRef}
                       src={videoUrl}
                       className="h-full w-full object-cover"
-                      onLoadedMetadata={handleVideoLoaded}
+                      onLoadedData={handleVideoLoaded}
                       onClick={(e) => {
                         const vid = e.currentTarget;
+                        vid.muted = false; // Unmute on user interaction
                         if (vid.paused) vid.play();
                         else vid.pause();
                       }}
                       playsInline
+                      muted
                       loop
+                      preload="auto"
                       controls={false}
                     />
                   </div>

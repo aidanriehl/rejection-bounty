@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen } from "lucide-react";
+import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
@@ -49,22 +49,84 @@ export default function Challenges() {
   };
   const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>(() => {
-    const saved = localStorage.getItem(`${weekKey}-completed`);
-    if (saved) {
-      const completedIds: string[] = JSON.parse(saved);
-      return mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) }));
-    }
-    return mockChallenges;
-  });
-    
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [loadingChallenges, setLoadingChallenges] = useState(true);
+
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
   const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
+  const [subscribers, setSubscribers] = useState<number>(0);
+  const [prizePool, setPrizePool] = useState<number>(0);
+
+  // Fetch challenges from database based on current week
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      setLoadingChallenges(true);
+
+      // Fetch challenges for this week from database
+      const { data: dbChallenges, error } = await supabase
+        .from("challenges")
+        .select("*")
+        .eq("week_key", weekKey)
+        .eq("is_active", true)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Failed to fetch challenges:", error);
+        // Fallback to mock challenges if DB fails
+        setChallenges(mockChallenges);
+        setLoadingChallenges(false);
+        return;
+      }
+
+      // If no challenges in DB for this week, use mock challenges
+      if (!dbChallenges || dbChallenges.length === 0) {
+        console.log("No challenges in DB for week", weekKey, "- using mock challenges");
+        const saved = localStorage.getItem(`${weekKey}-completed`);
+        if (saved) {
+          const completedIds: string[] = JSON.parse(saved);
+          setChallenges(mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) })));
+        } else {
+          setChallenges(mockChallenges);
+        }
+        setLoadingChallenges(false);
+        return;
+      }
+
+      // Fetch user's completions for this week
+      let completedIds: string[] = [];
+      if (user) {
+        const { data: completions } = await supabase
+          .from("challenge_completions")
+          .select("challenge_id")
+          .eq("user_id", user.id)
+          .eq("week_key", weekKey);
+
+        completedIds = (completions || []).map((c: any) => c.challenge_id);
+      }
+
+      // Map DB challenges to Challenge type with completion status
+      const mappedChallenges: Challenge[] = dbChallenges.map((ch: any) => ({
+        id: ch.id,
+        title: ch.title,
+        description: ch.description || ch.title,
+        emoji: ch.emoji,
+        completed: completedIds.includes(ch.id),
+        hasVideo: false,
+      }));
+
+      setChallenges(mappedChallenges);
+      setLoadingChallenges(false);
+    };
+
+    fetchChallenges();
+  }, [weekKey, user]);
 
   // Persist completed challenges to localStorage + sync to DB
   useEffect(() => {
+    if (loadingChallenges || challenges.length === 0) return;
+
     const completedIds = challenges.filter(c => c.completed).map(c => c.id);
     localStorage.setItem(`${weekKey}-completed`, JSON.stringify(completedIds));
 
@@ -81,12 +143,34 @@ export default function Challenges() {
           }
         });
     }
-  }, [challenges, weekKey]);
+  }, [challenges, weekKey, loadingChallenges]);
 
   // Live countdown tick
   useEffect(() => {
     const timer = setInterval(() => setCountdown(getTimeUntilSunday()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch real subscriber count and calculate prize pool
+  useEffect(() => {
+    const fetchSubscribers = async () => {
+      const { count, error } = await supabase
+        .from("subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active");
+
+      if (error) {
+        console.error("Failed to fetch subscribers:", error);
+        return;
+      }
+
+      const subCount = count ?? 0;
+      setSubscribers(subCount);
+      // Prize pool = subscribers × $3.50, divided by 4 weeks per month
+      setPrizePool(Math.round((subCount * 3.5) / 4));
+    };
+
+    fetchSubscribers();
   }, []);
 
   // Listen for challenge completion from upload
@@ -134,8 +218,6 @@ export default function Challenges() {
     // No-op for now — native StoreKit will handle this
   };
   const completed = getCompletedCount(challenges);
-  const prizePool = 1247;
-  const subscribers = 1832;
 
   const handleRevealComplete = () => {
     localStorage.setItem(weekKey, "true");
@@ -154,14 +236,18 @@ export default function Challenges() {
     doToggle(id);
   };
 
-  const doToggle = (id: string) => {
+  const doToggle = async (id: string) => {
+    const challenge = challenges.find((c) => c.id === id);
+    if (!challenge) return;
+
+    const newCompleted = !challenge.completed;
+
+    // Update local state immediately
     setChallenges((prev) => {
-      const challenge = prev.find((c) => c.id === id);
-      if (!challenge) return prev;
       const next = prev.map((c) =>
-        c.id === id ? { ...c, completed: !c.completed } : c
+        c.id === id ? { ...c, completed: newCompleted } : c
       );
-      if (!challenge.completed) {
+      if (newCompleted) {
         const newCount = getCompletedCount(next);
         if (newCount === 8) {
           fireEpicConfetti();
@@ -179,6 +265,28 @@ export default function Challenges() {
       }
       return next;
     });
+
+    // Sync to database
+    if (user) {
+      if (newCompleted) {
+        // Add completion record
+        await supabase
+          .from("challenge_completions")
+          .upsert({
+            user_id: user.id,
+            challenge_id: id,
+            week_key: weekKey,
+          }, { onConflict: "user_id,challenge_id,week_key" });
+      } else {
+        // Remove completion record
+        await supabase
+          .from("challenge_completions")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("challenge_id", id)
+          .eq("week_key", weekKey);
+      }
+    }
   };
 
   const progressPct = Math.min((completed / 5) * 100, 100);
@@ -291,6 +399,11 @@ export default function Challenges() {
               Complete 5 of 8 challenges
             </p>
             <div className="space-y-2">
+            {loadingChallenges ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
             <AnimatePresence>
               {dropRevealed && challenges.map((challenge, i) => (
                 <motion.div
@@ -358,6 +471,7 @@ export default function Challenges() {
                 </motion.div>
               ))}
             </AnimatePresence>
+            )}
             </div>
           </div>
         </div>

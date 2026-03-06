@@ -137,7 +137,8 @@ export default function VideoTrimmer({
 
       <div
         ref={containerRef}
-        className="relative h-16 select-none touch-none"
+        className="relative h-16 select-none"
+        style={{ touchAction: dragging ? "none" : "pan-y" }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
@@ -181,7 +182,7 @@ export default function VideoTrimmer({
 
         {/* Left handle */}
         <div
-          className="absolute inset-y-0 z-10 flex cursor-col-resize items-center justify-center rounded-l-lg bg-amber-400"
+          className="absolute inset-y-0 z-10 flex cursor-col-resize items-center justify-center rounded-l-lg bg-amber-400 touch-none"
           style={{ left: leftX - HANDLE_WIDTH, width: HANDLE_WIDTH }}
           onPointerDown={(e) => handlePointerDown("left", e)}
         >
@@ -190,7 +191,7 @@ export default function VideoTrimmer({
 
         {/* Right handle */}
         <div
-          className="absolute inset-y-0 z-10 flex cursor-col-resize items-center justify-center rounded-r-lg bg-amber-400"
+          className="absolute inset-y-0 z-10 flex cursor-col-resize items-center justify-center rounded-r-lg bg-amber-400 touch-none"
           style={{ left: rightX, width: HANDLE_WIDTH }}
           onPointerDown={(e) => handlePointerDown("right", e)}
         >
@@ -200,7 +201,7 @@ export default function VideoTrimmer({
         {/* Playhead */}
         {!dragging && (
           <div
-            className="absolute inset-y-0 z-20 flex cursor-col-resize items-center"
+            className="absolute inset-y-0 z-20 flex cursor-col-resize items-center touch-none"
             style={{ left: playheadX - 1 }}
             onPointerDown={(e) => handlePointerDown("playhead", e)}
           >

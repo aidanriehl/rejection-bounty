@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload } from "lucide-react";
+import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
@@ -70,7 +70,29 @@ function getAdminWeekKey() {
   const now = new Date();
   const jan1 = new Date(now.getFullYear(), 0, 1);
   const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
-  return `${now.getFullYear()}-w${weekNum}`;
+  return `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+}
+
+function getUpcomingWeeks(count: number = 8): string[] {
+  const weeks: string[] = [];
+  const now = new Date();
+  for (let i = 0; i < count; i++) {
+    const future = new Date(now.getTime() + i * 7 * 24 * 60 * 60 * 1000);
+    const jan1 = new Date(future.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((future.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+    weeks.push(`${future.getFullYear()}-W${String(weekNum).padStart(2, "0")}`);
+  }
+  return weeks;
+}
+
+function formatWeekLabel(weekKey: string): string {
+  const match = weekKey.match(/(\d{4})-W(\d{2})/);
+  if (!match) return weekKey;
+  const [, year, week] = match;
+  const currentWeek = getAdminWeekKey();
+  if (weekKey === currentWeek) return `Week ${parseInt(week)} (Current)`;
+  if (parseInt(week) === parseInt(currentWeek.split("-W")[1]) + 1) return `Week ${parseInt(week)} (Next)`;
+  return `Week ${parseInt(week)}, ${year}`;
 }
 
 export default function Admin() {
@@ -92,7 +114,9 @@ export default function Admin() {
 
   // Challenge management
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
-  const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "" });
+  const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "", week_key: "" });
+  const [selectedChallengeWeek, setSelectedChallengeWeek] = useState<string>("");
+  const [editingChallenge, setEditingChallenge] = useState<ChallengeItem | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Featured videos
@@ -232,26 +256,44 @@ export default function Admin() {
 
   // Add a new challenge
   const handleAddChallenge = async () => {
-    if (!newChallenge.title || !newChallenge.emoji) return;
+    if (!newChallenge.title || !newChallenge.emoji || !newChallenge.week_key) return;
 
-    const now = new Date();
-    const jan1 = new Date(now.getFullYear(), 0, 1);
-    const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
-    const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
+    // Check if week already has 8 challenges
+    const weekChallenges = challenges.filter(c => c.week_key === newChallenge.week_key);
+    if (weekChallenges.length >= 8) {
+      alert(`Week ${newChallenge.week_key} already has 8 challenges!`);
+      return;
+    }
 
     await (supabase as any).from("challenges").insert({
       title: newChallenge.title,
       emoji: newChallenge.emoji,
       description: newChallenge.title,
-      week_key: nextWeekKey,
+      week_key: newChallenge.week_key,
       is_active: true,
     } as any);
 
-    setNewChallenge({ title: "", emoji: "" });
+    setNewChallenge({ title: "", emoji: "", week_key: newChallenge.week_key });
     fetchData();
   };
 
-  // CSV upload for challenges
+  // Update an existing challenge
+  const handleUpdateChallenge = async () => {
+    if (!editingChallenge) return;
+
+    await (supabase as any)
+      .from("challenges")
+      .update({
+        title: editingChallenge.title,
+        emoji: editingChallenge.emoji,
+      })
+      .eq("id", editingChallenge.id);
+
+    setEditingChallenge(null);
+    fetchData();
+  };
+
+  // CSV upload for challenges - format: title, emoji, week_key
   const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -259,22 +301,39 @@ export default function Admin() {
     const text = await file.text();
     const lines = text.split("\n").filter(l => l.trim());
 
-    const now = new Date();
-    const jan1 = new Date(now.getFullYear(), 0, 1);
-    const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
-    const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
-
+    // Parse CSV: title, emoji, week_key
     const challengesToInsert = lines.map(line => {
-      const [emoji, ...titleParts] = line.split(",");
-      const title = titleParts.join(",").trim();
+      const parts = line.split(",").map(p => p.trim());
+      if (parts.length < 3) return null;
+      const [title, emoji, week_key] = parts;
+      // Normalize week_key format to YYYY-WXX
+      const normalizedWeek = week_key.toUpperCase().replace(/^(\d{4})-W(\d)$/, "$1-W0$2");
       return {
-        title: title || emoji.trim(),
-        emoji: emoji.trim(),
-        description: title || emoji.trim(),
-        week_key: nextWeekKey,
+        title,
+        emoji,
+        description: title,
+        week_key: normalizedWeek,
         is_active: true,
       };
-    }).filter(c => c.emoji && c.title);
+    }).filter((c): c is NonNullable<typeof c> => c !== null && c.emoji && c.title && c.week_key);
+
+    // Group by week and validate
+    const byWeek: Record<string, typeof challengesToInsert> = {};
+    for (const ch of challengesToInsert) {
+      if (!byWeek[ch.week_key]) byWeek[ch.week_key] = [];
+      byWeek[ch.week_key].push(ch);
+    }
+
+    // Check existing challenges per week
+    for (const wk of Object.keys(byWeek)) {
+      const existing = challenges.filter(c => c.week_key === wk).length;
+      const adding = byWeek[wk].length;
+      if (existing + adding > 8) {
+        alert(`Week ${wk} would have ${existing + adding} challenges (max 8). Existing: ${existing}, Adding: ${adding}`);
+        if (csvInputRef.current) csvInputRef.current.value = "";
+        return;
+      }
+    }
 
     if (challengesToInsert.length > 0) {
       await (supabase as any).from("challenges").insert(challengesToInsert as any);
@@ -678,7 +737,7 @@ export default function Admin() {
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Video className="h-5 w-5 text-primary" />
+              <Calendar className="h-5 w-5 text-primary" />
               Manage Challenges
             </CardTitle>
           </CardHeader>
@@ -690,14 +749,48 @@ export default function Admin() {
                 <Upload className="h-4 w-4 mr-2" />
                 Upload CSV
               </Button>
-              <p className="text-xs text-muted-foreground">Format: <code className="bg-muted px-1 rounded">emoji,title</code> (one per line)</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Example: 🖐️,Ask a stranger for a high-five</p>
+              <p className="text-xs text-muted-foreground">Format: <code className="bg-muted px-1 rounded">title, emoji, week</code></p>
+              <p className="text-[10px] text-muted-foreground mt-1">Example: Ask a stranger for a high-five, 🖐️, 2026-W11</p>
+            </div>
+
+            {/* Week Status Overview */}
+            <div className="mb-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Week Status</p>
+              <div className="flex flex-wrap gap-2">
+                {getUpcomingWeeks(6).map(wk => {
+                  const count = challenges.filter(c => c.week_key === wk).length;
+                  const isComplete = count === 8;
+                  const isCurrent = wk === getAdminWeekKey();
+                  return (
+                    <button
+                      key={wk}
+                      onClick={() => setSelectedChallengeWeek(selectedChallengeWeek === wk ? "" : wk)}
+                      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                        selectedChallengeWeek === wk
+                          ? "bg-primary text-primary-foreground"
+                          : isComplete
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isComplete ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : count > 0 ? (
+                        <AlertCircle className="h-3 w-3" />
+                      ) : null}
+                      <span>W{wk.split("-W")[1]}</span>
+                      <span className="opacity-60">{count}/8</span>
+                      {isCurrent && <span className="text-[10px]">(now)</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Add single challenge */}
             <div className="rounded-lg border border-border p-3 mb-4">
               <p className="text-xs font-medium text-muted-foreground mb-2">Add Single Challenge</p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <Input
                   placeholder="Challenge title"
                   value={newChallenge.title}
@@ -711,30 +804,95 @@ export default function Admin() {
                   className="w-14 text-center"
                 />
               </div>
-              <Button onClick={handleAddChallenge} className="w-full mt-2" disabled={!newChallenge.title || !newChallenge.emoji}>
+              <select
+                value={newChallenge.week_key}
+                onChange={(e) => setNewChallenge(prev => ({ ...prev, week_key: e.target.value }))}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm mb-2"
+              >
+                <option value="">Select week...</option>
+                {getUpcomingWeeks(8).map(wk => (
+                  <option key={wk} value={wk}>{formatWeekLabel(wk)} ({challenges.filter(c => c.week_key === wk).length}/8)</option>
+                ))}
+              </select>
+              <Button
+                onClick={handleAddChallenge}
+                className="w-full"
+                disabled={!newChallenge.title || !newChallenge.emoji || !newChallenge.week_key}
+              >
                 <Plus className="h-4 w-4 mr-2" />
-                Add for Next Week
+                Add Challenge
               </Button>
             </div>
 
-            {/* Existing challenges */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Current Challenges</p>
-              {challenges.map((ch) => (
-                <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
-                    <p className="text-xs text-muted-foreground">{ch.week_key}</p>
-                  </div>
-                  <span className="text-lg">{ch.emoji}</span>
-                  <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+            {/* Challenges by selected week */}
+            {selectedChallengeWeek && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {formatWeekLabel(selectedChallengeWeek)} — {challenges.filter(c => c.week_key === selectedChallengeWeek).length}/8 challenges
+                  </p>
                 </div>
-              ))}
-            </div>
+                {challenges.filter(c => c.week_key === selectedChallengeWeek).length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No challenges for this week</p>
+                ) : (
+                  challenges.filter(c => c.week_key === selectedChallengeWeek).map((ch, idx) => (
+                    <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
+                      <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
+                      <span className="text-lg">{ch.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingChallenge(ch)}>
+                        <Edit2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* All challenges (when no week selected) */}
+            {!selectedChallengeWeek && challenges.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">All Challenges (tap a week above to filter)</p>
+                <p className="text-xs text-muted-foreground">{challenges.length} total challenges</p>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Edit Challenge Dialog */}
+        <Dialog open={!!editingChallenge} onOpenChange={() => setEditingChallenge(null)}>
+          <DialogContent className="max-w-sm">
+            <h3 className="text-lg font-bold mb-4">Edit Challenge</h3>
+            {editingChallenge && (
+              <div className="space-y-3">
+                <Input
+                  placeholder="Challenge title"
+                  value={editingChallenge.title}
+                  onChange={(e) => setEditingChallenge({ ...editingChallenge, title: e.target.value })}
+                />
+                <Input
+                  placeholder="🎯"
+                  value={editingChallenge.emoji}
+                  onChange={(e) => setEditingChallenge({ ...editingChallenge, emoji: e.target.value })}
+                  className="w-20"
+                />
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setEditingChallenge(null)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateChallenge} className="flex-1">
+                    Save
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Section 5: Past Winners */}
         <Card className="mb-6">

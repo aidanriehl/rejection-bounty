@@ -17,26 +17,37 @@ export default function UploadIndicator() {
 
     const fetchEntries = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      if (!session?.user) {
+        console.log("[UploadIndicator] No session found");
+        return;
+      }
 
-      // Get current week key (YYYY-WXX format)
+      // Get current week key (YYYY-WXX format) - MUST match UploadContext.tsx
       const now = new Date();
       const startOfYear = new Date(now.getFullYear(), 0, 1);
       const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
       const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
+      console.log("[UploadIndicator] Fetching entries for week:", weekKey);
+      console.log("[UploadIndicator] User ID:", session.user.id);
+
       // Count completions for THIS week only
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("challenge_completions")
         .select("*", { count: "exact", head: true })
         .eq("user_id", session.user.id)
         .eq("week_key", weekKey);
 
+      if (error) {
+        console.error("[UploadIndicator] Error fetching entries:", error);
+      }
+
+      console.log("[UploadIndicator] Entry count:", count);
       setEntryCount(count ?? 0);
     };
 
-    // Small delay to allow the completion to be inserted first
-    setTimeout(fetchEntries, 500);
+    // Longer delay to ensure completion is inserted first
+    setTimeout(fetchEntries, 1500);
   }, [status]);
 
   if (status === "idle") return null;

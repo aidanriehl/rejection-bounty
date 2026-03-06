@@ -101,7 +101,7 @@ export const getCurrentWeekKey = () => {
   const now = new Date();
   const jan1 = new Date(now.getFullYear(), 0, 1);
   const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
-  return `drop-revealed-${now.getFullYear()}-w${weekNum}`;
+  return `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 };
 
 // Time-decay scoring for "This Week" feed
