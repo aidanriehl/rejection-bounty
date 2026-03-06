@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
+import logoImg from "@/assets/logo.png";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
@@ -134,18 +135,24 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       style={{ backgroundColor: "hsl(var(--primary))" }}
     >
       <motion.form
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
+        transition={{ duration: 0.4 }}
         onSubmit={handleSubmit}
-        className="-mt-12 flex w-full max-w-xs flex-col items-center"
+        className="-mt-16 flex w-full max-w-sm flex-col items-center"
       >
-        {/* ─── Avatar hero ─── */}
-        <div className="relative mb-3">
+        {/* Logo */}
+        <img src={logoImg} alt="Rejection Bounty" className="mb-2 h-16 w-16" />
+        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-white">
+          Rejection Bounty
+        </h1>
+
+        {/* Avatar */}
+        <div className="relative mb-2">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex h-28 w-28 items-center justify-center rounded-full bg-primary-foreground/15 ring-[3px] ring-primary-foreground/25 overflow-hidden transition-transform active:scale-95"
+            className="flex h-24 w-24 items-center justify-center rounded-full bg-white/20 overflow-hidden transition-transform active:scale-95"
           >
             {photoPreview ? (
               <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
@@ -154,29 +161,27 @@ export default function Setup({ userId, onComplete }: SetupProps) {
             )}
           </button>
 
-          {/* Camera badge */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground text-primary shadow-lg"
+            className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary shadow-lg"
           >
             <Camera className="h-4 w-4" />
           </button>
 
-          {/* Remove photo */}
           {photoPreview && (
             <button
               type="button"
               onClick={clearPhoto}
-              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm"
+              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-sm"
             >
               <X className="h-3 w-3" />
             </button>
           )}
         </div>
 
-        <p className="mb-8 text-xs text-primary-foreground/50">
-          {photoPreview ? "Tap to change" : "Add a photo"}
+        <p className="mb-6 text-xs text-white/50">
+          {photoPreview ? "Tap to change photo" : "Add a photo (optional)"}
         </p>
 
         <input
@@ -187,32 +192,25 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           onChange={handleFileSelect}
         />
 
-        {/* ─── Title ─── */}
-        <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-primary-foreground">
-          Create your profile
-        </h1>
-        <p className="mb-5 text-sm text-primary-foreground/50">
-          Choose a name others will know you by
-        </p>
-
-        {/* ─── Username input ─── */}
+        {/* Username */}
+        <p className="mb-2 text-sm font-medium text-white/70">Pick a username</p>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="username"
+          placeholder="@username"
           maxLength={20}
           autoFocus
-          className="mb-4 flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-center text-lg font-medium text-primary-foreground placeholder:text-primary-foreground/30 focus:border-primary-foreground/40 focus:outline-none"
+          className="mb-4 h-14 w-full rounded-2xl border-2 border-white/20 bg-white/10 px-4 text-center text-lg font-medium text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none"
         />
 
-        {/* ─── CTA ─── */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={!isValid || saving}
-          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
+          className="h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
         >
-          {uploading ? "Uploading photo…" : saving ? "Saving…" : "Let's go 🚀"}
+          {uploading ? "Uploading..." : saving ? "Saving..." : "Let's go 🚀"}
         </button>
       </motion.form>
     </div>
