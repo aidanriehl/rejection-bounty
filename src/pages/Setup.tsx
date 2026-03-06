@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { compressImage } from "@/lib/imageUtils";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
@@ -82,11 +83,15 @@ export default function Setup({ userId, onComplete }: SetupProps) {
 
       if (photoFile) {
         setUploading(true);
-        const ext = photoFile.name.split(".").pop() || "jpg";
-        const filePath = `${userId}/avatar.${ext}`;
+        // Compress image to 400px max, JPEG quality 0.8 (typically <50KB)
+        const compressedBlob = await compressImage(photoFile, 400, 0.8);
+        const filePath = `${userId}/avatar.jpg`;
         const { error: uploadError } = await supabase.storage
           .from("avatars")
-          .upload(filePath, photoFile, { upsert: true });
+          .upload(filePath, compressedBlob, {
+            upsert: true,
+            contentType: "image/jpeg"
+          });
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase.storage
           .from("avatars")
