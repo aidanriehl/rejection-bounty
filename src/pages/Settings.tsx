@@ -132,7 +132,6 @@ export default function SettingsPage() {
       const { error: updateError } = await supabase.from("profiles").update({ profile_photo_url: urlWithBuster }).eq("id", user.id);
       if (updateError) throw updateError;
       setAuthProfile({ ...authProfile!, profile_photo_url: urlWithBuster });
-      toast({ title: "Profile photo updated!" });
     } catch (err) {
       console.error("Upload failed:", err);
       toast({ title: "Failed to upload photo", variant: "destructive" });

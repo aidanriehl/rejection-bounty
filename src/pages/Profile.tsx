@@ -116,7 +116,6 @@ export default function Profile() {
         .eq("id", user.id);
       if (updateError) throw updateError;
       setProfile({ ...profile!, profile_photo_url: urlWithBuster });
-      toast({ title: "Profile photo updated!" });
     } catch (err) {
       console.error("Upload failed:", err);
       toast({ title: "Failed to upload photo", variant: "destructive" });
