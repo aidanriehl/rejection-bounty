@@ -83,7 +83,7 @@ function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }
   return (
     <div
       className="relative w-full snap-start snap-always flex-shrink-0"
-      style={{ height: "calc(100dvh - 4.5rem - env(safe-area-inset-bottom))" }}
+      style={{ height: "calc(100dvh - 3rem - env(safe-area-inset-bottom))" }}
       onClick={handleDoubleTap}
     >
       {post.video_id ? (
@@ -241,7 +241,7 @@ export default function Feed() {
     <div
       data-tour="feed"
       className="fixed inset-0 overflow-hidden bg-black"
-      style={{ paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom))" }}
+      style={{ paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" }}
     >
       {/* Tabs header - positioned with safe area */}
       <div

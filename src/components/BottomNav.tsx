@@ -43,7 +43,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 w-full z-50 bg-card border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="mx-auto flex max-w-lg items-center justify-around py-3">
+      <div className="mx-auto flex max-w-lg items-center justify-around h-12">
         {tabs.map((tab) => {
           const active = location.pathname === tab.path;
           return (
@@ -51,13 +51,13 @@ export default function BottomNav() {
               key={tab.path}
               onClick={() => navigate(tab.path)}
               className={cn(
-                "flex items-center justify-center rounded-full p-3 transition-colors",
+                "flex items-center justify-center p-2 transition-colors",
                 active
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <tab.icon className="h-6 w-6" strokeWidth={active ? 2.5 : 1.5} />
+              <tab.icon className="h-[22px] w-[22px]" strokeWidth={active ? 2.5 : 1.5} />
             </button>
           );
         })}
