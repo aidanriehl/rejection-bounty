@@ -1,10 +1,32 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Dumbbell, User } from "lucide-react";
+import { Home, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Simple dumbbell with one weight on each side
+function SimpleDumbbell({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      {/* Bar */}
+      <line x1="6" y1="12" x2="18" y2="12" />
+      {/* Left weight */}
+      <rect x="2" y="8" width="4" height="8" rx="1" />
+      {/* Right weight */}
+      <rect x="18" y="8" width="4" height="8" rx="1" />
+    </svg>
+  );
+}
 
 const tabs = [
   { path: "/", icon: Home },
-  { path: "/challenges", icon: Dumbbell },
+  { path: "/challenges", icon: SimpleDumbbell },
   { path: "/profile", icon: User },
 ];
 
