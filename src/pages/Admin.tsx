@@ -260,8 +260,8 @@ export default function Admin() {
     const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
     const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
 
-    const { error } = await supabase
-      .from("challenges")
+    const { error } = await (supabase
+      .from("challenges" as any)
       .insert({
         title: newChallenge.title,
         emoji: newChallenge.emoji,
