@@ -126,16 +126,16 @@ export default function PostPage() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col bg-background"
-      style={{
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "calc(3rem + env(safe-area-inset-bottom))",
-      }}
-    >
+    <div className="fixed inset-0 flex flex-col bg-background">
+      {/* Safe area top fill */}
+      <div className="bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }} />
+
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-lg px-4 py-4">
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ paddingBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="mx-auto w-full max-w-lg px-4 pb-6">
           {/* Header */}
           <div className="mb-1 flex items-center justify-between">
             <h1 className="text-xl font-bold text-foreground">Post to Feed</h1>
@@ -160,20 +160,20 @@ export default function PostPage() {
           {!videoUrl ? (
             <button
               onClick={() => fileRef.current?.click()}
-              className="group mb-4 flex aspect-[9/16] w-2/3 mx-auto flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
+              className="group mb-4 flex aspect-[9/16] w-1/2 mx-auto flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                <Upload className="h-6 w-6" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                <Upload className="h-5 w-5" />
               </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">Tap to add your video</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Max 30 seconds · 100MB</p>
+              <div className="text-center px-2">
+                <p className="text-sm font-semibold text-foreground">Tap to add video</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Max 30s · 100MB</p>
               </div>
             </button>
           ) : (
             <div className="mb-4">
-              {/* Video preview - no play button, autoplay loop */}
-              <div className="w-2/3 mx-auto">
+              {/* Video preview - autoplay loop, no controls */}
+              <div className="w-1/2 mx-auto">
                 <div className="relative overflow-hidden rounded-2xl bg-black">
                   <div className="aspect-[9/16] w-full">
                     <video
@@ -190,7 +190,7 @@ export default function PostPage() {
 
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="absolute right-2 top-2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+                    className="absolute right-2 top-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm"
                   >
                     Change
                   </button>
