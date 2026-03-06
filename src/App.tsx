@@ -15,6 +15,9 @@ import Challenges from "@/pages/Challenges";
 import Feed from "@/pages/Feed";
 import Profile from "@/pages/Profile";
 import SettingsPage from "@/pages/Settings";
+import SettingsTerms from "@/pages/SettingsTerms";
+import SettingsRules from "@/pages/SettingsRules";
+import SettingsMessages from "@/pages/SettingsMessages";
 import PostPage from "@/pages/Post";
 import FriendsPage from "@/pages/Friends";
 import NotFound from "./pages/NotFound";
@@ -100,6 +103,9 @@ function AppRoutes() {
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings/terms" element={<SettingsTerms />} />
+        <Route path="/settings/rules" element={<SettingsRules />} />
+        <Route path="/settings/messages" element={<SettingsMessages />} />
         <Route path="/post" element={<PostPage />} />
         <Route path="/friends" element={<FriendsPage />} />
         <Route path="/admin" element={<Admin />} />

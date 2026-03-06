@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, KeyRound, Bell, CircleHelp, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon, Scale } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, Bell, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon, Scale, MessageCircle } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
@@ -35,8 +35,6 @@ export default function SettingsPage() {
   }, [authProfile?.username]);
   const [isPublic, setIsPublic] = useState(true);
   const [notifications, setNotifications] = useState(true);
-  const [showRules, setShowRules] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
@@ -354,80 +352,35 @@ export default function SettingsPage() {
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Support</p>
         <div className="mb-5 overflow-hidden rounded-xl border bg-card">
           <button
-            onClick={() => setShowTerms(!showTerms)}
+            onClick={() => navigate("/settings/messages")}
+            className="flex w-full items-center justify-between border-b px-4 py-3"
+          >
+            <div className="flex items-center gap-3">
+              <MessageCircle className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Message Admin</span>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => navigate("/settings/terms")}
             className="flex w-full items-center justify-between border-b px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <FileText className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground">Terms & Privacy</span>
             </div>
-            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${showTerms ? "rotate-90" : ""}`} />
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
-          {showTerms && (
-            <div className="border-b px-4 py-4 text-xs text-muted-foreground leading-relaxed space-y-3">
-              <p className="font-bold text-foreground text-sm">TERMS & PRIVACY</p>
-              <p className="text-xs text-muted-foreground">Last Updated: March 5, 2026</p>
-
-              <p className="font-bold text-foreground text-sm mt-4">TERMS OF SERVICE</p>
-              <p><span className="font-semibold text-foreground">1. Acceptance:</span> By using Rejection Bounty, you agree to these terms.</p>
-              <p><span className="font-semibold text-foreground">2. Eligibility:</span> You must be 13 years or older to use this app.</p>
-              <p><span className="font-semibold text-foreground">3. Account:</span> You are responsible for maintaining the security of your account and all activity under it.</p>
-              <p><span className="font-semibold text-foreground">4. Content:</span> You retain ownership of videos you upload. By uploading, you grant us a license to display your content within the app. You agree not to upload illegal, harmful, or inappropriate content.</p>
-              <p><span className="font-semibold text-foreground">5. Subscriptions:</span> Paid subscriptions are billed through Apple. You can cancel anytime through your Apple ID settings. Refunds are handled by Apple per their policies.</p>
-              <p><span className="font-semibold text-foreground">6. Weekly Drawing:</span> Participation in the weekly drawing is subject to the Official Sweepstakes Rules below. No purchase necessary to enter.</p>
-              <p><span className="font-semibold text-foreground">7. Payouts:</span> Prize winners must link a valid bank account via Stripe to receive payouts. We are not responsible for delays caused by incorrect banking information.</p>
-              <p><span className="font-semibold text-foreground">8. Termination:</span> We may suspend or terminate accounts that violate these terms.</p>
-              <p><span className="font-semibold text-foreground">9. Disclaimers:</span> The app is provided "as is." We make no guarantees about availability or results from using the app.</p>
-
-              <hr className="border-border my-3" />
-
-              <p className="font-bold text-foreground text-sm">PRIVACY POLICY</p>
-              <p><span className="font-semibold text-foreground">1. Introduction:</span> Rejection Bounty ("we," "our," or "us") respects your privacy. This policy explains how we collect, use, and protect your information.</p>
-              <p><span className="font-semibold text-foreground">2. Information We Collect:</span></p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Email address (used for magic link sign-in)</li>
-                <li>Username and profile photo</li>
-                <li>Videos and content you upload</li>
-                <li>Payment information (processed securely by Stripe)</li>
-                <li>Basic app usage analytics</li>
-              </ul>
-              <p><span className="font-semibold text-foreground">3. How We Use Your Information:</span></p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Create and manage your account</li>
-                <li>Display your profile and content to other users</li>
-                <li>Process payments and prize payouts</li>
-                <li>Improve the app experience</li>
-              </ul>
-              <p><span className="font-semibold text-foreground">4. Information Sharing:</span> We do not sell your personal information. We share data only with service providers (Supabase, Stripe, Apple) as necessary to operate the app.</p>
-              <p><span className="font-semibold text-foreground">5. Data Security:</span> We use industry-standard security measures including encrypted connections and secure authentication.</p>
-              <p><span className="font-semibold text-foreground">6. Your Rights:</span> You may access, update, or delete your account data by contacting us at replacedplastics@gmail.com.</p>
-            </div>
-          )}
           <button
-            onClick={() => setShowRules(!showRules)}
+            onClick={() => navigate("/settings/rules")}
             className="flex w-full items-center justify-between px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <Scale className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground">Official Sweepstakes Rules</span>
             </div>
-            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${showRules ? "rotate-90" : ""}`} />
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
-          {showRules && (
-            <div className="border-t px-4 py-4 text-xs text-muted-foreground leading-relaxed space-y-3">
-              <p className="font-bold text-foreground text-sm">OFFICIAL SWEEPSTAKES RULES</p>
-              <p className="font-semibold text-foreground">NO PURCHASE NECESSARY TO ENTER OR WIN.</p>
-              <p><span className="font-semibold text-foreground">1. Eligibility:</span> Open to users 13 years or older.</p>
-              <p><span className="font-semibold text-foreground">2. How to Enter (Free):</span> Complete at least one challenge with a video upload during the weekly period to receive one (1) free entry.</p>
-              <p><span className="font-semibold text-foreground">3. Bonus Entries (Subscribers):</span> Paid subscribers receive 1 entry per challenge completed with video (up to 4 entries for 4 challenges). Completing 5 or more challenges earns 8 total entries. Maximum entries per week: 13 tickets.</p>
-              <p><span className="font-semibold text-foreground">4. Drawing Period:</span> Weekly, ending Sunday at midnight.</p>
-              <p><span className="font-semibold text-foreground">5. Winner Selection:</span> One winner selected randomly each week from all eligible entries. Each entry has an equal chance of winning.</p>
-              <p><span className="font-semibold text-foreground">6. Prize:</span> Weekly prize amount varies based on the community pool. Winner will be notified in-app.</p>
-              <p><span className="font-semibold text-foreground">7. Odds:</span> Depend on the total number of entries received.</p>
-              <p><span className="font-semibold text-foreground">8. Sponsor:</span> Rejection Bounty. Apple Inc. is not a sponsor and is not responsible for this promotion.</p>
-              <p><span className="font-semibold text-foreground">9. General:</span> Void where prohibited by law.</p>
-            </div>
-          )}
         </div>
 
         {/* Danger Zone */}
