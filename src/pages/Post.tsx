@@ -73,20 +73,21 @@ export default function PostPage() {
   };
 
   const handleVideoLoaded = () => {
-    if (videoRef.current) {
-      const dur = videoRef.current.duration;
+    const video = videoRef.current;
+    if (video) {
+      const dur = video.duration;
       setDuration(dur);
-      setTrimEnd(dur);
+      setTrimEnd(Math.min(dur, 30)); // Default max 30 seconds
       setThumbnailTime(0);
-      videoRef.current.currentTime = 0;
+      // Seek to 0.001 to force first frame render (0 sometimes doesn't work on iOS)
+      video.currentTime = 0.001;
     }
   };
 
   const handleTrimChange = (start: number, end: number) => {
     setTrimStart(start);
     setTrimEnd(end);
-    if (thumbnailTime < start) setThumbnailTime(start);
-    if (thumbnailTime > end) setThumbnailTime(end);
+    // Cover frame slider is now independent - no clamping needed
   };
 
   const handleScrub = (time: number) => {
@@ -236,15 +237,15 @@ export default function PostPage() {
                     value={[thumbnailTime]}
                     onValueChange={handleCoverDrag}
                     onValueCommit={handleCoverCommit}
-                    min={trimStart}
-                    max={trimEnd || duration}
+                    min={0}
+                    max={duration}
                     step={0.1}
                     className="w-full"
                   />
                   <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                    <span>{formatTime(trimStart)}</span>
+                    <span>{formatTime(0)}</span>
                     <span>{formatTime(thumbnailTime)}</span>
-                    <span>{formatTime(trimEnd)}</span>
+                    <span>{formatTime(duration)}</span>
                   </div>
                 </div>
               </>

@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Crown, Trophy, Upload, Users, Video, FolderOpen, RotateCcw } from "lucide-react";
+import { Check, Crown, Trophy, Upload, Users, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
 import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
-import { toast } from "@/hooks/use-toast";
-import CameraRecorder from "@/components/CameraRecorder";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
-
-import WinnerShowcase from "@/pages/WinnerShowcase";
 
 const progressMessages: Record<number, string> = {
   1: "Great start!",
@@ -54,9 +50,7 @@ export default function Challenges() {
     }
     return mockChallenges;
   });
-  const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
-  const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
-  
+    
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
 
@@ -300,7 +294,7 @@ export default function Challenges() {
                   {/* Upload */}
                   <button
                     {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
-                    onClick={() => isPremium ? setChoiceChallenge(challenge) : triggerSubscribe()}
+                    onClick={() => isPremium ? navigate("/post", { state: { challengeTitle: challenge.title, challengeId: challenge.id } }) : triggerSubscribe()}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
                       challenge.completed

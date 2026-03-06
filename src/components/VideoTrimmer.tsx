@@ -36,8 +36,12 @@ export default function VideoTrimmer({
 
     const video = document.createElement("video");
     video.src = videoUrl;
-    video.crossOrigin = "anonymous";
+    // Don't set crossOrigin for blob URLs (local files)
+    if (!videoUrl.startsWith("blob:")) {
+      video.crossOrigin = "anonymous";
+    }
     video.muted = true;
+    video.playsInline = true;
     video.preload = "auto";
 
     const extractedFrames: string[] = [];
