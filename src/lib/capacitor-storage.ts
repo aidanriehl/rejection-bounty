@@ -1,16 +1,20 @@
 /**
- * Custom storage adapter for Supabase Auth that uses
- * @capacitor/preferences (native iOS UserDefaults) on native platforms
- * and falls back to localStorage on web.
+ * Custom storage adapter for Supabase Auth that mirrors writes to
+ * @capacitor/preferences (native iOS UserDefaults) so sessions survive
+ * iOS purging WKWebView localStorage.
  *
- * CRITICAL: We do NOT cache Capacitor.isNativePlatform() at module level.
- * With remote URL configs, the Capacitor bridge may not be injected yet
- * when this module first evaluates. We check every call instead.
+ * KEY DESIGN DECISIONS:
+ * 1. isNative() is a FUNCTION, not a constant — Capacitor bridge may not
+ *    be ready when this module first loads.
+ * 2. We mirror ALL keys (not just the auth key) because Supabase stores
+ *    session data under keys we can't predict exactly.
+ * 3. Preferences.set() is fire-and-forget from setItem (sync interface),
+ *    but we catch errors to avoid silent failures.
  */
 import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 
-/** Always evaluate at call time — never cache at module level */
+/** Runtime check — never cache at module level */
 function isNative(): boolean {
   try {
     return Capacitor.isNativePlatform();
@@ -19,7 +23,8 @@ function isNative(): boolean {
   }
 }
 
-const SUPABASE_AUTH_KEY = `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "uxjjfbxpednwxggeicld"}-auth-token`;
+const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "uxjjfbxpednwxggeicld";
+const AUTH_KEY = `sb-${PROJECT_ID}-auth-token`;
 
 export const capacitorStorage: Storage = {
   get length() {
@@ -33,22 +38,22 @@ export const capacitorStorage: Storage = {
   clear(): void {
     if (isNative()) {
       Preferences.clear().catch((e) =>
-        console.warn("[capacitor-storage] Preferences.clear failed:", e)
+        console.warn("[capacitor-storage] clear error:", e)
       );
     }
     localStorage.clear();
   },
 
   getItem(key: string): string | null {
-    // Synchronous read from localStorage (hydrated from Preferences on launch)
     return localStorage.getItem(key);
   },
 
   setItem(key: string, value: string): void {
     localStorage.setItem(key, value);
     if (isNative()) {
+      // Fire-and-forget but log errors
       Preferences.set({ key, value }).catch((e) =>
-        console.warn("[capacitor-storage] Preferences.set failed:", e)
+        console.warn("[capacitor-storage] set error:", e)
       );
     }
   },
@@ -57,80 +62,66 @@ export const capacitorStorage: Storage = {
     localStorage.removeItem(key);
     if (isNative()) {
       Preferences.remove({ key }).catch((e) =>
-        console.warn("[capacitor-storage] Preferences.remove failed:", e)
+        console.warn("[capacitor-storage] remove error:", e)
       );
     }
   },
 };
 
 /**
- * On native platforms, hydrate localStorage from Preferences (UserDefaults)
- * so that Supabase's synchronous getItem() finds the persisted session.
- * Call this BEFORE creating the Supabase client.
+ * Hydrate localStorage from native Preferences before Supabase client init.
+ * Call BEFORE creating the Supabase client.
  */
 export async function hydrateFromNativeStorage(): Promise<void> {
-  // Check at call time, not module level
   if (!isNative()) {
     console.log("[capacitor-storage] Not native platform, skipping hydration");
     return;
   }
 
-  console.log("[capacitor-storage] Starting native hydration...");
-
   try {
-    // Hydrate the Supabase auth token
-    const { value } = await Preferences.get({ key: SUPABASE_AUTH_KEY });
-    const localValue = localStorage.getItem(SUPABASE_AUTH_KEY);
-
-    console.log("[capacitor-storage] Native Preferences has session:", !!value);
-    console.log("[capacitor-storage] localStorage has session:", !!localValue);
+    const { value } = await Preferences.get({ key: AUTH_KEY });
+    console.log("[capacitor-storage] Native has session:", !!value);
+    console.log("[capacitor-storage] localStorage has session:", !!localStorage.getItem(AUTH_KEY));
 
     if (value) {
-      // Validate that the stored value is valid JSON before hydrating
+      // Validate it's parseable JSON before writing
       try {
         JSON.parse(value);
-        console.log("[capacitor-storage] Hydrating session from native storage (valid JSON)");
-        localStorage.setItem(SUPABASE_AUTH_KEY, value);
-      } catch (parseErr) {
-        console.warn("[capacitor-storage] Native session is invalid JSON, removing:", parseErr);
-        await Preferences.remove({ key: SUPABASE_AUTH_KEY });
+        localStorage.setItem(AUTH_KEY, value);
+        console.log("[capacitor-storage] ✅ Hydrated session from native storage");
+      } catch {
+        console.warn("[capacitor-storage] ⚠️ Native session was corrupt, removing");
+        await Preferences.remove({ key: AUTH_KEY });
       }
-    } else if (localValue) {
-      // localStorage has a session but Preferences doesn't — back it up now
-      console.log("[capacitor-storage] Backing up localStorage session to native storage");
-      await Preferences.set({ key: SUPABASE_AUTH_KEY, value: localValue });
     } else {
-      console.log("[capacitor-storage] No session found in either storage");
+      console.log("[capacitor-storage] No session in native storage to hydrate");
     }
   } catch (e) {
-    console.error("[capacitor-storage] Hydration failed:", e);
+    console.warn("[capacitor-storage] Hydration failed:", e);
   }
 }
 
 /**
- * Re-hydrate from native storage when the app returns to foreground.
- * iOS can purge localStorage while the app is backgrounded.
+ * Re-hydrate when app returns to foreground (iOS may have purged localStorage).
  */
 export async function rehydrateOnForeground(): Promise<void> {
   if (!isNative()) return;
 
-  const localValue = localStorage.getItem(SUPABASE_AUTH_KEY);
-  if (localValue) return; // localStorage still has session, nothing to do
-
-  console.log("[capacitor-storage] localStorage empty on foreground, re-hydrating...");
-
   try {
-    const { value } = await Preferences.get({ key: SUPABASE_AUTH_KEY });
-    if (value) {
+    const { value } = await Preferences.get({ key: AUTH_KEY });
+    const localValue = localStorage.getItem(AUTH_KEY);
+
+    if (value && !localValue) {
+      console.log("[capacitor-storage] ⚡ Re-hydrating session on foreground (localStorage was purged)");
       try {
-        JSON.parse(value); // validate
-        localStorage.setItem(SUPABASE_AUTH_KEY, value);
-        console.log("[capacitor-storage] Re-hydrated session from native storage on foreground");
+        JSON.parse(value);
+        localStorage.setItem(AUTH_KEY, value);
       } catch {
-        console.warn("[capacitor-storage] Invalid session in native storage during re-hydration");
+        console.warn("[capacitor-storage] Corrupt session in native storage");
+        await Preferences.remove({ key: AUTH_KEY });
       }
     }
   } catch (e) {
-    console.error("[capacitor-storage] Re-hydration on foreground failed:", e);
+    console.warn("[capacitor-storage] Foreground rehydration failed:", e);
   }
 }

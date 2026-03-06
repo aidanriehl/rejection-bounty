@@ -1,71 +1,52 @@
 /**
- * Hook that mirrors Supabase auth session tokens to native Preferences
- * (iOS UserDefaults / Android SharedPreferences) so sessions survive
- * iOS purging localStorage from WKWebView.
- *
- * Also listens for app foreground events to re-hydrate localStorage
- * if iOS purged it while backgrounded.
+ * Hook that:
+ * 1. Mirrors Supabase auth session tokens to native Preferences
+ * 2. Re-hydrates localStorage when app returns to foreground
+ * 3. Attempts session recovery if refresh token fails
  */
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Preferences } from "@capacitor/preferences";
 import { App as CapApp } from "@capacitor/app";
 import { supabase } from "@/integrations/supabase/client";
 import { rehydrateOnForeground } from "@/lib/capacitor-storage";
 
-const AUTH_KEY = `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "uxjjfbxpednwxggeicld"}-auth-token`;
-
 export function useNativeSessionSync() {
   useEffect(() => {
-    // Check at call time, not module level
-    let native: boolean;
-    try {
-      native = Capacitor.isNativePlatform();
-    } catch {
-      native = false;
-    }
-    if (!native) return;
+    if (!Capacitor.isNativePlatform()) return;
 
-    console.log("[NativeSessionSync] Setting up session sync for native platform");
+    console.log("[NativeSessionSync] Setting up native session sync");
 
-    // 1. Mirror auth state changes to native Preferences
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session) {
-          // Store the session in the EXACT format Supabase expects:
-          // Supabase internally does JSON.stringify(session) on the full session object
-          const value = JSON.stringify(session);
-          Preferences.set({ key: AUTH_KEY, value })
-            .then(() => console.log("[NativeSessionSync] Session saved to native storage"))
-            .catch((e) => console.error("[NativeSessionSync] Failed to save session:", e));
+    // Listen for app returning to foreground
+    const foregroundListener = CapApp.addListener(
+      "appStateChange",
+      async ({ isActive }) => {
+        if (!isActive) return;
+
+        console.log("[NativeSessionSync] App returned to foreground");
+
+        // Re-hydrate localStorage in case iOS purged it
+        await rehydrateOnForeground();
+
+        // Try to refresh the session — this will use the hydrated token
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("[NativeSessionSync] getSession error on foreground:", error);
+        } else if (data.session) {
+          console.log("[NativeSessionSync] ✅ Session valid on foreground");
+          // Force a token refresh to get a fresh refresh token
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error("[NativeSessionSync] refreshSession error:", refreshError);
+          } else {
+            console.log("[NativeSessionSync] ✅ Session refreshed successfully");
+          }
         } else {
-          Preferences.remove({ key: AUTH_KEY })
-            .then(() => console.log("[NativeSessionSync] Session removed from native storage"))
-            .catch((e) => console.error("[NativeSessionSync] Failed to remove session:", e));
+          console.log("[NativeSessionSync] No session on foreground");
         }
       }
     );
 
-    // 2. Re-hydrate localStorage when app returns to foreground
-    //    iOS can purge WKWebView localStorage while the app is backgrounded
-    const foregroundListener = CapApp.addListener("appStateChange", async ({ isActive }) => {
-      if (!isActive) return;
-      console.log("[NativeSessionSync] App returned to foreground");
-
-      await rehydrateOnForeground();
-
-      // After re-hydration, tell Supabase to re-check its session
-      // This ensures the auth state is correct even if localStorage was purged
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("[NativeSessionSync] getSession after foreground failed:", error);
-      } else {
-        console.log("[NativeSessionSync] Session after foreground:", session ? "active" : "none");
-      }
-    });
-
     return () => {
-      subscription.unsubscribe();
       foregroundListener.then((h) => h.remove());
     };
   }, []);

@@ -81,6 +81,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!mounted) return;
 
+        // Handle token refresh failures — sign out cleanly
+        if (event === "TOKEN_REFRESHED" && !session) {
+          console.error("[AuthContext] Token refresh failed, signing out");
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
+        // Handle explicit sign out
+        if (event === "SIGNED_OUT") {
+          console.log("[AuthContext] User signed out");
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
         const currentUser = session?.user ?? null;
         setUser(currentUser);
 
@@ -105,6 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (error) {
         console.error("[AuthContext] getSession error:", error);
+        // If session retrieval fails (e.g., stale refresh token),
+        // sign out to clear any corrupt state
+        console.log("[AuthContext] Clearing corrupt session state");
+        await supabase.auth.signOut().catch(() => {});
       }
       console.log("[AuthContext] Initial session:", session?.user?.email || "none");
 
