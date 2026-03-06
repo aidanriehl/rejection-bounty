@@ -148,7 +148,7 @@ export default function Challenges() {
         {!summaryDone && <WeeklySummary onContinue={() => setSummaryDone(true)} />}
       </AnimatePresence>
 
-      <div className="min-h-screen pb-24 pt-6">
+      <div className="min-h-screen pb-24 pt-4">
         <div className="mx-auto max-w-lg px-4">
 
           {/* Recap icon - top right */}
