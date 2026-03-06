@@ -96,7 +96,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       if (meta) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          const { error: insertError } = await supabase.from("posts").insert({
+          await supabase.from("posts").insert({
             user_id: session.user.id,
             challenge_id: meta.challengeId,
             video_id: videoId,
@@ -105,13 +105,6 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             trim_end: meta.trimEnd,
             caption: meta.caption,
           } as any);
-
-          if (insertError) {
-            console.error("Failed to insert post:", insertError);
-            throw new Error("Failed to save post to feed: " + insertError.message);
-          }
-        } else {
-          throw new Error("Not authenticated - please log in again");
         }
       }
 
