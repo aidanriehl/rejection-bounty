@@ -293,31 +293,46 @@ export function playEpicWin() {
     });
   } catch {}
 }
-/** Slot machine reel tick — short mechanical click */
+/** Slot machine reel tick — deep mechanical clunk */
 export function playReelTick() {
   try {
     const a = ctx();
     const t = a.currentTime;
-    const bufSize = a.sampleRate * 0.015;
+
+    // Low-pitched knock body
+    const osc = a.createOscillator();
+    const oscGain = a.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(60, t + 0.04);
+    oscGain.gain.setValueAtTime(0.25, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    osc.connect(oscGain);
+    oscGain.connect(a.destination);
+    osc.start(t);
+    osc.stop(t + 0.04);
+
+    // Short noise transient — low-pass filtered for weight
+    const bufSize = a.sampleRate * 0.012;
     const buf = a.createBuffer(1, bufSize, a.sampleRate);
     const data = buf.getChannelData(0);
     for (let j = 0; j < bufSize; j++) {
-      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 12);
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 10);
     }
     const src = a.createBufferSource();
     src.buffer = buf;
-    const bp = a.createBiquadFilter();
-    bp.type = "bandpass";
-    bp.frequency.value = 3500;
-    bp.Q.value = 6;
+    const lp = a.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 800;
+    lp.Q.value = 1;
     const g = a.createGain();
-    g.gain.setValueAtTime(0.18, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
-    src.connect(bp);
-    bp.connect(g);
+    g.gain.setValueAtTime(0.15, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+    src.connect(lp);
+    lp.connect(g);
     g.connect(a.destination);
     src.start(t);
-    src.stop(t + 0.02);
+    src.stop(t + 0.025);
   } catch {}
 }
 

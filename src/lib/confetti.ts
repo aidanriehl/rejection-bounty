@@ -79,7 +79,7 @@ export function fireEpicConfetti() {
     colors,
     startVelocity: 50,
     gravity: 0.8,
-    ticks: 180,
+    ticks: 150,
     scalar: 1.2,
   });
 
