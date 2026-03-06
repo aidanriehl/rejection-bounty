@@ -91,6 +91,16 @@ export default function VideoTrimmer({
     return Math.max(0, Math.min(duration, t));
   }, [duration, getContainerWidth]);
 
+  // Throttle scrub to avoid overwhelming the video decoder
+  const lastScrubRef = useRef(0);
+  const throttledScrub = useCallback((time: number) => {
+    const now = Date.now();
+    if (now - lastScrubRef.current > 80) {
+      lastScrubRef.current = now;
+      onScrub(time);
+    }
+  }, [onScrub]);
+
   const handlePointerDown = useCallback((type: "left" | "right" | "playhead", e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -107,21 +117,21 @@ export default function VideoTrimmer({
     if (!rect) return;
     const x = e.clientX - rect.left;
     const time = xToTime(x);
-    const minDuration = 1; // minimum 1 second
+    const minDuration = 1;
 
     if (dragging === "left") {
       const newStart = Math.min(time, trimEnd - minDuration);
       onTrimChange(Math.max(0, newStart), trimEnd);
-      onScrub(Math.max(0, newStart));
+      throttledScrub(Math.max(0, newStart));
     } else if (dragging === "right") {
       const newEnd = Math.max(time, trimStart + minDuration);
       onTrimChange(trimStart, Math.min(duration, newEnd));
-      onScrub(Math.min(duration, newEnd));
+      throttledScrub(Math.min(duration, newEnd));
     } else if (dragging === "playhead") {
       const clampedTime = Math.max(trimStart, Math.min(trimEnd, time));
-      onScrub(clampedTime);
+      throttledScrub(clampedTime);
     }
-  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, onScrub]);
+  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, throttledScrub]);
 
   const handlePointerUp = useCallback(() => {
     setDragging(null);
