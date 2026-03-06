@@ -261,14 +261,14 @@ export default function Admin() {
     const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
 
     const { error } = await (supabase
-      .from("challenges" as any)
+      .from("challenges" as any) as any)
       .insert({
         title: newChallenge.title,
         emoji: newChallenge.emoji,
         description: newChallenge.description || newChallenge.title,
         week_key: nextWeekKey,
         is_active: true,
-      } as any);
+      });
 
     if (!error) {
       setNewChallenge({ title: "", emoji: "", description: "" });
