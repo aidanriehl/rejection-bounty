@@ -278,7 +278,7 @@ export default function Admin() {
 
   // Delete a challenge
   const handleDeleteChallenge = async (id: string) => {
-    await supabase.from("challenges").delete().eq("id", id);
+    await (supabase as any).from("challenges").delete().eq("id", id);
     fetchData();
   };
 
