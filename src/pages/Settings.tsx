@@ -105,7 +105,10 @@ export default function SettingsPage() {
       .single();
 
     if (error) {
-      toast({ title: "Failed to update name", variant: "destructive" });
+      const msg = error.message.includes("unique")
+        ? "That username is taken"
+        : "Failed to update name";
+      toast({ title: msg, variant: "destructive" });
       return;
     }
 
