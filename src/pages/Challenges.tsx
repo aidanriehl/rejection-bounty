@@ -9,6 +9,7 @@ import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import WeeklySummary from "@/components/WeeklySummary";
+import CameraRecorder from "@/components/CameraRecorder";
 
 const progressMessages: Record<number, string> = {
   1: "Great start!",
