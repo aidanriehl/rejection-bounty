@@ -287,7 +287,7 @@ export default function Admin() {
     const ch = getChallengeInfo(video.challenge_id);
     const nextOrder = featuredVideos.length;
 
-    await supabase.from("featured_videos").insert({
+    await (supabase.from("featured_videos" as any) as any).insert({
       video_url: video.video_url,
       thumbnail_url: video.thumbnail_url || null,
       username: video.username,
