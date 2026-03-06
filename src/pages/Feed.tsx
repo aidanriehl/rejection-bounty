@@ -8,7 +8,7 @@ import WinnerBanner from "@/components/WinnerBanner";
 import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
-  { key: "week", label: "This Week" },
+  { key: "week", label: "Last Week" },
   { key: "friends", label: "Friends" },
   { key: "alltime", label: "All Time" },
 ] as const;
