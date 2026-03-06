@@ -140,6 +140,10 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         onSubmit={handleSubmit}
         className="-mt-16 flex w-full max-w-sm flex-col items-center"
       >
+        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-white">
+          Setup Your Account
+        </h1>
+
         {/* Avatar */}
         <div className="relative mb-2">
           <button
@@ -174,7 +178,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         </div>
 
         <p className="mb-6 text-xs text-white/50">
-          {photoPreview ? "Tap to change" : "optional"}
+          {photoPreview ? "Tap to change" : "(optional)"}
         </p>
 
         <input
@@ -191,7 +195,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="@username"
+          placeholder="@codymaverick"
           maxLength={20}
           autoFocus
           className="mb-4 h-14 w-full rounded-2xl border-2 border-white/20 bg-white/10 px-4 text-center text-lg font-medium text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none"
@@ -201,9 +205,9 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         <button
           type="submit"
           disabled={!isValid || saving}
-          className="h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
+          className="h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-60"
         >
-          {uploading ? "Uploading..." : saving ? "Saving..." : "Let's go 🚀"}
+          {uploading ? "Uploading..." : saving ? "Saving..." : "Finish"}
         </button>
       </motion.form>
     </div>
