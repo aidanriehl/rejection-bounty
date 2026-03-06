@@ -208,16 +208,14 @@ export default function VideoTrimmer({
           <div className="h-6 w-0.5 rounded-full bg-amber-900/50" />
         </div>
 
-        {/* Playhead */}
-        {!dragging && (
-          <div
-            className="absolute inset-y-0 z-20 flex cursor-col-resize items-center touch-none"
-            style={{ left: playheadX - 1 }}
-            onPointerDown={(e) => handlePointerDown("playhead", e)}
-          >
-            <div className="h-full w-[3px] rounded-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.5)]" />
-          </div>
-        )}
+        {/* Playhead - wide touch target, thin visual line */}
+        <div
+          className="absolute inset-y-0 z-20 flex cursor-col-resize items-center justify-center touch-none"
+          style={{ left: playheadX - 20, width: 40 }}
+          onPointerDown={(e) => handlePointerDown("playhead", e)}
+        >
+          <div className="h-full w-[3px] rounded-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.5)]" />
+        </div>
       </div>
 
       {/* Time labels */}
