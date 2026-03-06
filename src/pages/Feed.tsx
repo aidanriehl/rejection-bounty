@@ -82,7 +82,8 @@ function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }
 
   return (
     <div
-      className="relative h-[calc(100dvh-4.5rem)] w-full snap-start snap-always flex-shrink-0"
+      className="relative w-full snap-start snap-always flex-shrink-0"
+      style={{ height: "calc(100dvh - 4.5rem - env(safe-area-inset-bottom))" }}
       onClick={handleDoubleTap}
     >
       {post.video_id ? (
@@ -237,11 +238,22 @@ export default function Feed() {
   );
 
   return (
-    <div data-tour="feed" className="relative h-[calc(100dvh-4.5rem)] w-full overflow-hidden bg-black">
-      <div className="absolute top-0 inset-x-0 z-20 px-4 pt-2">
+    <div
+      data-tour="feed"
+      className="fixed inset-0 overflow-hidden bg-black"
+      style={{ paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom))" }}
+    >
+      {/* Tabs header - positioned with safe area */}
+      <div
+        className="absolute top-0 inset-x-0 z-20 px-4"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}
+      >
         <WinnerBanner />
       </div>
-      <div className="absolute top-0 inset-x-0 z-10 pt-9 px-4">
+      <div
+        className="absolute inset-x-0 z-10 px-4"
+        style={{ top: "calc(env(safe-area-inset-top) + 48px)" }}
+      >
         <div className="flex items-center justify-center gap-6">
           {TABS.map((tab, i) => (
             <button
@@ -258,6 +270,7 @@ export default function Feed() {
         </div>
       </div>
 
+      {/* Swipeable panes - leave space for bottom nav */}
       <motion.div
         className="flex h-full"
         style={{ x: dragX }}

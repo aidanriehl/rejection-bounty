@@ -26,6 +26,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   try {
+    console.log("[AuthContext] Fetching profile for user:", userId);
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -36,6 +37,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
       console.error("[AuthContext] Profile fetch error:", error);
       return null;
     }
+    console.log("[AuthContext] Profile fetched:", data?.username ? `@${data.username}` : "no username");
     return data as Profile;
   } catch (err) {
     console.error("[AuthContext] Profile fetch exception:", err);
