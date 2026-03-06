@@ -212,7 +212,7 @@ export default function Admin() {
     }
 
     // Get featured videos
-    const { data: featured } = await supabase
+    const { data: featured } = await (supabase as any)
       .from("featured_videos")
       .select("*")
       .eq("week_key", weekKey)
