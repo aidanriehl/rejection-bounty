@@ -283,7 +283,7 @@ export default function Admin() {
     }).filter(c => c.emoji && c.title);
 
     if (challengesToInsert.length > 0) {
-      await supabase.from("challenges").insert(challengesToInsert as any);
+      await (supabase as any).from("challenges").insert(challengesToInsert as any);
       fetchData();
     }
 
