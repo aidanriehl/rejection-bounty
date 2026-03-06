@@ -24,25 +24,40 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-async function fetchProfile(userId: string): Promise<Profile | null> {
-  try {
-    console.log("[AuthContext] Fetching profile for user:", userId);
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+async function fetchProfile(userId: string, retries = 3): Promise<Profile | null> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`[AuthContext] Fetching profile for user: ${userId} (attempt ${attempt})`);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (error) {
-      console.error("[AuthContext] Profile fetch error:", error);
+      if (error) {
+        console.error("[AuthContext] Profile fetch error:", error);
+        if (attempt < retries) {
+          await new Promise(r => setTimeout(r, 500 * attempt));
+          continue;
+        }
+        return null;
+      }
+      console.log("[AuthContext] Profile fetched successfully:", {
+        id: data?.id,
+        username: data?.username,
+        hasUsername: !!data?.username
+      });
+      return data as Profile;
+    } catch (err) {
+      console.error("[AuthContext] Profile fetch exception:", err);
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 500 * attempt));
+        continue;
+      }
       return null;
     }
-    console.log("[AuthContext] Profile fetched:", data?.username ? `@${data.username}` : "no username");
-    return data as Profile;
-  } catch (err) {
-    console.error("[AuthContext] Profile fetch exception:", err);
-    return null;
   }
+  return null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

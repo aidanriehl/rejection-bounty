@@ -65,7 +65,11 @@ export async function hydrateFromNativeStorage(): Promise<void> {
 
   try {
     const { value } = await Preferences.get({ key: SUPABASE_AUTH_KEY });
-    if (value && !localStorage.getItem(SUPABASE_AUTH_KEY)) {
+    console.log("[capacitor-storage] Native storage has session:", !!value);
+    console.log("[capacitor-storage] localStorage has session:", !!localStorage.getItem(SUPABASE_AUTH_KEY));
+
+    // Always prefer native storage - it survives iOS purging localStorage
+    if (value) {
       console.log("[capacitor-storage] Hydrating session from native storage");
       localStorage.setItem(SUPABASE_AUTH_KEY, value);
     }
