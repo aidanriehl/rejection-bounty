@@ -207,7 +207,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           disabled={!isValid || saving}
           className="h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-60"
         >
-          {uploading ? "Uploading..." : saving ? "Saving..." : "Finish 🚀"}
+          {uploading ? "Uploading..." : saving ? "Saving..." : "Finish"}
         </button>
       </motion.form>
     </div>
