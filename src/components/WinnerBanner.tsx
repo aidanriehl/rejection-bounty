@@ -85,7 +85,8 @@ export default function WinnerBanner() {
         onClick={() => setShowThread(true)}
         className="relative w-full overflow-hidden rounded-xl px-4 py-3 flex items-center justify-between mb-4"
         style={{
-          background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(40 95% 48%), hsl(35 90% 42%))",
+          background: "linear-gradient(135deg, hsl(43 96% 56%) 0%, hsl(38 90% 45%) 50%, hsl(35 85% 38%) 100%)",
+          boxShadow: "0 4px 20px rgba(245, 184, 0, 0.3)",
         }}
       >
         {/* Shimmer overlay */}

@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Send } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
@@ -19,7 +18,18 @@ interface WinnerMessageThreadProps {
   onClose: () => void;
   isAdmin?: boolean;
   adminTargetUserId?: string;
+  winnerName?: string;
 }
+
+// Rich gold colors
+const GOLD = {
+  primary: "hsl(43 96% 56%)",      // #F5B800 - main gold
+  dark: "hsl(38 90% 40%)",          // darker gold
+  light: "hsl(45 100% 70%)",        // lighter gold
+  bg: "hsl(40 30% 8%)",             // dark bg with warm tint
+  bgLight: "hsl(40 20% 12%)",       // slightly lighter
+  text: "hsl(43 100% 90%)",         // light gold text
+};
 
 export default function WinnerMessageThread({
   weekKey,
@@ -28,6 +38,7 @@ export default function WinnerMessageThread({
   onClose,
   isAdmin = false,
   adminTargetUserId,
+  winnerName,
 }: WinnerMessageThreadProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -95,102 +106,131 @@ export default function WinnerMessageThread({
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
+      initial={{ x: "100%" }}
+      animate={{ x: 0 }}
+      exit={{ x: "100%" }}
+      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+      className="fixed inset-0 z-[100] flex flex-col"
+      style={{ backgroundColor: GOLD.bg }}
     >
-      <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-t-2xl flex flex-col"
+      {/* Header - Instagram style */}
+      <div
+        className="flex items-center gap-3 px-4 py-3 border-b"
         style={{
-          backgroundColor: "hsl(var(--card))",
-          maxHeight: "85dvh",
+          borderColor: "rgba(255,255,255,0.1)",
+          background: `linear-gradient(180deg, ${GOLD.bgLight} 0%, ${GOLD.bg} 100%)`,
+          paddingTop: "calc(env(safe-area-inset-top) + 12px)",
         }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b"
-          style={{ borderColor: "hsl(var(--border))" }}
+        <button
+          onClick={onClose}
+          className="flex items-center justify-center rounded-full p-2 transition-colors"
+          style={{ color: GOLD.primary }}
         >
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏆</span>
-              <span className="text-lg font-extrabold" style={{ color: "hsl(45 90% 50%)" }}>
-                Winner!
-              </span>
-            </div>
-            {daysLeft > 0 && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Available for {daysLeft} more day{daysLeft !== 1 ? "s" : ""}
-              </p>
-            )}
-          </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted transition-colors">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
+          <ArrowLeft className="h-6 w-6" />
+        </button>
 
-        {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ minHeight: 200 }}>
-          {messages.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">No messages yet</p>
-          )}
-          {messages.map((msg) => {
-            const isAdminMsg = msg.sender === "admin";
-            return (
-              <div key={msg.id} className={`flex ${isAdminMsg ? "justify-start" : "justify-end"}`}>
-                <div className={`max-w-[80%] ${isAdminMsg ? "" : ""}`}>
-                  {isAdminMsg && (
-                    <p className="text-[10px] font-bold text-muted-foreground mb-1 ml-1">
-                      Rejection Bounty
-                    </p>
-                  )}
-                  <div
-                    className="rounded-2xl px-3.5 py-2.5"
-                    style={{
-                      backgroundColor: isAdminMsg
-                        ? "hsl(var(--muted))"
-                        : "hsl(var(--primary))",
-                      color: isAdminMsg
-                        ? "hsl(var(--foreground))"
-                        : "hsl(var(--primary-foreground))",
-                    }}
-                  >
-                    <p className="text-sm">{msg.message}</p>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 mx-1">
-                    {formatTime(msg.created_at)}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Input */}
-        <div className="px-4 pb-6 pt-2 border-t flex gap-2" style={{ borderColor: "hsl(var(--border))" }}>
-          <input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type a message..."
-            className="flex-1 rounded-full px-4 py-2.5 text-sm bg-muted text-foreground outline-none placeholder:text-muted-foreground"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!newMessage.trim() || sending}
-            className="rounded-full p-2.5 transition-colors disabled:opacity-40"
-            style={{ backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+        <div className="flex items-center gap-3 flex-1">
+          {/* Gold trophy avatar */}
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
+            style={{
+              background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.dark} 100%)`,
+            }}
           >
-            <Send className="h-4 w-4" />
-          </button>
+            🏆
+          </div>
+          <div>
+            <p className="font-bold" style={{ color: GOLD.text }}>
+              {isAdmin ? (winnerName || "Winner") : "Rejection Bounty"}
+            </p>
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {isAdmin ? weekKey : daysLeft > 0 ? `${daysLeft} days to claim prize` : "Congratulations!"}
+            </p>
+          </div>
         </div>
-      </motion.div>
+      </div>
+
+      {/* Messages */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full text-3xl"
+              style={{ background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.dark} 100%)` }}
+            >
+              🏆
+            </div>
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {isAdmin ? "Start a conversation with the winner" : "You won! We'll be in touch."}
+            </p>
+          </div>
+        )}
+        {messages.map((msg) => {
+          const isAdminMsg = msg.sender === "admin";
+          const isMyMessage = isAdmin ? isAdminMsg : !isAdminMsg;
+          return (
+            <div key={msg.id} className={`flex ${isMyMessage ? "justify-end" : "justify-start"}`}>
+              <div className="max-w-[80%]">
+                <div
+                  className="rounded-2xl px-4 py-2.5"
+                  style={{
+                    backgroundColor: isMyMessage
+                      ? GOLD.primary
+                      : GOLD.bgLight,
+                    color: isMyMessage
+                      ? GOLD.bg
+                      : GOLD.text,
+                  }}
+                >
+                  <p className="text-sm">{msg.message}</p>
+                </div>
+                <p className="text-[10px] mt-1 mx-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {formatTime(msg.created_at)}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Input - Instagram style */}
+      <div
+        className="px-4 pt-2 border-t flex items-center gap-3"
+        style={{
+          borderColor: "rgba(255,255,255,0.1)",
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
+          backgroundColor: GOLD.bg,
+        }}
+      >
+        <input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          placeholder="Message..."
+          className="flex-1 rounded-full px-4 py-3 text-sm outline-none"
+          style={{
+            backgroundColor: GOLD.bgLight,
+            color: GOLD.text,
+            border: `1px solid rgba(255,255,255,0.1)`,
+          }}
+        />
+        <button
+          onClick={handleSend}
+          disabled={!newMessage.trim() || sending}
+          className="rounded-full p-3 transition-all disabled:opacity-40"
+          style={{
+            background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.dark} 100%)`,
+            color: GOLD.bg,
+          }}
+        >
+          <Send className="h-5 w-5" />
+        </button>
+      </div>
     </motion.div>
   );
 }

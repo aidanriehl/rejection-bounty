@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,12 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-import { Trophy, Users, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check, MessageCircle, Settings, History, Plus, Trash2, Star, Video, Edit2 } from "lucide-react";
+import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
 import { Input } from "@/components/ui/input";
+import { AnimatePresence } from "framer-motion";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 const AUTO_MESSAGE = "Congrats on winning!!! As long as your bank account is linked in settings your funds should be on their way 🥳💰";
@@ -51,7 +51,6 @@ interface ChallengeItem {
   id: string;
   title: string;
   emoji: string;
-  description: string;
   week_key: string;
   is_active: boolean;
 }
@@ -88,16 +87,14 @@ export default function Admin() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
-  const [messagingEnabled, setMessagingEnabled] = useState(true);
   const [showMessageThread, setShowMessageThread] = useState(false);
   const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
-  const [expandedPastWinner, setExpandedPastWinner] = useState<string | null>(null);
   const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
 
   // Challenge management
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
-  const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "", description: "" });
-  const [editingChallenge, setEditingChallenge] = useState<string | null>(null);
+  const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "" });
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Featured videos
   const [featuredVideos, setFeaturedVideos] = useState<FeaturedVideo[]>([]);
@@ -158,14 +155,6 @@ export default function Admin() {
       .not("video_url", "is", null);
     setCompletions((comps as CompletionWithVideo[]) ?? []);
 
-    // Get app settings
-    const { data: settings } = await supabase
-      .from("app_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-    if (settings) setMessagingEnabled((settings as any).winner_messaging_enabled ?? true);
-
     // Get past winners
     const { data: pastDrawings } = await supabase
       .from("weekly_drawings")
@@ -200,12 +189,10 @@ export default function Admin() {
     if (dbChallenges && dbChallenges.length > 0) {
       setChallenges(dbChallenges as ChallengeItem[]);
     } else {
-      // Use mock challenges as fallback
       setChallenges(mockChallenges.map(c => ({
         id: c.id,
         title: c.title,
         emoji: c.emoji,
-        description: c.description,
         week_key: weekKey,
         is_active: true,
       })));
@@ -230,7 +217,6 @@ export default function Admin() {
       .not("video_url", "is", null);
 
     if (allVids) {
-      // Get usernames for all videos
       const userIds = [...new Set(allVids.map((v: any) => v.user_id))];
       const { data: vidProfiles } = await supabase
         .from("profiles")
@@ -254,26 +240,54 @@ export default function Admin() {
   const handleAddChallenge = async () => {
     if (!newChallenge.title || !newChallenge.emoji) return;
 
-    // Calculate next week key
     const now = new Date();
     const jan1 = new Date(now.getFullYear(), 0, 1);
     const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
     const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
 
-    const { error } = await (supabase as any)
-      .from("challenges")
-      .insert({
-        title: newChallenge.title,
-        emoji: newChallenge.emoji,
-        description: newChallenge.description || newChallenge.title,
+    await supabase.from("challenges").insert({
+      title: newChallenge.title,
+      emoji: newChallenge.emoji,
+      description: newChallenge.title,
+      week_key: nextWeekKey,
+      is_active: true,
+    } as any);
+
+    setNewChallenge({ title: "", emoji: "" });
+    fetchData();
+  };
+
+  // CSV upload for challenges
+  const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const lines = text.split("\n").filter(l => l.trim());
+
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+    const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
+
+    const challengesToInsert = lines.map(line => {
+      const [emoji, ...titleParts] = line.split(",");
+      const title = titleParts.join(",").trim();
+      return {
+        title: title || emoji.trim(),
+        emoji: emoji.trim(),
+        description: title || emoji.trim(),
         week_key: nextWeekKey,
         is_active: true,
-      } as any);
+      };
+    }).filter(c => c.emoji && c.title);
 
-    if (!error) {
-      setNewChallenge({ title: "", emoji: "", description: "" });
+    if (challengesToInsert.length > 0) {
+      await supabase.from("challenges").insert(challengesToInsert as any);
       fetchData();
     }
+
+    if (csvInputRef.current) csvInputRef.current.value = "";
   };
 
   // Delete a challenge
@@ -334,7 +348,6 @@ export default function Admin() {
       .select()
       .single();
 
-    // Send auto congratulations message
     await supabase.from("winner_messages").insert({
       week_key: weekKey,
       winner_user_id: userId,
@@ -345,14 +358,6 @@ export default function Admin() {
     setDrawing(data);
     setDrawnUser(null);
     fetchData();
-  };
-
-  const toggleMessaging = async (enabled: boolean) => {
-    setMessagingEnabled(enabled);
-    await supabase
-      .from("app_settings")
-      .update({ winner_messaging_enabled: enabled, updated_at: new Date().toISOString() } as any)
-      .not("id", "is", null);
   };
 
   if (loading || isAdmin === null) {
@@ -375,6 +380,8 @@ export default function Admin() {
 
   const avatarEmoji = (a: string) =>
     a === "dragon" ? "🐉" : a === "fox" ? "🦊" : a === "owl" ? "🦉" : a === "cat" ? "🐱" : "🌳";
+
+  const currentWinnerName = tickets.find(t => t.user_id === drawing?.winner_user_id)?.username ?? "Winner";
 
   return (
     <div className="min-h-screen pb-24 pt-6">
@@ -411,9 +418,7 @@ export default function Admin() {
             {drawing?.status === "complete" && (
               <div className="mt-4 rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
                 <Badge variant="default" className="mb-1">Winner Selected</Badge>
-                <p className="text-sm font-bold text-foreground">
-                  {tickets.find(t => t.user_id === drawing.winner_user_id)?.username ?? drawing.winner_user_id}
-                </p>
+                <p className="text-sm font-bold text-foreground">{currentWinnerName}</p>
               </div>
             )}
           </CardContent>
@@ -446,7 +451,6 @@ export default function Admin() {
 
                 {drawnUser && (
                   <div className="rounded-xl border-2 border-primary bg-primary/5 p-4 space-y-4">
-                    {/* Winner info */}
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
                         {avatarEmoji(drawnUser.avatar)}
@@ -459,7 +463,6 @@ export default function Admin() {
                       </div>
                     </div>
 
-                    {/* Video grid */}
                     {getUserCompletions(drawnUser.user_id).length > 0 && (
                       <div>
                         <p className="text-xs font-medium text-muted-foreground mb-2">Their videos this week:</p>
@@ -474,7 +477,6 @@ export default function Admin() {
                                   isSelected ? "border-primary bg-primary/10" : "border-border bg-muted"
                                 }`}
                               >
-                                {/* Thumbnail */}
                                 <button
                                   onClick={() => c.video_url && setPreviewVideo(c.video_url)}
                                   className="relative w-full aspect-video bg-background flex items-center justify-center"
@@ -490,7 +492,6 @@ export default function Admin() {
                                     <span className="text-xs text-muted-foreground">No video</span>
                                   )}
                                 </button>
-                                {/* Challenge info + select */}
                                 <div className="p-2 space-y-1.5">
                                   <p className="text-xs text-foreground truncate">
                                     {ch.emoji} {ch.title}
@@ -501,11 +502,7 @@ export default function Admin() {
                                     className="w-full h-7 text-xs"
                                     onClick={() => setSelectedVideo(isSelected ? null : c)}
                                   >
-                                    {isSelected ? (
-                                      <><Check className="h-3 w-3 mr-1" /> Selected</>
-                                    ) : (
-                                      "Select This Video"
-                                    )}
+                                    {isSelected ? <><Check className="h-3 w-3 mr-1" /> Selected</> : "Select This Video"}
                                   </Button>
                                 </div>
                               </div>
@@ -515,19 +512,13 @@ export default function Admin() {
                       </div>
                     )}
 
-                    {/* Confirm / Edit / Re-draw */}
                     {selectedVideo && !showEditor && (
                       <div className="flex gap-2 pt-1">
-                        <Button
-                          onClick={() => setShowEditor(true)}
-                          className="flex-1"
-                        >
+                        <Button onClick={() => setShowEditor(true)} className="flex-1">
                           <UserCheck className="h-4 w-4 mr-2" />
                           Edit & Confirm Winner
                         </Button>
-                        <Button variant="outline" onClick={handleRandomDraw}>
-                          Re-draw
-                        </Button>
+                        <Button variant="outline" onClick={handleRandomDraw}>Re-draw</Button>
                       </div>
                     )}
 
@@ -551,7 +542,6 @@ export default function Admin() {
                             } as any, { onConflict: "week_key" })
                             .select()
                             .single();
-                          // Send auto congratulations message
                           await supabase.from("winner_messages").insert({
                             week_key: weekKey,
                             winner_user_id: drawnUser.user_id,
@@ -573,9 +563,7 @@ export default function Admin() {
                 <ScrollArea className="max-h-[400px]">
                   <div className="space-y-2">
                     {tickets.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No users with videos this week
-                      </p>
+                      <p className="text-sm text-muted-foreground text-center py-4">No users with videos this week</p>
                     )}
                     {tickets.map((t) => (
                       <div key={t.user_id} className="rounded-lg border bg-card">
@@ -590,11 +578,7 @@ export default function Admin() {
                             <p className="text-sm font-bold text-foreground truncate">{t.username}</p>
                             <p className="text-xs text-muted-foreground">{t.tickets} tickets · {t.video_count} vids</p>
                           </div>
-                          {expandedUser === t.user_id ? (
-                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                          )}
+                          {expandedUser === t.user_id ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                         </button>
 
                         {expandedUser === t.user_id && (
@@ -602,27 +586,17 @@ export default function Admin() {
                             {getUserCompletions(t.user_id).map((c) => (
                               <div key={c.id} className="flex items-center gap-2 rounded-lg bg-muted p-2">
                                 <div className="h-12 w-12 rounded-lg bg-background flex items-center justify-center overflow-hidden shrink-0">
-                                  {c.video_url ? (
-                                    <video src={c.video_url} className="h-full w-full object-cover" />
-                                  ) : (
-                                    <span className="text-xs text-muted-foreground">—</span>
-                                  )}
+                                  {c.video_url ? <video src={c.video_url} className="h-full w-full object-cover" /> : <span className="text-xs text-muted-foreground">—</span>}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs text-muted-foreground truncate">Challenge {c.challenge_id}</p>
                                 </div>
-                                <Button
-                                  size="sm"
-                                  onClick={() => confirmWinner(t.user_id, c.video_url ?? undefined)}
-                                  disabled={drawing?.status === "complete"}
-                                >
+                                <Button size="sm" onClick={() => confirmWinner(t.user_id, c.video_url ?? undefined)} disabled={drawing?.status === "complete"}>
                                   Select
                                 </Button>
                               </div>
                             ))}
-                            {getUserCompletions(t.user_id).length === 0 && (
-                              <p className="text-xs text-muted-foreground">No videos found</p>
-                            )}
+                            {getUserCompletions(t.user_id).length === 0 && <p className="text-xs text-muted-foreground">No videos found</p>}
                           </div>
                         )}
                       </div>
@@ -634,164 +608,7 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        {/* Section 3: Ticket Calculation Reference */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Info className="h-5 w-5 text-primary" />
-              Ticket Calculation
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-                <span className="text-muted-foreground">1 video</span>
-                <Badge variant="secondary">1 ticket</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-                <span className="text-muted-foreground">2 videos</span>
-                <Badge variant="secondary">2 tickets</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-                <span className="text-muted-foreground">3 videos</span>
-                <Badge variant="secondary">3 tickets</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-                <span className="text-muted-foreground">4 videos</span>
-                <Badge variant="secondary">4 tickets</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2 border border-primary/20">
-                <span className="font-bold text-foreground">5+ videos</span>
-                <Badge variant="default">8 tickets (bonus!)</Badge>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Each challenge completion with a video counts. 5 or more = 8 tickets (capped).
-              Subscription adds $3.50/mo to the prize pool. Weekly prize = pool / 4.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Section 4: Settings */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Settings className="h-5 w-5 text-primary" />
-              Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-              <div>
-                <p className="text-sm font-bold text-foreground">Winner Messaging</p>
-                <p className="text-xs text-muted-foreground">Show gold banner to winners</p>
-              </div>
-              <Switch checked={messagingEnabled} onCheckedChange={toggleMessaging} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 5: Message Current Winner */}
-        {drawing?.status === "complete" && drawing?.winner_user_id && (
-          <Card className="mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MessageCircle className="h-5 w-5 text-primary" />
-                Message Winner
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl">
-                  {avatarEmoji(tickets.find(t => t.user_id === drawing.winner_user_id)?.avatar ?? "dragon")}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-foreground">
-                    {tickets.find(t => t.user_id === drawing.winner_user_id)?.username ?? "Winner"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{weekKey}</p>
-                </div>
-              </div>
-              <Button onClick={() => setShowMessageThread(true)} className="w-full">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Open Message Thread
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Section 6: Past Winners */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <History className="h-5 w-5 text-primary" />
-              Past Winners
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pastWinners.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No winners yet</p>
-            ) : (
-              <div className="space-y-2">
-                {pastWinners.map((pw) => {
-                  const weekNum = pw.week_key.split("-w")[1];
-                  const year = pw.week_key.split("-w")[0];
-                  const isExpanded = expandedPastWinner === pw.id;
-                  return (
-                    <div key={pw.id} className="rounded-lg border bg-card">
-                      <button
-                        onClick={() => setExpandedPastWinner(isExpanded ? null : pw.id)}
-                        className="w-full flex items-center gap-3 p-3 text-left"
-                      >
-                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
-                          {avatarEmoji(pw.avatar ?? "dragon")}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-foreground truncate">{pw.username}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Week {weekNum}, {year} · ${Number(pw.prize_amount).toFixed(2)}
-                          </p>
-                        </div>
-                        <Badge variant="secondary" className="text-[10px]">
-                          {pw.status === "complete" ? "Paid" : "Pending"}
-                        </Badge>
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                      {isExpanded && (
-                        <div className="px-3 pb-3 space-y-2">
-                          {pw.thumbnail_url && (
-                            <img src={pw.thumbnail_url} alt="Winner thumbnail" className="w-full rounded-lg border" />
-                          )}
-                          {pw.winning_video_url && !pw.thumbnail_url && (
-                            <video src={pw.winning_video_url} className="w-full rounded-lg" controls />
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Drawn: {new Date(pw.created_at).toLocaleDateString()}
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full"
-                            onClick={() => setPastWinnerThread(pw)}
-                          >
-                            <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
-                            View Message History
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section 7: Featured Videos */}
+        {/* Section 3: Featured Videos (Recap) */}
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -800,9 +617,7 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground mb-3">
-              Select up to 4 videos to feature in "Top Videos This Week" on the recap screen.
-            </p>
+            <p className="text-xs text-muted-foreground mb-3">Select up to 4 videos for "Top Videos This Week" on recap.</p>
 
             {featuredVideos.length > 0 ? (
               <div className="space-y-2 mb-3">
@@ -810,11 +625,7 @@ export default function Admin() {
                   <div key={v.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
                     <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
                     <div className="h-10 w-10 rounded-lg bg-background overflow-hidden shrink-0">
-                      {v.thumbnail_url ? (
-                        <img src={v.thumbnail_url} className="h-full w-full object-cover" />
-                      ) : v.video_url ? (
-                        <video src={v.video_url} className="h-full w-full object-cover" />
-                      ) : null}
+                      {v.thumbnail_url ? <img src={v.thumbnail_url} className="h-full w-full object-cover" /> : v.video_url ? <video src={v.video_url} className="h-full w-full object-cover" /> : null}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{v.username}</p>
@@ -837,41 +648,30 @@ export default function Admin() {
               </Button>
             )}
 
-            {/* Video selector modal */}
             {showVideoSelector && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                 <div className="bg-card rounded-xl border border-border max-w-md w-full max-h-[70vh] overflow-hidden">
                   <div className="p-4 border-b border-border flex items-center justify-between">
                     <h3 className="font-bold text-foreground">Select a Video</h3>
-                    <Button size="sm" variant="ghost" onClick={() => setShowVideoSelector(false)}>
-                      ✕
-                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowVideoSelector(false)}>✕</Button>
                   </div>
                   <ScrollArea className="max-h-[50vh] p-4">
                     <div className="space-y-2">
-                      {allVideosThisWeek
-                        .filter(v => !featuredVideos.some(f => f.video_url === v.video_url))
-                        .map((v) => {
-                          const ch = getChallengeInfo(v.challenge_id);
-                          return (
-                            <button
-                              key={v.id}
-                              onClick={() => handleAddFeatured(v)}
-                              className="flex items-center gap-3 rounded-lg bg-muted p-2 w-full text-left hover:bg-muted/70 transition-colors"
-                            >
-                              <div className="h-12 w-12 rounded-lg bg-background overflow-hidden shrink-0">
-                                <video src={v.video_url} className="h-full w-full object-cover" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">{v.username}</p>
-                                <p className="text-xs text-muted-foreground truncate">{ch.emoji} {ch.title}</p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      {allVideosThisWeek.length === 0 && (
-                        <p className="text-sm text-muted-foreground text-center py-4">No videos this week</p>
-                      )}
+                      {allVideosThisWeek.filter(v => !featuredVideos.some(f => f.video_url === v.video_url)).map((v) => {
+                        const ch = getChallengeInfo(v.challenge_id);
+                        return (
+                          <button key={v.id} onClick={() => handleAddFeatured(v)} className="flex items-center gap-3 rounded-lg bg-muted p-2 w-full text-left hover:bg-muted/70 transition-colors">
+                            <div className="h-12 w-12 rounded-lg bg-background overflow-hidden shrink-0">
+                              <video src={v.video_url} className="h-full w-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{v.username}</p>
+                              <p className="text-xs text-muted-foreground truncate">{ch.emoji} {ch.title}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                      {allVideosThisWeek.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No videos this week</p>}
                     </div>
                   </ScrollArea>
                 </div>
@@ -880,7 +680,7 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        {/* Section 8: Challenge Management */}
+        {/* Section 4: Manage Challenges */}
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -889,38 +689,38 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground mb-3">
-              Add challenges for next week. Current challenges are from mockChallenges until you add to the database.
-            </p>
+            {/* CSV Upload */}
+            <div className="rounded-lg border border-dashed border-border p-4 mb-4 text-center">
+              <input ref={csvInputRef} type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+              <Button variant="outline" onClick={() => csvInputRef.current?.click()} className="mb-2">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload CSV
+              </Button>
+              <p className="text-xs text-muted-foreground">Format: <code className="bg-muted px-1 rounded">emoji,title</code> (one per line)</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Example: 🖐️,Ask a stranger for a high-five</p>
+            </div>
 
-            {/* Add new challenge form */}
+            {/* Add single challenge */}
             <div className="rounded-lg border border-border p-3 mb-4">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Add New Challenge</p>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Emoji"
-                    value={newChallenge.emoji}
-                    onChange={(e) => setNewChallenge(prev => ({ ...prev, emoji: e.target.value }))}
-                    className="w-16"
-                  />
-                  <Input
-                    placeholder="Challenge title"
-                    value={newChallenge.title}
-                    onChange={(e) => setNewChallenge(prev => ({ ...prev, title: e.target.value }))}
-                    className="flex-1"
-                  />
-                </div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Add Single Challenge</p>
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Description (optional)"
-                  value={newChallenge.description}
-                  onChange={(e) => setNewChallenge(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Challenge title"
+                  value={newChallenge.title}
+                  onChange={(e) => setNewChallenge(prev => ({ ...prev, title: e.target.value }))}
+                  className="flex-1"
                 />
-                <Button onClick={handleAddChallenge} className="w-full" disabled={!newChallenge.title || !newChallenge.emoji}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Challenge for Next Week
-                </Button>
+                <Input
+                  placeholder="🎯"
+                  value={newChallenge.emoji}
+                  onChange={(e) => setNewChallenge(prev => ({ ...prev, emoji: e.target.value }))}
+                  className="w-14 text-center"
+                />
               </div>
+              <Button onClick={handleAddChallenge} className="w-full mt-2" disabled={!newChallenge.title || !newChallenge.emoji}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add for Next Week
+              </Button>
             </div>
 
             {/* Existing challenges */}
@@ -928,11 +728,11 @@ export default function Admin() {
               <p className="text-xs font-medium text-muted-foreground">Current Challenges</p>
               {challenges.map((ch) => (
                 <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
-                  <span className="text-lg">{ch.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
                     <p className="text-xs text-muted-foreground">{ch.week_key}</p>
                   </div>
+                  <span className="text-lg">{ch.emoji}</span>
                   <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -941,40 +741,114 @@ export default function Admin() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Section 5: Past Winners */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <History className="h-5 w-5 text-primary" />
+              Past Winners
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pastWinners.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No winners yet</p>
+            ) : (
+              <div className="space-y-2">
+                {pastWinners.map((pw) => {
+                  const weekNum = pw.week_key.split("-w")[1];
+                  const year = pw.week_key.split("-w")[0];
+                  return (
+                    <div key={pw.id} className="flex items-center gap-3 rounded-lg bg-muted p-3">
+                      <div className="h-9 w-9 rounded-full bg-background flex items-center justify-center text-lg">
+                        {avatarEmoji(pw.avatar ?? "dragon")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{pw.username}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Week {weekNum}, {year} · ${Number(pw.prize_amount).toFixed(2)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setPastWinnerThread(pw)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-background text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section 6: Message Current Winner (Settings replacement) */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MessageCircle className="h-5 w-5 text-primary" />
+              Winner Messaging
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {drawing?.status === "complete" && drawing?.winner_user_id ? (
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl">
+                  {avatarEmoji(tickets.find(t => t.user_id === drawing.winner_user_id)?.avatar ?? "dragon")}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-foreground">{currentWinnerName}</p>
+                  <p className="text-xs text-muted-foreground">This week's winner</p>
+                </div>
+                <Button onClick={() => setShowMessageThread(true)}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Message
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No winner selected yet this week</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Video Preview Dialog */}
       <Dialog open={!!previewVideo} onOpenChange={() => setPreviewVideo(null)}>
         <DialogContent className="max-w-sm p-2">
-          {previewVideo && (
-            <video src={previewVideo} controls autoPlay className="w-full rounded-lg" />
-          )}
+          {previewVideo && <video src={previewVideo} controls autoPlay className="w-full rounded-lg" />}
         </DialogContent>
       </Dialog>
 
       {/* Current winner message thread */}
-      {showMessageThread && drawing?.winner_user_id && (
-        <WinnerMessageThread
-          weekKey={weekKey}
-          userId={user!.id}
-          daysLeft={7}
-          onClose={() => setShowMessageThread(false)}
-          isAdmin
-          adminTargetUserId={drawing.winner_user_id}
-        />
-      )}
+      <AnimatePresence>
+        {showMessageThread && drawing?.winner_user_id && (
+          <WinnerMessageThread
+            weekKey={weekKey}
+            userId={user!.id}
+            daysLeft={7}
+            onClose={() => setShowMessageThread(false)}
+            isAdmin
+            adminTargetUserId={drawing.winner_user_id}
+            winnerName={currentWinnerName}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Past winner message thread */}
-      {pastWinnerThread && (
-        <WinnerMessageThread
-          weekKey={pastWinnerThread.week_key}
-          userId={user!.id}
-          daysLeft={0}
-          onClose={() => setPastWinnerThread(null)}
-          isAdmin
-          adminTargetUserId={pastWinnerThread.winner_user_id}
-        />
-      )}
+      <AnimatePresence>
+        {pastWinnerThread && (
+          <WinnerMessageThread
+            weekKey={pastWinnerThread.week_key}
+            userId={user!.id}
+            daysLeft={0}
+            onClose={() => setPastWinnerThread(null)}
+            isAdmin
+            adminTargetUserId={pastWinnerThread.winner_user_id}
+            winnerName={pastWinnerThread.username}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
