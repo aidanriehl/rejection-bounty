@@ -26,6 +26,7 @@ import AuthCallback from "@/pages/AuthCallback";
 import { useAuth } from "@/hooks/useAuth";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
+import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
 
 const queryClient = new QueryClient();
 
@@ -116,11 +117,8 @@ function AppRoutes() {
 function KeyboardSetup() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-
-    // Hide the iOS form accessory bar (the toolbar with arrows and checkmark)
     Keyboard.setAccessoryBarVisible({ isVisible: false });
   }, []);
-
   return null;
 }
 
@@ -133,7 +131,6 @@ function DeepLinkHandler() {
     const handler = CapApp.addListener("appUrlOpen", async ({ url }) => {
       console.log("[DeepLinkHandler] appUrlOpen received:", url);
       
-      // Close the in-app browser (SFSafariViewController) immediately
       try {
         await Browser.close();
         console.log("[DeepLinkHandler] Browser closed");
@@ -141,7 +138,6 @@ function DeepLinkHandler() {
         console.log("[DeepLinkHandler] Browser.close() error (may already be closed):", e);
       }
 
-      // Extract tokens from the deep link URL hash
       const hashIndex = url.indexOf("#");
       if (hashIndex === -1) {
         console.log("[DeepLinkHandler] No hash fragment in URL");
@@ -187,6 +183,7 @@ const App = () => (
           <UploadProvider>
             <KeyboardSetup />
             <DeepLinkHandler />
+            <NativeSessionSync />
             <Routes>
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="*" element={
@@ -201,5 +198,11 @@ const App = () => (
     </QueryClientProvider>
   </ThemeProvider>
 );
+
+/** Mirrors auth session changes to native Preferences storage */
+function NativeSessionSync() {
+  useNativeSessionSync();
+  return null;
+}
 
 export default App;
