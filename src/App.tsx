@@ -23,7 +23,7 @@ import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
 import FeatureTour from "@/components/FeatureTour";
 import AuthCallback from "@/pages/AuthCallback";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
 import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
@@ -180,6 +180,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AuthProvider>
           <UploadProvider>
             <KeyboardSetup />
             <DeepLinkHandler />
@@ -193,6 +194,7 @@ const App = () => (
               } />
             </Routes>
           </UploadProvider>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
