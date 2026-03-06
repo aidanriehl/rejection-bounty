@@ -245,10 +245,11 @@ export default function Challenges() {
           </div>
 
           {/* Challenge List */}
-          <p className="mb-2 text-sm font-bold text-foreground">
-            Complete 5 of 8 challenges
-          </p>
-          <div data-tour="challenge-list" className="space-y-2">
+          <div data-tour="challenge-list">
+            <p className="mb-2 text-sm font-bold text-foreground">
+              Complete 5 of 8 challenges
+            </p>
+            <div className="space-y-2">
             <AnimatePresence>
               {dropRevealed && challenges.map((challenge, i) => (
                 <motion.div
@@ -316,6 +317,7 @@ export default function Challenges() {
                 </motion.div>
               ))}
             </AnimatePresence>
+            </div>
           </div>
         </div>
 

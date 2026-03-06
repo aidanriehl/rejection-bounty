@@ -196,8 +196,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             style={{
               zIndex: 2,
               ...(tooltipBelow
-                ? { top: Math.min(rect.top + rect.height + 20, window.innerHeight - 220) }
-                : { top: Math.max(20, rect.top - 200) }),
+                ? { top: Math.min(rect.top + rect.height + 28, window.innerHeight - 240) }
+                : { top: Math.max(20, rect.top - 220) }),
             }}
           >
             {/* Arrow pointer — points toward the spotlight center */}
