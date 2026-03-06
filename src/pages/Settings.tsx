@@ -343,8 +343,8 @@ export default function SettingsPage() {
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subscription</p>
         <div className="mb-5 flex items-center justify-between rounded-xl border bg-card p-4">
           <div>
-            <p className="text-sm font-semibold text-foreground">Free Trial</p>
-            <p className="text-xs text-muted-foreground">23 days remaining</p>
+            <p className="text-sm font-semibold text-foreground">Premium Subscription</p>
+            <p className="text-xs text-muted-foreground">Unlock all features & enter the weekly drawing</p>
           </div>
           <button className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background">
             Subscribe
@@ -420,7 +420,7 @@ export default function SettingsPage() {
               <p className="font-semibold text-foreground">NO PURCHASE NECESSARY TO ENTER OR WIN.</p>
               <p><span className="font-semibold text-foreground">1. Eligibility:</span> Open to users 13 years or older.</p>
               <p><span className="font-semibold text-foreground">2. How to Enter (Free):</span> Complete at least one challenge with a video upload during the weekly period to receive one (1) free entry.</p>
-              <p><span className="font-semibold text-foreground">3. Bonus Entries (Subscribers):</span> Paid subscribers receive 2 entries per challenge completed with video, plus 3 bonus entries for completing 5 or more challenges.</p>
+              <p><span className="font-semibold text-foreground">3. Bonus Entries (Subscribers):</span> Paid subscribers receive 1 entry per challenge completed with video (up to 4 entries for 4 challenges). Completing 5 or more challenges earns 8 total entries. Maximum entries per week: 13 tickets.</p>
               <p><span className="font-semibold text-foreground">4. Drawing Period:</span> Weekly, ending Sunday at midnight.</p>
               <p><span className="font-semibold text-foreground">5. Winner Selection:</span> One winner selected randomly each week from all eligible entries. Each entry has an equal chance of winning.</p>
               <p><span className="font-semibold text-foreground">6. Prize:</span> Weekly prize amount varies based on the community pool. Winner will be notified in-app.</p>

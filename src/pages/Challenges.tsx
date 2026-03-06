@@ -39,7 +39,13 @@ export default function Challenges() {
   const { user, profile, setProfile } = useAuth();
   const weekKey = getCurrentWeekKey();
   const [dropRevealed] = useState(true);
-  const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(weekKey) === "true" || localStorage.getItem("tour_pending") === "true");
+  const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(`${weekKey}-summary`) === "true" || localStorage.getItem("tour_pending") === "true");
+
+  // Persist summary dismissal
+  const dismissSummary = () => {
+    localStorage.setItem(`${weekKey}-summary`, "true");
+    setSummaryDone(true);
+  };
   const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>(() => {
@@ -139,7 +145,7 @@ export default function Challenges() {
   return (
     <>
       <AnimatePresence>
-        {!summaryDone && <WeeklySummary onContinue={() => setSummaryDone(true)} />}
+        {!summaryDone && <WeeklySummary onContinue={dismissSummary} />}
       </AnimatePresence>
 
       <div className="min-h-screen pb-24 pt-4">
