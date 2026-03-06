@@ -192,10 +192,10 @@ export default function Admin() {
     }
 
     // Get challenges (try from Supabase, fallback to mock)
-    const { data: dbChallenges } = await supabase
-      .from("challenges")
+    const { data: dbChallenges } = await (supabase
+      .from("challenges" as any)
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as any);
 
     if (dbChallenges && dbChallenges.length > 0) {
       setChallenges(dbChallenges as ChallengeItem[]);
