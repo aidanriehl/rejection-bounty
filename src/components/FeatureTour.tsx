@@ -63,6 +63,7 @@ interface Rect {
 }
 
 export default function FeatureTour({ onComplete }: { onComplete: () => void }) {
+  const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   const navigate = useNavigate();
@@ -127,6 +128,32 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   // Tooltip position: below if spotlight is in top half, above otherwise
   const tooltipBelow = rect ? rect.top + rect.height / 2 < window.innerHeight / 2 : true;
+
+  if (showIntro) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white px-6"
+      >
+        <div className="-mt-16 flex flex-col items-center text-center">
+          <h1 className="mb-3 text-2xl font-extrabold tracking-tight text-primary">
+            How This App Works
+          </h1>
+          <p className="mb-8 text-base text-primary/60">
+            Please don't skip through — it'll help you understand everything
+          </p>
+          <Button
+            onClick={() => setShowIntro(false)}
+            className="h-14 w-full max-w-xs rounded-2xl text-base font-bold"
+          >
+            Let's Go
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100]" style={{ pointerEvents: rect ? "auto" : "none" }}>
