@@ -65,10 +65,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Image must be under 5MB", variant: "destructive" });
-      return;
-    }
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
   };

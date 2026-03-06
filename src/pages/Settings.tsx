@@ -120,10 +120,6 @@ export default function SettingsPage() {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Image must be under 5MB", variant: "destructive" });
-      return;
-    }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
