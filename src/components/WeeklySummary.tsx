@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import { Play, ChevronRight, Check } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, Check, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -45,17 +45,13 @@ const winnerName = "brave_sarah";
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
   const [showDrawing, setShowDrawing] = useState(true);
   const [dismissed, setDismissed] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const y = useMotionValue(0);
-  const opacity = useTransform(y, [0, -200], [1, 0]);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const handleDragEnd = (_: any, info: { offset: { y: number }; velocity: { y: number } }) => {
-    if (info.offset.y < -80 || info.velocity.y < -300) {
-      setDismissed(true);
-      setTimeout(onContinue, 400);
-    }
-  };
+  const handleDismiss = useCallback(() => {
+    setDismissed(true);
+    setTimeout(onContinue, 400);
+  }, [onContinue]);
 
   const handleChallengeClick = (challengeTitle: string) => {
     setDismissed(true);
@@ -85,22 +81,19 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
       <AnimatePresence>
       {!dismissed && !showDrawing && (
         <motion.div
-          ref={containerRef}
-          className="fixed inset-0 z-[60] flex flex-col overflow-y-auto overscroll-none"
-          style={{
-            backgroundColor: "hsl(var(--background))",
-            y,
-            opacity,
-          }}
-          drag="y"
-          dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={{ top: 0.6, bottom: 0.1 }}
-          onDragEnd={handleDragEnd}
+          className="fixed inset-0 z-[60] flex flex-col"
+          style={{ backgroundColor: "hsl(var(--background))" }}
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: -300 }}
           transition={{ duration: 0.4 }}
         >
+          {/* Scrollable content */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto overscroll-contain"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
           {/* Header */}
           <div className="px-4 pt-12 pb-4 text-center">
             <motion.h1
@@ -230,14 +223,18 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.div>
           </div>
 
-          {/* Continue button */}
-          <div className="sticky bottom-0 py-6 flex flex-col items-center"
+          {/* Spacer for button */}
+          <div className="h-24" />
+          </div>
+
+          {/* Continue button - fixed at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 py-6 flex flex-col items-center"
             style={{
               background: "linear-gradient(0deg, hsl(var(--background)) 60%, transparent 100%)",
             }}
           >
             <button
-              onClick={() => { setDismissed(true); setTimeout(onContinue, 400); }}
+              onClick={handleDismiss}
               className="rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
             >
               See This Week's Challenges

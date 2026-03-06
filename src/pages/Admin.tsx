@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Trophy, Users, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check, MessageCircle, Settings, History } from "lucide-react";
+import { Trophy, Users, Shuffle, UserCheck, ChevronDown, ChevronUp, Info, Play, Check, MessageCircle, Settings, History, Plus, Trash2, Star, Video, Edit2 } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
+import { Input } from "@/components/ui/input";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 const AUTO_MESSAGE = "Congrats on winning!!! As long as your bank account is linked in settings your funds should be on their way 🥳💰";
@@ -46,6 +47,26 @@ interface PastWinner {
   avatar?: string;
 }
 
+interface ChallengeItem {
+  id: string;
+  title: string;
+  emoji: string;
+  description: string;
+  week_key: string;
+  is_active: boolean;
+}
+
+interface FeaturedVideo {
+  id: string;
+  video_url: string;
+  thumbnail_url: string | null;
+  username: string;
+  avatar: string;
+  challenge_title: string;
+  week_key: string;
+  display_order: number;
+}
+
 function getAdminWeekKey() {
   const now = new Date();
   const jan1 = new Date(now.getFullYear(), 0, 1);
@@ -72,6 +93,16 @@ export default function Admin() {
   const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
   const [expandedPastWinner, setExpandedPastWinner] = useState<string | null>(null);
   const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
+
+  // Challenge management
+  const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
+  const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "", description: "" });
+  const [editingChallenge, setEditingChallenge] = useState<string | null>(null);
+
+  // Featured videos
+  const [featuredVideos, setFeaturedVideos] = useState<FeaturedVideo[]>([]);
+  const [allVideosThisWeek, setAllVideosThisWeek] = useState<any[]>([]);
+  const [showVideoSelector, setShowVideoSelector] = useState(false);
 
   // Check admin access
   useEffect(() => {
@@ -160,7 +191,121 @@ export default function Admin() {
       })));
     }
 
+    // Get challenges (try from Supabase, fallback to mock)
+    const { data: dbChallenges } = await supabase
+      .from("challenges")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (dbChallenges && dbChallenges.length > 0) {
+      setChallenges(dbChallenges as ChallengeItem[]);
+    } else {
+      // Use mock challenges as fallback
+      setChallenges(mockChallenges.map(c => ({
+        id: c.id,
+        title: c.title,
+        emoji: c.emoji,
+        description: c.description,
+        week_key: weekKey,
+        is_active: true,
+      })));
+    }
+
+    // Get featured videos
+    const { data: featured } = await supabase
+      .from("featured_videos")
+      .select("*")
+      .eq("week_key", weekKey)
+      .order("display_order", { ascending: true });
+
+    if (featured) {
+      setFeaturedVideos(featured as FeaturedVideo[]);
+    }
+
+    // Get all videos this week for selection
+    const { data: allVids } = await supabase
+      .from("challenge_completions")
+      .select("*")
+      .eq("week_key", weekKey)
+      .not("video_url", "is", null);
+
+    if (allVids) {
+      // Get usernames for all videos
+      const userIds = [...new Set(allVids.map((v: any) => v.user_id))];
+      const { data: vidProfiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar")
+        .in("id", userIds);
+
+      const profMap: Record<string, any> = {};
+      vidProfiles?.forEach((p: any) => { profMap[p.id] = p; });
+
+      setAllVideosThisWeek(allVids.map((v: any) => ({
+        ...v,
+        username: profMap[v.user_id]?.username ?? "Unknown",
+        avatar: profMap[v.user_id]?.avatar ?? "dragon",
+      })));
+    }
+
     setLoadingData(false);
+  };
+
+  // Add a new challenge
+  const handleAddChallenge = async () => {
+    if (!newChallenge.title || !newChallenge.emoji) return;
+
+    // Calculate next week key
+    const now = new Date();
+    const jan1 = new Date(now.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+    const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
+
+    const { error } = await supabase
+      .from("challenges")
+      .insert({
+        title: newChallenge.title,
+        emoji: newChallenge.emoji,
+        description: newChallenge.description || newChallenge.title,
+        week_key: nextWeekKey,
+        is_active: true,
+      } as any);
+
+    if (!error) {
+      setNewChallenge({ title: "", emoji: "", description: "" });
+      fetchData();
+    }
+  };
+
+  // Delete a challenge
+  const handleDeleteChallenge = async (id: string) => {
+    await supabase.from("challenges").delete().eq("id", id);
+    fetchData();
+  };
+
+  // Add video to featured
+  const handleAddFeatured = async (video: any) => {
+    const ch = getChallengeInfo(video.challenge_id);
+    const nextOrder = featuredVideos.length;
+
+    await supabase.from("featured_videos").insert({
+      video_url: video.video_url,
+      thumbnail_url: video.thumbnail_url || null,
+      username: video.username,
+      avatar: video.avatar,
+      challenge_title: ch.title,
+      week_key: weekKey,
+      display_order: nextOrder,
+      completion_id: video.id,
+    } as any);
+
+    setShowVideoSelector(false);
+    fetchData();
+  };
+
+  // Remove from featured
+  const handleRemoveFeatured = async (id: string) => {
+    await supabase.from("featured_videos").delete().eq("id", id);
+    fetchData();
   };
 
   const totalTickets = useMemo(() => tickets.reduce((s, t) => s + t.tickets, 0), [tickets]);
@@ -643,6 +788,157 @@ export default function Admin() {
                 })}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Section 7: Featured Videos */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Star className="h-5 w-5 text-primary" />
+              Featured Videos (Recap)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-3">
+              Select up to 4 videos to feature in "Top Videos This Week" on the recap screen.
+            </p>
+
+            {featuredVideos.length > 0 ? (
+              <div className="space-y-2 mb-3">
+                {featuredVideos.map((v, i) => (
+                  <div key={v.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
+                    <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
+                    <div className="h-10 w-10 rounded-lg bg-background overflow-hidden shrink-0">
+                      {v.thumbnail_url ? (
+                        <img src={v.thumbnail_url} className="h-full w-full object-cover" />
+                      ) : v.video_url ? (
+                        <video src={v.video_url} className="h-full w-full object-cover" />
+                      ) : null}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{v.username}</p>
+                      <p className="text-xs text-muted-foreground truncate">{v.challenge_title}</p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => handleRemoveFeatured(v.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No featured videos yet</p>
+            )}
+
+            {featuredVideos.length < 4 && (
+              <Button onClick={() => setShowVideoSelector(true)} className="w-full" variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Featured Video
+              </Button>
+            )}
+
+            {/* Video selector modal */}
+            {showVideoSelector && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="bg-card rounded-xl border border-border max-w-md w-full max-h-[70vh] overflow-hidden">
+                  <div className="p-4 border-b border-border flex items-center justify-between">
+                    <h3 className="font-bold text-foreground">Select a Video</h3>
+                    <Button size="sm" variant="ghost" onClick={() => setShowVideoSelector(false)}>
+                      ✕
+                    </Button>
+                  </div>
+                  <ScrollArea className="max-h-[50vh] p-4">
+                    <div className="space-y-2">
+                      {allVideosThisWeek
+                        .filter(v => !featuredVideos.some(f => f.video_url === v.video_url))
+                        .map((v) => {
+                          const ch = getChallengeInfo(v.challenge_id);
+                          return (
+                            <button
+                              key={v.id}
+                              onClick={() => handleAddFeatured(v)}
+                              className="flex items-center gap-3 rounded-lg bg-muted p-2 w-full text-left hover:bg-muted/70 transition-colors"
+                            >
+                              <div className="h-12 w-12 rounded-lg bg-background overflow-hidden shrink-0">
+                                <video src={v.video_url} className="h-full w-full object-cover" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">{v.username}</p>
+                                <p className="text-xs text-muted-foreground truncate">{ch.emoji} {ch.title}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      {allVideosThisWeek.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">No videos this week</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section 8: Challenge Management */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Video className="h-5 w-5 text-primary" />
+              Manage Challenges
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-3">
+              Add challenges for next week. Current challenges are from mockChallenges until you add to the database.
+            </p>
+
+            {/* Add new challenge form */}
+            <div className="rounded-lg border border-border p-3 mb-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Add New Challenge</p>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Emoji"
+                    value={newChallenge.emoji}
+                    onChange={(e) => setNewChallenge(prev => ({ ...prev, emoji: e.target.value }))}
+                    className="w-16"
+                  />
+                  <Input
+                    placeholder="Challenge title"
+                    value={newChallenge.title}
+                    onChange={(e) => setNewChallenge(prev => ({ ...prev, title: e.target.value }))}
+                    className="flex-1"
+                  />
+                </div>
+                <Input
+                  placeholder="Description (optional)"
+                  value={newChallenge.description}
+                  onChange={(e) => setNewChallenge(prev => ({ ...prev, description: e.target.value }))}
+                />
+                <Button onClick={handleAddChallenge} className="w-full" disabled={!newChallenge.title || !newChallenge.emoji}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Challenge for Next Week
+                </Button>
+              </div>
+            </div>
+
+            {/* Existing challenges */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Current Challenges</p>
+              {challenges.map((ch) => (
+                <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
+                  <span className="text-lg">{ch.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                    <p className="text-xs text-muted-foreground">{ch.week_key}</p>
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

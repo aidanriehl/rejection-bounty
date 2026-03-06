@@ -1,6 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User } from "lucide-react";
+import { Home, User, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+
+const ADMIN_EMAIL = "aidanriehl5@gmail.com";
 
 // Simple dumbbell with one weight on each side
 function SimpleDumbbell({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number }) {
@@ -24,15 +27,19 @@ function SimpleDumbbell({ className, strokeWidth = 2 }: { className?: string; st
   );
 }
 
-const tabs = [
-  { path: "/", icon: Home },
-  { path: "/challenges", icon: SimpleDumbbell },
-  { path: "/profile", icon: User },
-];
-
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  const tabs = [
+    { path: "/", icon: Home },
+    { path: "/challenges", icon: SimpleDumbbell },
+    { path: "/profile", icon: User },
+    ...(isAdmin ? [{ path: "/admin", icon: Settings }] : []),
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 w-full z-50 bg-card border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
