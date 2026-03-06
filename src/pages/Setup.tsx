@@ -140,8 +140,13 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         onSubmit={handleSubmit}
         className="-mt-12 flex w-full max-w-xs flex-col items-center"
       >
+        {/* ─── Title ─── */}
+        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-primary-foreground">
+          Create your profile
+        </h1>
+
         {/* ─── Avatar hero ─── */}
-        <div className="relative mb-3">
+        <div className="relative mb-2">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -175,7 +180,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           )}
         </div>
 
-        <p className="mb-8 text-xs text-primary-foreground/50">
+        <p className="mb-6 text-xs text-primary-foreground/50">
           {photoPreview ? "Tap to change" : "Add a photo"}
         </p>
 
@@ -187,20 +192,12 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           onChange={handleFileSelect}
         />
 
-        {/* ─── Title ─── */}
-        <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-primary-foreground">
-          Create your profile
-        </h1>
-        <p className="mb-5 text-sm text-primary-foreground/50">
-          Choose a name others will know you by
-        </p>
-
         {/* ─── Username input ─── */}
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="username"
+          placeholder="@codymaverick"
           maxLength={20}
           autoFocus
           className="mb-4 flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-center text-lg font-medium text-primary-foreground placeholder:text-primary-foreground/30 focus:border-primary-foreground/40 focus:outline-none"
@@ -212,7 +209,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           disabled={!isValid || saving}
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
         >
-          {uploading ? "Uploading photo…" : saving ? "Saving…" : "Let's go 🚀"}
+          {uploading ? "Uploading photo…" : saving ? "Saving…" : "Finish Setup"}
         </button>
       </motion.form>
     </div>
