@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
-import logoImg from "@/assets/logo.png";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
@@ -141,12 +140,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         onSubmit={handleSubmit}
         className="-mt-16 flex w-full max-w-sm flex-col items-center"
       >
-        {/* Logo */}
-        <img src={logoImg} alt="Rejection Bounty" className="mb-2 h-16 w-16" />
-        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-white">
-          Rejection Bounty
-        </h1>
-
         {/* Avatar */}
         <div className="relative mb-2">
           <button
@@ -181,7 +174,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         </div>
 
         <p className="mb-6 text-xs text-white/50">
-          {photoPreview ? "Tap to change photo" : "Add a photo (optional)"}
+          {photoPreview ? "Tap to change" : "optional"}
         </p>
 
         <input
