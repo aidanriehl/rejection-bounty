@@ -245,7 +245,7 @@ export default function Admin() {
     const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
     const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
 
-    await supabase.from("challenges").insert({
+    await (supabase as any).from("challenges").insert({
       title: newChallenge.title,
       emoji: newChallenge.emoji,
       description: newChallenge.title,
@@ -283,7 +283,7 @@ export default function Admin() {
     }).filter(c => c.emoji && c.title);
 
     if (challengesToInsert.length > 0) {
-      await supabase.from("challenges").insert(challengesToInsert as any);
+      await (supabase as any).from("challenges").insert(challengesToInsert as any);
       fetchData();
     }
 
