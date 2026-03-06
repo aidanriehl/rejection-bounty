@@ -315,7 +315,7 @@ export default function Admin() {
         week_key: normalizedWeek,
         is_active: true,
       };
-    }).filter((c): c is NonNullable<typeof c> => c !== null && c.emoji && c.title && c.week_key);
+    }).filter((c): c is NonNullable<typeof c> => c !== null && !!c.emoji && !!c.title && !!c.week_key);
 
     // Group by week and validate
     const byWeek: Record<string, typeof challengesToInsert> = {};
