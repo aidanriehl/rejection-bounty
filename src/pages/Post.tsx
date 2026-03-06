@@ -76,9 +76,8 @@ export default function PostPage() {
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
       setThumbnailTime(0);
-      // Seek to start and play
+      // Seek to first frame
       video.currentTime = 0.001;
-      video.play().catch(() => {});
     }
   };
 
@@ -181,10 +180,14 @@ export default function PostPage() {
                       src={videoUrl}
                       className="h-full w-full object-cover"
                       onLoadedMetadata={handleVideoLoaded}
+                      onClick={(e) => {
+                        const vid = e.currentTarget;
+                        if (vid.paused) vid.play();
+                        else vid.pause();
+                      }}
                       playsInline
-                      muted
                       loop
-                      autoPlay
+                      controls={false}
                     />
                   </div>
 
