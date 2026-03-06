@@ -115,6 +115,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     return () => window.removeEventListener("resize", measure);
   }, [measure]);
 
+  // Disable scrolling while tour is active
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const next = () => {
     if (step < STEPS.length - 1) {
       setRect(null);
