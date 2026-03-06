@@ -175,7 +175,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             left: rect.left - 8,
             width: rect.width + 16,
             height: rect.height + 16,
-            boxShadow: "0 0 0 9999px rgba(0,0,0,0.65)",
+            boxShadow: "0 0 0 9999px rgba(0,0,0,0.85)",
             zIndex: 1,
           }}
         />
