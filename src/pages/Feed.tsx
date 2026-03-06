@@ -38,8 +38,12 @@ function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const lastTapRef = useRef(0);
 
+  const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+  const videoStreamUrl = post.video_id
+    ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/manifest/video.m3u8`
+    : post.video_url;
   const thumbnailUrl = post.video_id
-    ? `https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
+    ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
     : post.video_url || "/placeholder.svg";
 
   const doLike = useCallback(() => {
@@ -51,9 +55,17 @@ function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }
     setTimeout(() => setShowHeartAnim(false), 600);
   }, [liked]);
 
-  const toggleLike = () => {
-    setLiked(!liked);
-    setLikeCount((c) => (liked ? c - 1 : c + 1));
+  const toggleLike = async () => {
+    const newLiked = !liked;
+    const newCount = newLiked ? likeCount + 1 : likeCount - 1;
+    setLiked(newLiked);
+    setLikeCount(newCount);
+
+    // Update like count in database
+    await supabase
+      .from("posts")
+      .update({ likes: newCount })
+      .eq("id", post.id);
   };
 
   const handleDoubleTap = useCallback(() => {
@@ -73,12 +85,21 @@ function ReelCard({ post, isFriend }: { post: FeedPostData; isFriend?: boolean }
       className="relative h-[calc(100dvh-4.5rem)] w-full snap-start snap-always flex-shrink-0"
       onClick={handleDoubleTap}
     >
-      <img
-        src={thumbnailUrl}
-        alt={post.caption || "Post"}
-        className="h-full w-full object-cover select-none"
-        draggable={false}
-      />
+      {post.video_id ? (
+        <iframe
+          src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false`}
+          className="h-full w-full object-cover select-none pointer-events-none"
+          allow="autoplay; fullscreen"
+          style={{ border: "none" }}
+        />
+      ) : (
+        <img
+          src={thumbnailUrl}
+          alt={post.caption || "Post"}
+          className="h-full w-full object-cover select-none"
+          draggable={false}
+        />
+      )}
 
       <AnimatePresence>
         {showHeartAnim && (
