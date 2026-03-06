@@ -157,10 +157,13 @@ body {
   width: 100%;
   top: 0;
   left: 0;
+  /* iOS safe area support */
+  padding-top: env(safe-area-inset-top);
 }
 
 #root {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 

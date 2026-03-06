@@ -13,27 +13,51 @@ export interface Profile {
   created_at: string;
 }
 
+async function fetchProfile(userId: string): Promise<Profile | null> {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("[useAuth] Profile fetch error:", error);
+      return null;
+    }
+    return data as Profile;
+  } catch (err) {
+    console.error("[useAuth] Profile fetch exception:", err);
+    return null;
+  }
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        console.log("[useAuth] Auth state change:", event, session?.user?.email);
+
+        if (!mounted) return;
+
         const currentUser = session?.user ?? null;
         setUser(currentUser);
 
         if (currentUser) {
           // Defer profile fetch to avoid Supabase auth deadlock
           setTimeout(async () => {
-            const { data } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", currentUser.id)
-              .single();
-            setProfile(data as Profile | null);
-            setLoading(false);
+            if (!mounted) return;
+            const profileData = await fetchProfile(currentUser.id);
+            if (mounted) {
+              setProfile(profileData);
+              setLoading(false);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -42,25 +66,33 @@ export function useAuth() {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initial session check
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      if (error) {
+        console.error("[useAuth] getSession error:", error);
+      }
+      console.log("[useAuth] Initial session:", session?.user?.email || "none");
+
+      if (!mounted) return;
+
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+
       if (currentUser) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", currentUser.id)
-          .single()
-          .then(({ data }) => {
-            setProfile(data as Profile | null);
-            setLoading(false);
-          });
+        const profileData = await fetchProfile(currentUser.id);
+        if (mounted) {
+          setProfile(profileData);
+          setLoading(false);
+        }
       } else {
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
