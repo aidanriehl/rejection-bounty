@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen } from "lucide-react";
+import { Check, Crown, Trophy, Upload, Users, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import CameraRecorder from "@/components/CameraRecorder";
 import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
 import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
@@ -59,8 +58,6 @@ export default function Challenges() {
   });
     
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
-  const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
-  const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
 
   // Persist completed challenges to localStorage + sync to DB

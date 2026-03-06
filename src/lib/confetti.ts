@@ -79,7 +79,7 @@ export function fireEpicConfetti() {
     colors,
     startVelocity: 50,
     gravity: 0.8,
-    ticks: 180,
+    ticks: 150,
     scalar: 1.2,
   });
 
@@ -97,8 +97,8 @@ export function fireEpicConfetti() {
     });
   }, 300);
 
-  // Multi-source cannons for 2 seconds — sides + bottom
-  const end = Date.now() + 2000;
+  // Multi-source cannons for 1.4 seconds — sides + bottom
+  const end = Date.now() + 1400;
   const frame = () => {
     // Side cannons
     confetti({ particleCount: 8, angle: 60, spread: 90, origin: { x: 0, y: 0.4 }, colors, startVelocity: 40, ticks: 120 });

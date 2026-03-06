@@ -178,11 +178,15 @@ export default function Feed() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("posts")
         .select("*, profiles:user_id(username, avatar, avatar_stage)")
         .order("created_at", { ascending: false }) as any;
 
+      if (error) {
+        console.error("Failed to fetch posts:", error);
+      }
+      console.log("Fetched posts:", data?.length || 0, "posts");
       setPosts((data || []) as FeedPostData[]);
 
       if (user) {

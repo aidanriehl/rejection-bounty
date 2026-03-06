@@ -192,10 +192,10 @@ export default function Admin() {
     }
 
     // Get challenges (try from Supabase, fallback to mock)
-    const { data: dbChallenges } = await (supabase
-      .from("challenges" as any)
+    const { data: dbChallenges } = await supabase
+      .from("challenges")
       .select("*")
-      .order("created_at", { ascending: false }) as any);
+      .order("created_at", { ascending: false });
 
     if (dbChallenges && dbChallenges.length > 0) {
       setChallenges(dbChallenges as ChallengeItem[]);
@@ -212,11 +212,11 @@ export default function Admin() {
     }
 
     // Get featured videos
-    const { data: featured } = await (supabase
-      .from("featured_videos" as any)
+    const { data: featured } = await supabase
+      .from("featured_videos")
       .select("*")
       .eq("week_key", weekKey)
-      .order("display_order", { ascending: true }) as any);
+      .order("display_order", { ascending: true });
 
     if (featured) {
       setFeaturedVideos(featured as FeaturedVideo[]);
@@ -260,15 +260,15 @@ export default function Admin() {
     const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
     const nextWeekKey = `${now.getFullYear()}-w${weekNum + 1}`;
 
-    const { error } = await (supabase
-      .from("challenges" as any) as any)
+    const { error } = await supabase
+      .from("challenges")
       .insert({
         title: newChallenge.title,
         emoji: newChallenge.emoji,
         description: newChallenge.description || newChallenge.title,
         week_key: nextWeekKey,
         is_active: true,
-      });
+      } as any);
 
     if (!error) {
       setNewChallenge({ title: "", emoji: "", description: "" });
@@ -278,7 +278,7 @@ export default function Admin() {
 
   // Delete a challenge
   const handleDeleteChallenge = async (id: string) => {
-    await (supabase.from("challenges" as any) as any).delete().eq("id", id);
+    await supabase.from("challenges").delete().eq("id", id);
     fetchData();
   };
 
@@ -287,7 +287,7 @@ export default function Admin() {
     const ch = getChallengeInfo(video.challenge_id);
     const nextOrder = featuredVideos.length;
 
-    await (supabase.from("featured_videos" as any) as any).insert({
+    await supabase.from("featured_videos").insert({
       video_url: video.video_url,
       thumbnail_url: video.thumbnail_url || null,
       username: video.username,
@@ -304,7 +304,7 @@ export default function Admin() {
 
   // Remove from featured
   const handleRemoveFeatured = async (id: string) => {
-    await (supabase.from("featured_videos" as any) as any).delete().eq("id", id);
+    await supabase.from("featured_videos").delete().eq("id", id);
     fetchData();
   };
 
