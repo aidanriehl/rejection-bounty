@@ -19,21 +19,24 @@ export default function UploadIndicator() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
 
-      // Get current week key (YYYY-WW)
+      // Get current week key (YYYY-WXX format)
       const now = new Date();
       const startOfYear = new Date(now.getFullYear(), 0, 1);
       const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
       const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
+      // Count completions for THIS week only
       const { count } = await supabase
-        .from("posts")
+        .from("challenge_completions")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", session.user.id);
+        .eq("user_id", session.user.id)
+        .eq("week_key", weekKey);
 
       setEntryCount(count ?? 0);
     };
 
-    fetchEntries();
+    // Small delay to allow the completion to be inserted first
+    setTimeout(fetchEntries, 500);
   }, [status]);
 
   if (status === "idle") return null;
@@ -69,7 +72,7 @@ export default function UploadIndicator() {
             </p>
             <p className="text-[10px] text-muted-foreground truncate">
               {status === "uploading"
-                ? "Don't leave the app until upload finishes"
+                ? "Don't leave app until upload finishes"
                 : status === "done" && entryCount !== null
                 ? `🎟️ You have ${entryCount} ${entryCount === 1 ? "entry" : "entries"} in this week's draw`
                 : status === "error"

@@ -89,6 +89,44 @@ export default function Challenges() {
     return () => clearInterval(timer);
   }, []);
 
+  // Listen for challenge completion from upload
+  useEffect(() => {
+    const handleUploadComplete = (e: CustomEvent<{ challengeId: string }>) => {
+      const { challengeId } = e.detail;
+      setChallenges((prev) => {
+        const challenge = prev.find((c) => c.id === challengeId);
+        if (!challenge || challenge.completed) return prev;
+
+        const next = prev.map((c) =>
+          c.id === challengeId ? { ...c, completed: true } : c
+        );
+
+        // Trigger celebration
+        const newCount = getCompletedCount(next);
+        setTimeout(() => {
+          if (newCount === 8) {
+            fireEpicConfetti();
+            playEpicWin();
+            if (navigator.vibrate) navigator.vibrate([200, 80, 200, 80, 200, 80, 400]);
+          } else if (newCount >= 5) {
+            fireBigConfetti();
+            playBigWin();
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+          } else {
+            fireConfetti();
+            playPop();
+            if (navigator.vibrate) navigator.vibrate(50);
+          }
+        }, 300);
+
+        return next;
+      });
+    };
+
+    window.addEventListener("challenge-completed", handleUploadComplete as EventListener);
+    return () => window.removeEventListener("challenge-completed", handleUploadComplete as EventListener);
+  }, []);
+
   const isPremium = true;
 
   const triggerSubscribe = () => {

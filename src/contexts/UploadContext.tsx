@@ -91,11 +91,18 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         xhr.send(formData);
       });
 
-      // Insert post into database
+      // Insert post into database and mark challenge complete
       const meta = metaRef.current;
       if (meta) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          // Get current week key
+          const now = new Date();
+          const startOfYear = new Date(now.getFullYear(), 0, 1);
+          const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
+          const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+
+          // Insert post
           const { error: insertError } = await supabase.from("posts").insert({
             user_id: session.user.id,
             challenge_id: meta.challengeId,
@@ -110,6 +117,19 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             console.error("Failed to insert post:", insertError);
             throw new Error("Failed to save post to feed: " + insertError.message);
           }
+
+          // Mark challenge as complete in challenge_completions
+          await supabase.from("challenge_completions").upsert({
+            user_id: session.user.id,
+            challenge_id: meta.challengeId,
+            week_key: weekKey,
+            video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
+          } as any, { onConflict: "user_id,challenge_id,week_key" });
+
+          // Dispatch event so Challenges page can trigger confetti
+          window.dispatchEvent(new CustomEvent("challenge-completed", {
+            detail: { challengeId: meta.challengeId }
+          }));
         } else {
           throw new Error("Not authenticated - please log in again");
         }
