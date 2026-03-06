@@ -252,7 +252,7 @@ export default function Feed() {
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
-        style={{ top: "calc(env(safe-area-inset-top) + 48px)" }}
+        style={{ top: "calc(env(safe-area-inset-top) + 36px)" }}
       >
         <div className="flex items-center justify-center gap-6">
           {TABS.map((tab, i) => (
@@ -260,7 +260,7 @@ export default function Feed() {
               key={tab.key}
               onClick={() => setTabIndex(i)}
               className={cn(
-                "text-base font-bold transition-colors",
+                "text-[1.2rem] font-bold transition-colors",
                 i === tabIndex ? "text-white" : "text-white/40"
               )}
             >
