@@ -138,34 +138,28 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
         onSubmit={handleSubmit}
-        className="-mt-12 flex w-full max-w-xs flex-col items-center"
+        className="-mt-8 flex w-full max-w-xs flex-col items-center"
       >
-        {/* ─── Title ─── */}
-        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-primary-foreground">
-          Create your profile
-        </h1>
-
         {/* ─── Avatar hero ─── */}
-        <div className="relative mb-2">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
+          className="relative mb-1"
+        >
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex h-28 w-28 items-center justify-center rounded-full bg-primary-foreground/15 ring-[3px] ring-primary-foreground/25 overflow-hidden transition-transform active:scale-95"
+            className="group flex h-32 w-32 items-center justify-center rounded-full bg-primary-foreground/10 ring-[3px] ring-primary-foreground/20 overflow-hidden transition-all active:scale-95 hover:ring-primary-foreground/40"
           >
             {photoPreview ? (
               <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
             ) : (
-              <span className="text-5xl">{randomEmoji}</span>
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-5xl">{randomEmoji}</span>
+                <Camera className="h-4 w-4 text-primary-foreground/40 transition-colors group-hover:text-primary-foreground/60" />
+              </div>
             )}
-          </button>
-
-          {/* Camera badge */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground text-primary shadow-lg"
-          >
-            <Camera className="h-4 w-4" />
           </button>
 
           {/* Remove photo */}
@@ -173,15 +167,15 @@ export default function Setup({ userId, onComplete }: SetupProps) {
             <button
               type="button"
               onClick={clearPhoto}
-              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm"
+              className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md"
             >
-              <X className="h-3 w-3" />
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
-        </div>
+        </motion.div>
 
-        <p className="mb-6 text-xs text-primary-foreground/50">
-          {photoPreview ? "Tap to change" : "Add a photo"}
+        <p className="mb-8 text-xs text-primary-foreground/40">
+          {photoPreview ? "Tap to change photo" : "Optional — tap to add a photo"}
         </p>
 
         <input
@@ -193,6 +187,9 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         />
 
         {/* ─── Username input ─── */}
+        <label className="mb-1.5 self-start text-xs font-semibold uppercase tracking-wider text-primary-foreground/50">
+          Username
+        </label>
         <input
           type="text"
           value={username}
@@ -200,14 +197,14 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           placeholder="@codymaverick"
           maxLength={20}
           autoFocus
-          className="mb-4 flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-center text-lg font-medium text-primary-foreground placeholder:text-primary-foreground/30 focus:border-primary-foreground/40 focus:outline-none"
+          className="mb-6 flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-center text-lg font-medium text-primary-foreground placeholder:text-primary-foreground/30 focus:border-primary-foreground/40 focus:outline-none transition-colors"
         />
 
         {/* ─── CTA ─── */}
         <button
           type="submit"
           disabled={!isValid || saving}
-          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-40"
+          className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-lg transition-all disabled:opacity-40 active:scale-[0.98]"
         >
           {uploading ? "Uploading photo…" : saving ? "Saving…" : "Finish Setup"}
         </button>
