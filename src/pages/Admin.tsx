@@ -304,7 +304,7 @@ export default function Admin() {
 
   // Remove from featured
   const handleRemoveFeatured = async (id: string) => {
-    await supabase.from("featured_videos").delete().eq("id", id);
+    await (supabase.from("featured_videos" as any) as any).delete().eq("id", id);
     fetchData();
   };
 
