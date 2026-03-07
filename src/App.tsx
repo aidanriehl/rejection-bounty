@@ -32,7 +32,7 @@ import UploadIndicator from "@/components/UploadIndicator";
 import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
 import logo from "@/assets/logo.png";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({});
 
 function AppRoutes() {
   const { user, profile, loading, setProfile } = useAuth();
