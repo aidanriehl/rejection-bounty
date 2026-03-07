@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Play, Loader2 } from "lucide-react";
-import SocialListModal from "@/components/SocialListModal";
+
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -90,7 +90,7 @@ export default function Profile() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [friendsCount, setFriendsCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [socialModal, setSocialModal] = useState<{ open: boolean; tab: "friends" | "following" }>({ open: false, tab: "friends" });
+  
 
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
@@ -306,14 +306,14 @@ export default function Profile() {
             </div>
             <div
               className="cursor-pointer"
-              onClick={() => setSocialModal({ open: true, tab: "friends" })}
+              onClick={() => navigate("/friends?tab=friends")}
             >
               <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
             </div>
             <div
               className="cursor-pointer"
-              onClick={() => setSocialModal({ open: true, tab: "following" })}
+              onClick={() => navigate("/friends?tab=following")}
             >
               <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
@@ -432,17 +432,6 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Social list modal */}
-      {user && (
-        <SocialListModal
-          open={socialModal.open}
-          onClose={() => setSocialModal({ ...socialModal, open: false })}
-          userId={user.id}
-          initialTab={socialModal.tab}
-          friendsCount={friendsCount}
-          followingCount={followingCount}
-        />
-      )}
     </div>
   );
 }
