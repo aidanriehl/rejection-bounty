@@ -131,7 +131,7 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className={`flex flex-col items-center transition-all duration-200 ${keyboardUp ? "-mt-24" : ""}`}
+      className={`flex flex-col items-center transition-all duration-200 ${keyboardUp ? "-mt-40" : ""}`}
     >
       <div className={`transition-all duration-200 overflow-hidden ${keyboardUp ? "h-0 opacity-0 mb-0" : "h-auto opacity-100"}`}>
         <span className="mb-3 text-5xl block text-center">✉️</span>
@@ -304,7 +304,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className={`flex flex-col items-center transition-all duration-200 ${keyboardVisible ? "-mt-32" : "-mt-16"}`}
+                className={`flex flex-col items-center transition-all duration-200 ${keyboardVisible ? "-mt-48" : "-mt-16"}`}
               >
                 <div className={`transition-all duration-200 overflow-hidden ${keyboardVisible ? "h-0 opacity-0 mb-0" : "h-auto opacity-100"}`}>
                   <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20 mx-auto" />

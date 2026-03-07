@@ -79,7 +79,7 @@ export default function SettingsMessages() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background">
+    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: "hsl(var(--background))" }}>
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 border-b bg-background"

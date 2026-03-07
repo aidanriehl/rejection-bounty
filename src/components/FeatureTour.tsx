@@ -158,7 +158,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white px-6"
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6"
+        style={{ backgroundColor: "hsl(var(--background))" }}
       >
         <div className="-mt-16 flex flex-col items-center text-center">
           <span className="mb-6 text-4xl">✨</span>

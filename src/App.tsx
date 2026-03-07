@@ -67,7 +67,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
+      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: "hsl(var(--background))" }}>
         <img src={logo} alt="Logo" className="h-16 w-16 animate-pulse" />
       </div>
     );

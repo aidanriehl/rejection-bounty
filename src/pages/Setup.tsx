@@ -169,7 +169,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           onSubmit={handleSubmit}
           className="flex w-full max-w-sm flex-col items-center"
         >
-          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
             Setup Your Account
           </h1>
           <p className="mt-1 mb-5 text-sm text-white/60">

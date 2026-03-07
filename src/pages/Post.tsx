@@ -124,7 +124,7 @@ export default function PostPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background">
+    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: "hsl(var(--background))" }}>
       {/* Safe area top fill */}
       <div className="bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }} />
 
