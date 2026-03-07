@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2 } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2, Play } from "lucide-react";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -412,17 +412,20 @@ export default function Profile() {
                 className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
                 onClick={() => setSelectedPost(post)}
               >
-                {thumbnailUrl ? (
+                {/* Fallback - always shown behind image */}
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <Play className="h-8 w-8 text-muted-foreground/50 fill-muted-foreground/50" />
+                </div>
+                {thumbnailUrl && (
                   <img
                     src={thumbnailUrl}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                     onError={(e) => {
+                      // Hide image on error, fallback will show through
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
-                ) : (
-                  <div className="h-full w-full bg-muted" />
                 )}
               </div>
             );
