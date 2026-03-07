@@ -38,6 +38,18 @@ export default function PostPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const captionRef = useRef<HTMLTextAreaElement>(null);
 
+  // Pick up file from Challenges page if coming from Photo Library
+  useEffect(() => {
+    const pendingFile = (window as any).__pendingVideoFile as File | undefined;
+    if (pendingFile && (location.state as any)?.fromLibrary) {
+      delete (window as any).__pendingVideoFile;
+      const url = URL.createObjectURL(pendingFile);
+      setVideoFile(pendingFile);
+      setVideoUrl(url);
+      setStep("trim");
+    }
+  }, []);
+
   // Clean up object URL on unmount
   useEffect(() => {
     return () => {
