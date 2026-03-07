@@ -53,6 +53,7 @@ serve(async (req) => {
         email: user.email,
         capabilities: {
           card_payments: { requested: true },
+          transfers: { requested: true },
         },
       });
       stripeAccountId = account.id;
