@@ -124,6 +124,7 @@ export async function rehydrateOnForeground(): Promise<void> {
     }
   } catch (e) {
     console.warn("[capacitor-storage] Foreground rehydration failed:", e);
+  }
 }
 
 /**
@@ -147,17 +148,15 @@ export async function cacheProfile(profile: unknown): Promise<void> {
  */
 export async function getCachedProfile(): Promise<unknown | null> {
   try {
-    // Try localStorage first (faster)
     const local = localStorage.getItem(PROFILE_KEY);
     if (local) {
       return JSON.parse(local);
     }
-    // Fall back to native Preferences
     if (isNative()) {
       const { value } = await Preferences.get({ key: PROFILE_KEY });
       if (value) {
         const parsed = JSON.parse(value);
-        localStorage.setItem(PROFILE_KEY, value); // re-hydrate
+        localStorage.setItem(PROFILE_KEY, value);
         return parsed;
       }
     }
@@ -179,5 +178,4 @@ export async function clearCachedProfile(): Promise<void> {
   } catch (e) {
     console.warn("[capacitor-storage] clearCachedProfile error:", e);
   }
-}
 }
