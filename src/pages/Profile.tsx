@@ -324,55 +324,61 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Stat boxes - single row */}
-        <div className="mb-5 mx-auto grid grid-cols-3 gap-2" style={{ maxWidth: '95%' }}>
+        {/* Stat boxes - 2x2 grid */}
+        <div className="mb-5 mx-auto grid grid-cols-2 gap-2.5" style={{ maxWidth: '80%' }}>
           {/* Week Streak */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-2.5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-1">
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
               <span className="text-xl leading-none">🔥</span>
               <span className="text-xl font-extrabold leading-none text-foreground">{streak}</span>
             </div>
-            <p className="mt-1 text-[10px] font-semibold text-muted-foreground">Week Streak</p>
-            <p className="text-[9px] text-muted-foreground/70">best: {bestStreak}</p>
+            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">Week Streak</p>
+          </div>
+
+          {/* Best Streak */}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xl leading-none">⚡</span>
+              <span className="text-xl font-extrabold leading-none text-foreground">{bestStreak}</span>
+            </div>
+            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">Best Streak</p>
           </div>
 
           {/* Challenges Completed */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-2.5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-1">
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
               <span className="text-xl leading-none">🎯</span>
               <span className="text-xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
             </div>
-            <p className="mt-1 text-[10px] font-semibold text-muted-foreground">Challenges</p>
+            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">Challenges</p>
             {ms.medal &&
-            <div className="flex items-center gap-1">
-                <MedalIcon tier={ms.medal.tier} size={12} />
-                <span className="text-[8px] font-semibold text-muted-foreground">{ms.medal.label}</span>
+            <div className="flex items-center gap-1 mt-0.5">
+                <MedalIcon tier={ms.medal.tier} size={14} />
+                <span className="text-[9px] font-semibold text-muted-foreground">{ms.medal.label}</span>
               </div>
             }
-            <div className="mt-1 h-1 rounded-full bg-muted overflow-hidden">
+            <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-primary"
                 initial={false}
                 animate={{ width: `${progressPct}%` }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }} />
-
             </div>
           </div>
 
           {/* Weeks Completed % */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-2.5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-1">
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
               <span className="text-xl leading-none">📅</span>
               <span className="text-xl font-extrabold leading-none text-foreground">{weeksCompletedPct}%</span>
             </div>
-            <p className="mt-1 text-[10px] font-semibold text-muted-foreground">Weeks Done</p>
-            <div className="mt-1 h-1 rounded-full bg-muted overflow-hidden">
+            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">Weeks Completed</p>
+            <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-primary"
                 initial={false}
                 animate={{ width: `${weeksCompletedPct}%` }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }} />
-
             </div>
           </div>
         </div>
