@@ -11,6 +11,7 @@ interface UploadMeta {
   trimStart: number;
   trimEnd: number;
   thumbnailTime: number;
+  thumbnailDataUrl: string | null;
 }
 
 interface UploadState {
@@ -22,6 +23,7 @@ interface UploadState {
   trimStart: number;
   trimEnd: number;
   thumbnailTime: number;
+  thumbnailDataUrl: string | null;
 }
 
 interface UploadContextValue extends UploadState {
@@ -39,6 +41,7 @@ const initialState: UploadState = {
   trimStart: 0,
   trimEnd: 0,
   thumbnailTime: 0,
+  thumbnailDataUrl: null,
 };
 
 const UploadContext = createContext<UploadContextValue | null>(null);
@@ -127,11 +130,42 @@ export function UploadProvider({ children }: { children: ReactNode }) {
           console.log("[Upload] User ID:", session.user.id);
           console.log("[Upload] Challenge ID:", meta.challengeId);
 
+          // Upload thumbnail to storage if we have one
+          let thumbnailUrl: string | null = null;
+          if (meta.thumbnailDataUrl) {
+            try {
+              // Convert base64 data URL to blob
+              const response = await fetch(meta.thumbnailDataUrl);
+              const blob = await response.blob();
+              const fileName = `thumbnails/${session.user.id}/${videoId}.jpg`;
+
+              const { error: thumbUploadError } = await supabase.storage
+                .from("avatars")
+                .upload(fileName, blob, {
+                  contentType: "image/jpeg",
+                  upsert: true
+                });
+
+              if (!thumbUploadError) {
+                const { data: urlData } = supabase.storage
+                  .from("avatars")
+                  .getPublicUrl(fileName);
+                thumbnailUrl = urlData.publicUrl;
+                console.log("[Upload] Thumbnail uploaded:", thumbnailUrl);
+              } else {
+                console.error("[Upload] Thumbnail upload failed:", thumbUploadError);
+              }
+            } catch (thumbErr) {
+              console.error("[Upload] Thumbnail upload error:", thumbErr);
+            }
+          }
+
           // Insert post
           const { data: postData, error: insertError } = await supabase.from("posts").insert({
             user_id: session.user.id,
             challenge_id: meta.challengeId,
             video_id: videoId,
+            video_url: thumbnailUrl, // Store thumbnail URL here
             thumbnail_time: meta.thumbnailTime,
             trim_start: meta.trimStart,
             trim_end: meta.trimEnd,
@@ -223,6 +257,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       trimStart: meta.trimStart,
       trimEnd: meta.trimEnd,
       thumbnailTime: meta.thumbnailTime,
+      thumbnailDataUrl: meta.thumbnailDataUrl,
     });
     doUpload(file);
   }, [doUpload]);

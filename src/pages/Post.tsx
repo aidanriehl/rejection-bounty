@@ -222,6 +222,9 @@ export default function PostPage() {
     if (!videoFile) return;
     const trimDuration = trimEnd - trimStart;
     const thumbTime = trimStart + (coverSliderValue / 100) * trimDuration;
+    // Get the selected thumbnail frame
+    const thumbIndex = Math.round((coverSliderValue / 100) * Math.max(0, thumbnailFrames.length - 1));
+    const selectedThumb = thumbnailFrames[thumbIndex] || thumbnailFrames[0] || null;
     startUpload(videoFile, {
       challengeTitle,
       challengeId,
@@ -229,6 +232,7 @@ export default function PostPage() {
       trimStart,
       trimEnd,
       thumbnailTime: thumbTime,
+      thumbnailDataUrl: selectedThumb,
     });
     navigate("/challenges");
   };

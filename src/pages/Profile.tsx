@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2, Play } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2 } from "lucide-react";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -13,6 +13,7 @@ import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 interface UserPost {
   id: string;
   video_id: string | null;
+  video_url: string | null; // thumbnail URL
   thumbnail_time: number;
   caption: string;
   likes: number;
@@ -141,7 +142,7 @@ export default function Profile() {
       setLoadingPosts(true);
       const { data, error } = await supabase.
       from("posts").
-      select("id, video_id, thumbnail_time, caption, likes, created_at").
+      select("id, video_id, video_url, thumbnail_time, caption, likes, created_at").
       eq("user_id", user.id).
       order("created_at", { ascending: false });
 
@@ -401,10 +402,8 @@ export default function Profile() {
       ) : (
         <div className="grid grid-cols-3 gap-px bg-border">
           {posts.map((post) => {
-            const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
-            const thumbnailUrl = post.video_id
-              ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
-              : null;
+            // Use stored thumbnail URL (video_url field)
+            const thumbnailUrl = post.video_url;
 
             return (
               <div
@@ -412,20 +411,14 @@ export default function Profile() {
                 className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
                 onClick={() => setSelectedPost(post)}
               >
-                {/* Fallback - always shown behind image */}
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <Play className="h-8 w-8 text-muted-foreground/50 fill-muted-foreground/50" />
-                </div>
-                {thumbnailUrl && (
+                {thumbnailUrl ? (
                   <img
                     src={thumbnailUrl}
                     alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                    onError={(e) => {
-                      // Hide image on error, fallback will show through
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    className="h-full w-full object-cover"
                   />
+                ) : (
+                  <div className="h-full w-full bg-muted" />
                 )}
               </div>
             );
