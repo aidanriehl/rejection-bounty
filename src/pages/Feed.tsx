@@ -178,17 +178,19 @@ export default function Feed() {
 
   const fetchData = async () => {
     setLoading(true);
+    
+    // Fetch posts with profile data via FK join
     const { data, error } = await supabase
       .from("posts")
-      .select("*, profiles:user_id(username, avatar, avatar_stage)")
-      .order("created_at", { ascending: false }) as any;
+      .select("*, profiles!posts_user_id_fkey(username, avatar, avatar_stage)")
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("[Feed] Failed to fetch posts:", error);
     }
     console.log("[Feed] Fetched posts:", data?.length || 0, "posts");
-    if (data?.length > 0) {
-      console.log("[Feed] First post:", data[0]?.id, "video_id:", data[0]?.video_id);
+    if (data && data.length > 0) {
+      console.log("[Feed] First post:", data[0]?.id, "video_id:", (data[0] as any)?.video_id, "profiles:", (data[0] as any)?.profiles);
     }
     setPosts((data || []) as FeedPostData[]);
 
