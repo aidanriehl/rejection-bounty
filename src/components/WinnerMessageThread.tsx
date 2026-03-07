@@ -43,8 +43,27 @@ export default function WinnerMessageThread({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const targetUserId = adminTargetUserId ?? userId;
+
+  // Track keyboard height using visualViewport
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResize = () => {
+      const kbHeight = window.innerHeight - vv.height;
+      setKeyboardHeight(kbHeight > 50 ? kbHeight : 0);
+    };
+
+    vv.addEventListener("resize", handleResize);
+    vv.addEventListener("scroll", handleResize);
+    return () => {
+      vv.removeEventListener("resize", handleResize);
+      vv.removeEventListener("scroll", handleResize);
+    };
+  }, []);
 
   const fetchMessages = async () => {
     const { data } = await supabase
@@ -81,7 +100,7 @@ export default function WinnerMessageThread({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, keyboardHeight]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
@@ -110,8 +129,11 @@ export default function WinnerMessageThread({
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
       transition={{ type: "spring", damping: 25, stiffness: 300 }}
-      className="fixed inset-0 z-[100] flex flex-col"
-      style={{ backgroundColor: GOLD.bg }}
+      className="fixed left-0 right-0 top-0 z-[100] flex flex-col"
+      style={{
+        backgroundColor: GOLD.bg,
+        height: keyboardHeight > 0 ? `calc(100% - ${keyboardHeight}px)` : '100%',
+      }}
     >
       {/* Header - Instagram style */}
       <div
@@ -200,7 +222,7 @@ export default function WinnerMessageThread({
         className="px-4 pt-2 border-t flex items-center gap-3"
         style={{
           borderColor: "rgba(255,255,255,0.1)",
-          paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
+          paddingBottom: keyboardHeight > 0 ? 12 : "calc(env(safe-area-inset-bottom) + 12px)",
           backgroundColor: GOLD.bg,
         }}
       >
