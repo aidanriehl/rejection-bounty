@@ -190,7 +190,7 @@ export default function PostPage() {
 
   const handleTrimDone = () => {
     setThumbnailFrames([]);
-    setSelectedThumbIndex(0);
+    setCoverSliderValue(0);
     setStep("post");
   };
 
