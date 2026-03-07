@@ -376,7 +376,7 @@ export default function PostPage() {
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     ) : thumbnailFrames.length > 0 ? (
                       <img
-                        src={thumbnailFrames[selectedThumbIndex] || thumbnailFrames[0]}
+                        src={thumbnailFrames[Math.round((coverSliderValue / 100) * Math.max(0, thumbnailFrames.length - 1))] || thumbnailFrames[0]}
                         alt="Thumbnail"
                         className="h-full w-full object-cover"
                       />
@@ -385,34 +385,33 @@ export default function PostPage() {
                 </div>
               </div>
 
-              {/* Thumbnail selector */}
+              {/* Cover slider */}
               <div className="mb-5">
                 <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
-                <div className="flex gap-1.5 justify-center overflow-x-auto pb-2">
-                  {loadingThumbnails ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="h-16 w-12 flex-shrink-0 rounded-lg bg-muted animate-pulse" />
-                    ))
-                  ) : (
-                    thumbnailFrames.map((frame, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelectThumbnail(i)}
-                        className={`relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg transition-all ${
-                          selectedThumbIndex === i
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                            : "opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img src={frame} alt="" className="h-full w-full object-cover" />
-                        {selectedThumbIndex === i && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
-                            <Check className="h-4 w-4 text-primary" />
-                          </div>
-                        )}
-                      </button>
-                    ))
-                  )}
+                {/* Filmstrip behind slider */}
+                <div className="relative mx-auto max-w-xs">
+                  <div className="flex h-12 overflow-hidden rounded-lg">
+                    {loadingThumbnails ? (
+                      <div className="h-full w-full bg-muted animate-pulse" />
+                    ) : (
+                      thumbnailFrames.map((frame, i) => (
+                        <img key={i} src={frame} alt="" className="h-full flex-1 object-cover" draggable={false} />
+                      ))
+                    )}
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={coverSliderValue}
+                    onChange={(e) => setCoverSliderValue(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {/* Slider indicator line */}
+                  <div
+                    className="absolute top-0 bottom-0 w-[3px] bg-white rounded-full shadow-[0_0_4px_rgba(0,0,0,0.5)] pointer-events-none"
+                    style={{ left: `${coverSliderValue}%`, transform: 'translateX(-50%)' }}
+                  />
                 </div>
               </div>
 
