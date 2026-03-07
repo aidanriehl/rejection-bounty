@@ -231,32 +231,38 @@ export type Database = {
         Row: {
           avatar: string
           avatar_stage: number
+          best_streak: number
           created_at: string
           id: string
           profile_photo_url: string | null
           streak: number
           total_completed: number
           username: string | null
+          weeks_completed: number
         }
         Insert: {
           avatar?: string
           avatar_stage?: number
+          best_streak?: number
           created_at?: string
           id: string
           profile_photo_url?: string | null
           streak?: number
           total_completed?: number
           username?: string | null
+          weeks_completed?: number
         }
         Update: {
           avatar?: string
           avatar_stage?: number
+          best_streak?: number
           created_at?: string
           id?: string
           profile_photo_url?: string | null
           streak?: number
           total_completed?: number
           username?: string | null
+          weeks_completed?: number
         }
         Relationships: []
       }
