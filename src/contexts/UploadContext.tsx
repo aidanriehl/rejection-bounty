@@ -195,12 +195,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, status: "done", progress: 100 }));
       // No toast - the UploadIndicator banner already shows success
 
-      // Auto-clear after a few seconds
+      // Auto-clear after enough time for UploadIndicator to fetch & display ticket count
       setTimeout(() => {
         setState(initialState);
         fileRef.current = null;
         metaRef.current = null;
-      }, 3000);
+      }, 8000);
     } catch (err: any) {
       console.error("Upload error:", err);
       setState((s) => ({ ...s, status: "error" }));
