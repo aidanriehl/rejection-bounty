@@ -250,11 +250,11 @@ export default function Onboarding() {
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
                   Rejection Bounty
                 </h1>
-                <p className="-mt-1 mb-8 text-base text-primary-foreground/60">
+                <p className="-mt-1 mb-6 text-base text-primary-foreground/60">
                   100 rejections will change your life
                 </p>
 
-                <div className="w-full max-w-sm space-y-3">
+                <div className="w-full max-w-sm space-y-3 -mt-2">
                   <button
                     onClick={() => { setIsJoining(true); setMode("form"); }}
                     className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
