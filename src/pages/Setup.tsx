@@ -160,7 +160,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     >
       <div
         className="flex-1 flex flex-col items-center px-6 transition-all duration-200"
-        style={{ paddingTop: keyboardVisible ? "calc(env(safe-area-inset-top) + 24px)" : "calc(env(safe-area-inset-top) + 80px)" }}
+        style={{ paddingTop: keyboardVisible ? "calc(env(safe-area-inset-top) + 48px)" : "calc(env(safe-area-inset-top) + 80px)" }}
       >
         <motion.form
           initial={{ opacity: 0, y: 16 }}

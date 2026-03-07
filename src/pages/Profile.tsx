@@ -150,7 +150,7 @@ export default function Profile() {
   const progressPct = Math.min((ms.current / ms.goal) * 100, 100);
 
   return (
-    <div className="min-h-screen pb-24 pt-4">
+    <div className="min-h-screen pb-24 pt-8">
       {celebrateMilestone && (
         <MilestoneCelebration
           tier={celebrateMilestone.tier}
