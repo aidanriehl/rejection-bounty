@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Users, Info } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Play, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +8,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MilestoneCelebration from "@/components/MilestoneCelebration";
 import type { AvatarType, AvatarStage } from "@/lib/mock-data";
+
+interface UserPost {
+  id: string;
+  video_id: string | null;
+  thumbnail_time: number;
+  caption: string;
+  likes: number;
+  created_at: string;
+}
 
 const MILESTONES = [10, 50, 100, 150, 200] as const;
 
@@ -73,6 +82,10 @@ export default function Profile() {
   const totalCompleted = profile?.total_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
+  // User's posts
+  const [posts, setPosts] = useState<UserPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
 
@@ -90,6 +103,37 @@ export default function Profile() {
       }
     }
   }, [totalCompleted, user]);
+
+  // Fetch user's posts
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (!user) {
+        setLoadingPosts(false);
+        return;
+      }
+      setLoadingPosts(true);
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, video_id, thumbnail_time, caption, likes, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Failed to fetch posts:", error);
+      }
+      setPosts((data as UserPost[]) ?? []);
+      setLoadingPosts(false);
+    };
+
+    fetchPosts();
+
+    // Refresh when a new video is uploaded
+    const handleUploadComplete = () => {
+      setTimeout(fetchPosts, 2000);
+    };
+    window.addEventListener("challenge-completed", handleUploadComplete);
+    return () => window.removeEventListener("challenge-completed", handleUploadComplete);
+  }, [user]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -218,13 +262,6 @@ export default function Profile() {
             <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
           <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
-          <button
-            onClick={() => navigate("/friends")}
-            className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
-          >
-            <Users className="h-3.5 w-3.5" />
-            Friends
-          </button>
         </div>
 
         {/* Photo action sheet */}
@@ -288,6 +325,7 @@ export default function Profile() {
 
               <div
                 ref={scrollViewportRef}
+                data-scroll-container
                 className="max-h-[60vh] overflow-y-auto p-6 pr-5"
                 onScroll={(e) => {
                   const el = e.currentTarget;
@@ -372,9 +410,7 @@ export default function Profile() {
               <span className="text-lg font-semibold leading-none text-foreground">Week Streak</span>
             </div>
             <div className="flex items-center gap-3 mt-1.5">
-              <p className="text-[10px] text-muted-foreground/50">Best Streak: {streak}</p>
-              <span className="text-[10px] text-muted-foreground/30">·</span>
-              <p className="text-[10px] text-muted-foreground/50 text-right flex-1">0% weeks completed</p>
+              <p className="text-[11px] text-muted-foreground/50">Best Streak: {streak}</p>
             </div>
           </div>
 
@@ -407,10 +443,44 @@ export default function Profile() {
           <Grid3X3 className="h-5 w-5 text-foreground" />
         </div>
 
-        {/* Empty state for video grid */}
-        <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
-        </div>
+        {/* Video grid */}
+        {loadingPosts ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="flex items-center justify-center py-16">
+            <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-0.5">
+            {posts.map((post) => {
+              const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+              const thumbnailUrl = post.video_id
+                ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
+                : "/placeholder.svg";
+
+              return (
+                <div
+                  key={post.id}
+                  className="relative aspect-[9/16] bg-muted overflow-hidden"
+                >
+                  <img
+                    src={thumbnailUrl}
+                    alt={post.caption || "Video"}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/30 transition-opacity">
+                    <Play className="h-8 w-8 text-white fill-white" />
+                  </div>
+                  <div className="absolute bottom-1 left-1 flex items-center gap-1 text-white text-xs drop-shadow-md">
+                    <span>❤️ {post.likes}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

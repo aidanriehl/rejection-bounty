@@ -3,13 +3,26 @@ import { cn } from "@/lib/utils";
 import { type AvatarType, type AvatarStage } from "@/lib/mock-data";
 import { Plus, Camera } from "lucide-react";
 
-// Relevant avatar-style emojis for random fallback (people, animals, plants)
+// Fallback emojis for legacy avatar types (e.g., "dragon", "fox")
+// Must match AVATAR_EMOJIS in Setup.tsx
 const FALLBACK_EMOJIS = [
   "🐶", "🐱", "🐻", "🦊", "🐼", "🐨", "🐯", "🦁",
   "🐸", "🐵", "🐔", "🐧", "🐦", "🦉", "🦄", "🐢",
   "🐙", "🦋", "🌵", "🌻", "🌸", "🍄", "🌿", "🐲",
   "🐰", "🐷", "🐺", "🦎", "🐠", "🦈", "🦩", "🦜",
+  "🐳", "🦖", "🐝", "🐞", "🦔", "🐿️", "🦒", "🦘",
+  "🦥", "🦦", "🦧", "🐊", "🦀", "🐡", "🦑", "🐛",
+  "🌺", "🌼", "🌴", "🍀", "🌈", "⭐", "🌙", "☀️",
+  "🍊", "🍋", "🍉", "🥑", "🍕", "🧁", "🎨", "🎸",
 ];
+
+// Legacy avatar types are ASCII strings like "dragon", "fox", "owl"
+// New avatars are emoji characters stored directly
+function isLegacyAvatarType(str: string): boolean {
+  if (!str) return true;
+  // Legacy types are lowercase ASCII words
+  return /^[a-z]+$/.test(str);
+}
 
 interface AvatarDisplayProps {
   avatar: AvatarType;
@@ -46,15 +59,21 @@ export default function AvatarDisplay({
   onEditPhoto,
   className,
 }: AvatarDisplayProps) {
-  // Stable random emoji per avatar type (deterministic)
+  // If avatar is a legacy type like "dragon", hash it to pick an emoji
+  // Otherwise it's already an emoji, use it directly
   const emoji = useMemo(() => {
-    // Simple hash from avatar string to pick a consistent emoji
-    let hash = 0;
-    for (let i = 0; i < avatar.length; i++) {
-      hash = ((hash << 5) - hash) + avatar.charCodeAt(i);
-      hash |= 0;
+    if (isLegacyAvatarType(avatar)) {
+      // Legacy fallback: hash the string to pick a consistent emoji
+      let hash = 0;
+      const str = avatar || "default";
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return FALLBACK_EMOJIS[Math.abs(hash) % FALLBACK_EMOJIS.length];
     }
-    return FALLBACK_EMOJIS[Math.abs(hash) % FALLBACK_EMOJIS.length];
+    // It's already an emoji, display directly
+    return avatar;
   }, [avatar]);
 
   return (

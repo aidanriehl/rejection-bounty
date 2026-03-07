@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Image } from "lucide-react";
 
 interface VideoTrimmerProps {
   videoUrl: string;
@@ -9,6 +10,8 @@ interface VideoTrimmerProps {
   onScrub: (time: number) => void;
   currentTime?: number;
   isPlaying?: boolean;
+  thumbnailTime?: number;
+  onSetCover?: () => void;
 }
 
 const HANDLE_WIDTH = 16;
@@ -23,11 +26,14 @@ export default function VideoTrimmer({
   onScrub,
   currentTime = 0,
   isPlaying = false,
+  thumbnailTime = 0,
+  onSetCover,
 }: VideoTrimmerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
   const [frames, setFrames] = useState<string[]>([]);
   const [dragging, setDragging] = useState<"left" | "right" | "playhead" | null>(null);
+  const [localPlayheadTime, setLocalPlayheadTime] = useState(currentTime);
   const dragStartRef = useRef({ x: 0, trimStart: 0, trimEnd: 0 });
 
   // Extract filmstrip frames
@@ -91,12 +97,19 @@ export default function VideoTrimmer({
     return Math.max(0, Math.min(duration, t));
   }, [duration, getContainerWidth]);
 
-  // Throttle scrub to avoid overwhelming the video decoder
-  const lastScrubRef = useRef(0);
-  const throttledScrub = useCallback((time: number) => {
+  // Sync localPlayheadTime with currentTime when not dragging
+  useEffect(() => {
+    if (!dragging) {
+      setLocalPlayheadTime(currentTime);
+    }
+  }, [currentTime, dragging]);
+
+  // Throttle video seeking only - visual updates are immediate
+  const lastSeekRef = useRef(0);
+  const throttledVideoSeek = useCallback((time: number) => {
     const now = Date.now();
-    if (now - lastScrubRef.current > 80) {
-      lastScrubRef.current = now;
+    if (now - lastSeekRef.current > 50) {
+      lastSeekRef.current = now;
       onScrub(time);
     }
   }, [onScrub]);
@@ -121,25 +134,37 @@ export default function VideoTrimmer({
 
     if (dragging === "left") {
       const newStart = Math.min(time, trimEnd - minDuration);
-      onTrimChange(Math.max(0, newStart), trimEnd);
-      throttledScrub(Math.max(0, newStart));
+      const clampedStart = Math.max(0, newStart);
+      onTrimChange(clampedStart, trimEnd);
+      setLocalPlayheadTime(clampedStart);
+      throttledVideoSeek(clampedStart);
     } else if (dragging === "right") {
       const newEnd = Math.max(time, trimStart + minDuration);
-      onTrimChange(trimStart, Math.min(duration, newEnd));
-      throttledScrub(Math.min(duration, newEnd));
+      const clampedEnd = Math.min(duration, newEnd);
+      onTrimChange(trimStart, clampedEnd);
+      setLocalPlayheadTime(clampedEnd);
+      throttledVideoSeek(clampedEnd);
     } else if (dragging === "playhead") {
       const clampedTime = Math.max(trimStart, Math.min(trimEnd, time));
-      throttledScrub(clampedTime);
+      setLocalPlayheadTime(clampedTime); // Immediate visual update
+      throttledVideoSeek(clampedTime); // Throttled video seek
     }
-  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, throttledScrub]);
+  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, throttledVideoSeek]);
 
   const handlePointerUp = useCallback(() => {
+    // Final seek to exact position when drag ends
+    if (dragging === "playhead") {
+      onScrub(localPlayheadTime);
+    }
     setDragging(null);
-  }, []);
+  }, [dragging, localPlayheadTime, onScrub]);
 
   const leftX = timeToX(trimStart);
   const rightX = timeToX(trimEnd);
-  const playheadX = timeToX(Math.max(trimStart, Math.min(trimEnd, currentTime)));
+  // Use localPlayheadTime for smooth dragging visuals
+  const displayTime = dragging === "playhead" ? localPlayheadTime : currentTime;
+  const playheadX = timeToX(Math.max(trimStart, Math.min(trimEnd, displayTime)));
+  const thumbnailX = timeToX(Math.max(trimStart, Math.min(trimEnd, thumbnailTime)));
 
   return (
     <div className="mt-2 rounded-xl bg-muted/30 px-2 py-2.5">
@@ -208,6 +233,18 @@ export default function VideoTrimmer({
           <div className="h-6 w-0.5 rounded-full bg-amber-900/50" />
         </div>
 
+        {/* Thumbnail marker - small camera icon indicator */}
+        {thumbnailTime > 0 && (
+          <div
+            className="absolute top-0 z-15 pointer-events-none"
+            style={{ left: thumbnailX - 6 }}
+          >
+            <div className="flex h-4 w-3 items-center justify-center rounded-b bg-primary">
+              <div className="h-1.5 w-1.5 rounded-full bg-white" />
+            </div>
+          </div>
+        )}
+
         {/* Playhead - wide touch target, thin visual line */}
         <div
           className="absolute inset-y-0 z-20 flex cursor-col-resize items-center justify-center touch-none"
@@ -218,11 +255,22 @@ export default function VideoTrimmer({
         </div>
       </div>
 
-      {/* Time labels */}
-      <div className="mt-1 flex justify-between px-2 text-[10px] text-muted-foreground">
-        <span>{formatTime(trimStart)}</span>
-        <span className="font-medium text-foreground">{formatTime(trimEnd - trimStart)}</span>
-        <span>{formatTime(trimEnd)}</span>
+      {/* Time labels and cover button */}
+      <div className="mt-1 flex items-center justify-between px-2">
+        <span className="text-[10px] text-muted-foreground">{formatTime(trimStart)}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-medium text-foreground">{formatTime(trimEnd - trimStart)}</span>
+          {onSetCover && (
+            <button
+              onClick={onSetCover}
+              className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary active:bg-primary/20"
+            >
+              <Image className="h-3 w-3" />
+              Set Cover
+            </button>
+          )}
+        </div>
+        <span className="text-[10px] text-muted-foreground">{formatTime(trimEnd)}</span>
       </div>
     </div>
   );

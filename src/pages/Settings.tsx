@@ -173,8 +173,8 @@ export default function SettingsPage() {
           {editingName ? (
             <div className="flex items-center justify-between border-b px-4 py-3">
               <div className="flex items-center gap-3">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Display Name</span>
+                <User className="h-[18px] w-[18px] text-muted-foreground" />
+                <span className="text-[15px] font-medium text-foreground">Display Name</span>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -190,12 +190,12 @@ export default function SettingsPage() {
           ) : (
             <button onClick={() => setEditingName(true)} className="flex w-full items-center justify-between border-b px-4 py-3">
               <div className="flex items-center gap-3">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Display Name</span>
+                <User className="h-[18px] w-[18px] text-muted-foreground" />
+                <span className="text-[15px] font-medium text-foreground">Display Name</span>
               </div>
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1 text-[15px] text-muted-foreground">
                 {authProfile?.username || "Set name"}
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-[18px] w-[18px]" />
               </span>
             </button>
           )}
@@ -207,12 +207,12 @@ export default function SettingsPage() {
             className="flex w-full items-center justify-between px-4 py-3"
           >
             <div className="flex items-center gap-3">
-              <Camera className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Profile Photo</span>
+              <Camera className="h-[18px] w-[18px] text-muted-foreground" />
+              <span className="text-[15px] font-medium text-foreground">Profile Photo</span>
             </div>
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 text-[15px] text-muted-foreground">
               {uploading ? "Uploading…" : "Edit"}
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-[18px] w-[18px]" />
             </span>
           </button>
           <input
@@ -232,15 +232,15 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="flex items-center gap-3">
               {isPublic ? (
-                <Globe className="h-4 w-4 text-muted-foreground" />
+                <Globe className="h-[18px] w-[18px] text-muted-foreground" />
               ) : (
-                <Lock className="h-4 w-4 text-muted-foreground" />
+                <Lock className="h-[18px] w-[18px] text-muted-foreground" />
               )}
               <div>
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-[15px] font-medium text-foreground">
                   {isPublic ? "Public Profile" : "Private Profile"}
                 </span>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground">
                   {isPublic ? "Anyone can see your profile" : "Only friends can see your profile"}
                 </p>
               </div>
@@ -254,10 +254,10 @@ export default function SettingsPage() {
           {/* Notifications */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="flex items-center gap-3">
-              <Bell className="h-4 w-4 text-muted-foreground" />
+              <Bell className="h-[18px] w-[18px] text-muted-foreground" />
               <div>
-                <span className="text-sm font-medium text-foreground">Notifications</span>
-                <p className="text-xs text-muted-foreground">Weekly reminders & friend activity</p>
+                <span className="text-[15px] font-medium text-foreground">Notifications</span>
+                <p className="text-[13px] text-muted-foreground">Weekly reminders & friend activity</p>
               </div>
             </div>
             <Switch
@@ -268,10 +268,10 @@ export default function SettingsPage() {
           {/* Dark Mode */}
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <Moon className="h-4 w-4 text-muted-foreground" />
+              <Moon className="h-[18px] w-[18px] text-muted-foreground" />
               <div>
-                <span className="text-sm font-medium text-foreground">Dark Mode</span>
-                <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+                <span className="text-[15px] font-medium text-foreground">Dark Mode</span>
+                <p className="text-[13px] text-muted-foreground">Switch between light and dark themes</p>
               </div>
             </div>
             <Switch
@@ -286,16 +286,16 @@ export default function SettingsPage() {
         <div className="mb-5 overflow-hidden rounded-xl border bg-card">
           {connectLoading ? (
             <div className="flex items-center gap-3 px-4 py-4">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Checking payout status…</span>
+              <Loader2 className="h-[18px] w-[18px] animate-spin text-muted-foreground" />
+              <span className="text-[15px] text-muted-foreground">Checking payout status…</span>
             </div>
           ) : connectStatus?.onboarding_complete && connectStatus?.payouts_enabled ? (
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-3">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-[18px] w-[18px] text-green-500" />
                 <div>
-                  <span className="text-sm font-medium text-foreground">Bank Account Linked</span>
-                  <p className="text-xs text-muted-foreground">
+                  <span className="text-[15px] font-medium text-foreground">Bank Account Linked</span>
+                  <p className="text-[13px] text-muted-foreground">
                     You're eligible for weekly prize payouts
                   </p>
                 </div>
@@ -310,10 +310,10 @@ export default function SettingsPage() {
           ) : connectStatus?.connected && !connectStatus?.onboarding_complete ? (
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-3">
-                <Banknote className="h-4 w-4 text-yellow-500" />
+                <Banknote className="h-[18px] w-[18px] text-yellow-500" />
                 <div>
-                  <span className="text-sm font-medium text-foreground">Onboarding Incomplete</span>
-                  <p className="text-xs text-muted-foreground">Finish linking your bank account</p>
+                  <span className="text-[15px] font-medium text-foreground">Onboarding Incomplete</span>
+                  <p className="text-[13px] text-muted-foreground">Finish linking your bank account</p>
                 </div>
               </div>
               <button
@@ -327,10 +327,10 @@ export default function SettingsPage() {
           ) : (
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-3">
-                <Banknote className="h-4 w-4 text-muted-foreground" />
+                <Banknote className="h-[18px] w-[18px] text-muted-foreground" />
                 <div>
-                  <span className="text-sm font-medium text-foreground">Link Bank Account</span>
-                  <p className="text-xs text-muted-foreground">
+                  <span className="text-[15px] font-medium text-foreground">Link Bank Account</span>
+                  <p className="text-[13px] text-muted-foreground">
                     Required to receive weekly prize pool winnings
                   </p>
                 </div>
@@ -350,8 +350,8 @@ export default function SettingsPage() {
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subscription</p>
         <div className="mb-5 flex items-center justify-between rounded-xl border bg-card p-4">
           <div>
-            <p className="text-sm font-semibold text-foreground">Premium Subscription</p>
-            <p className="text-xs text-muted-foreground">Unlock all features & enter the weekly drawing</p>
+            <p className="text-[15px] font-semibold text-foreground">Premium Subscription</p>
+            <p className="text-[13px] text-muted-foreground">Unlock all features & enter the weekly drawing</p>
           </div>
           <button className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background">
             Subscribe
@@ -366,30 +366,30 @@ export default function SettingsPage() {
             className="flex w-full items-center justify-between border-b px-4 py-3"
           >
             <div className="flex items-center gap-3">
-              <MessageCircle className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Message Admin</span>
+              <MessageCircle className="h-[18px] w-[18px] text-muted-foreground" />
+              <span className="text-[15px] font-medium text-foreground">Message Admin</span>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
           </button>
           <button
             onClick={() => navigate("/settings/terms")}
             className="flex w-full items-center justify-between border-b px-4 py-3"
           >
             <div className="flex items-center gap-3">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Terms & Privacy</span>
+              <FileText className="h-[18px] w-[18px] text-muted-foreground" />
+              <span className="text-[15px] font-medium text-foreground">Terms & Privacy</span>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
           </button>
           <button
             onClick={() => navigate("/settings/rules")}
             className="flex w-full items-center justify-between px-4 py-3"
           >
             <div className="flex items-center gap-3">
-              <Scale className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Official Sweepstakes Rules</span>
+              <Scale className="h-[18px] w-[18px] text-muted-foreground" />
+              <span className="text-[15px] font-medium text-foreground">Official Sweepstakes Rules</span>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
           </button>
         </div>
 
@@ -400,15 +400,15 @@ export default function SettingsPage() {
               await signOut();
               navigate("/");
             }}
-            className="flex w-full items-center gap-3 border-b px-4 py-3 text-sm font-medium text-foreground"
+            className="flex w-full items-center gap-3 border-b px-4 py-3 text-[15px] font-medium text-foreground"
           >
-            <LogOut className="h-4 w-4 text-muted-foreground" />
+            <LogOut className="h-[18px] w-[18px] text-muted-foreground" />
             Log Out
           </button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button className="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-destructive">
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-[18px] w-[18px]" />
                 Delete Account
               </button>
             </AlertDialogTrigger>

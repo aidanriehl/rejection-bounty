@@ -105,7 +105,7 @@ export default function SettingsMessages() {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+        data-scroll-container className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
       >
         {loading ? (
           <div className="flex items-center justify-center py-16">

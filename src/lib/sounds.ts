@@ -1,4 +1,18 @@
-const ctx = () => new (window.AudioContext || (window as any).webkitAudioContext)();
+// Shared AudioContext for all sounds - iOS requires a single context resumed on user interaction
+let sharedContext: AudioContext | null = null;
+
+function getContext(): AudioContext {
+  if (!sharedContext) {
+    sharedContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+  // Resume if suspended (iOS requirement)
+  if (sharedContext.state === "suspended") {
+    sharedContext.resume();
+  }
+  return sharedContext;
+}
+
+const ctx = getContext;
 
 /** Single task — rising arpeggio + chord (was bigWin) */
 export function playPop() {

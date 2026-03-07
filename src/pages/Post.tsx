@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Play, Pause, ChevronLeft, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { Slider } from "@/components/ui/slider";
 import { useUpload } from "@/contexts/UploadContext";
 import VideoTrimmer from "@/components/VideoTrimmer";
 
@@ -12,6 +12,8 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
+type Step = "select" | "trim" | "post";
+
 export default function PostPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,17 +21,22 @@ export default function PostPage() {
   const challengeId = (location.state as any)?.challengeId || "";
   const { startUpload, status: globalStatus } = useUpload();
 
+  const [step, setStep] = useState<Step>("select");
   const [caption, setCaption] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
-  const [thumbnailTime, setThumbnailTime] = useState(0);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [thumbnailFrames, setThumbnailFrames] = useState<string[]>([]);
+  const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
+  const [loadingThumbnails, setLoadingThumbnails] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const captionRef = useRef<HTMLTextAreaElement>(null);
 
   // Clean up object URL on unmount
   useEffect(() => {
@@ -38,7 +45,7 @@ export default function PostPage() {
     };
   }, [videoUrl]);
 
-  // Track currentTime for playhead
+  // Track currentTime for playhead and play state
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -48,9 +55,84 @@ export default function PostPage() {
         video.currentTime = trimStart;
       }
     };
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
     video.addEventListener("timeupdate", onTime);
-    return () => video.removeEventListener("timeupdate", onTime);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    return () => {
+      video.removeEventListener("timeupdate", onTime);
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+    };
   }, [trimEnd, trimStart]);
+
+  // Extract thumbnail frames when entering post step
+  useEffect(() => {
+    if (step !== "post" || !videoUrl || !duration || thumbnailFrames.length > 0) return;
+
+    const trimDuration = trimEnd - trimStart;
+    if (trimDuration <= 0) return;
+
+    setLoadingThumbnails(true);
+
+    const video = document.createElement("video");
+    video.src = videoUrl;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+
+    const frames: string[] = [];
+    const frameCount = 8;
+    let frameIndex = 0;
+    let cleanup = false;
+
+    const finish = () => {
+      if (cleanup) return;
+      setThumbnailFrames(frames);
+      setLoadingThumbnails(false);
+      video.remove();
+    };
+
+    video.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        finish();
+        return;
+      }
+      canvas.width = 120;
+      canvas.height = 160;
+
+      const captureFrame = () => {
+        if (cleanup) return;
+        if (frameIndex >= frameCount) {
+          finish();
+          return;
+        }
+
+        const time = trimStart + (frameIndex / Math.max(1, frameCount - 1)) * trimDuration;
+        video.currentTime = time;
+      };
+
+      video.addEventListener("seeked", () => {
+        if (cleanup) return;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        frames.push(canvas.toDataURL("image/jpeg", 0.7));
+        frameIndex++;
+        captureFrame();
+      });
+
+      captureFrame();
+    });
+
+    video.addEventListener("error", finish);
+
+    return () => {
+      cleanup = true;
+      video.remove();
+    };
+  }, [step, videoUrl, duration, trimStart, trimEnd, thumbnailFrames.length]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,10 +145,10 @@ export default function PostPage() {
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
-    setThumbnailTime(0);
     setTrimStart(0);
     setTrimEnd(0);
     setCurrentTime(0);
+    setStep("trim");
   };
 
   const handleVideoLoaded = () => {
@@ -75,8 +157,7 @@ export default function PostPage() {
       const dur = video.duration;
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
-      setThumbnailTime(0);
-      // autoPlay + muted handles iOS frame rendering
+      video.play();
     }
   };
 
@@ -96,82 +177,138 @@ export default function PostPage() {
     }
   };
 
-  const handleCoverDrag = (value: number[]) => {
-    const time = value[0];
-    setThumbnailTime(time);
-    handleScrub(time);
+  const togglePlayPause = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
   };
 
-  const handleCoverCommit = (value: number[]) => {
-    const time = value[0];
-    setThumbnailTime(time);
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
+  const handleTrimDone = () => {
+    setThumbnailFrames([]);
+    setSelectedThumbIndex(0);
+    setStep("post");
+  };
+
+  const handleBack = () => {
+    if (step === "post") {
+      setStep("trim");
+    } else if (step === "trim") {
+      setVideoFile(null);
+      setVideoUrl(null);
+      setStep("select");
+    } else {
+      navigate("/challenges");
     }
   };
 
   const handlePost = () => {
     if (!videoFile) return;
+    // Calculate thumbnail time from selected index
+    const frameCount = thumbnailFrames.length || 1;
+    const thumbTime = trimStart + (selectedThumbIndex / Math.max(1, frameCount - 1)) * (trimEnd - trimStart);
     startUpload(videoFile, {
       challengeTitle,
       challengeId,
       caption,
       trimStart,
       trimEnd,
-      thumbnailTime,
+      thumbnailTime: thumbTime,
     });
     navigate("/challenges");
   };
 
+  const handleSelectThumbnail = (index: number) => {
+    setSelectedThumbIndex(index);
+  };
+
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: "hsl(var(--background))" }}>
+    <div className="fixed inset-0 flex flex-col bg-background">
       {/* Safe area top fill */}
       <div className="bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }} />
 
-      {/* Scrollable content */}
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{ paddingBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
-      >
-        <div className="mx-auto w-full max-w-lg px-4 pb-6 pt-4">
-          {/* Header */}
-          <div className="mb-1 flex items-center justify-between">
-            <h1 className="text-xl font-bold text-foreground">Post to Feed</h1>
-            <button
-              onClick={() => navigate("/challenges")}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
 
-          <p className="mb-4 text-sm font-medium text-foreground">{challengeTitle}</p>
+      <AnimatePresence mode="wait">
+        {/* STEP 1: Select Video */}
+        {step === "select" && (
+          <motion.div
+            key="select"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-1 flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <h1 className="text-lg font-bold text-foreground">New Post</h1>
+              <button
+                onClick={() => navigate("/challenges")}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-          <input
-            ref={fileRef}
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
+            <div className="flex-1 flex flex-col items-center justify-center px-6">
+              <p className="mb-6 text-sm font-medium text-muted-foreground">{challengeTitle}</p>
 
-          {!videoUrl ? (
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="group mb-4 flex aspect-[9/16] w-1/2 mx-auto flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-all hover:border-primary/40 hover:bg-muted/30"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                <Upload className="h-5 w-5" />
-              </div>
-              <div className="text-center px-2">
-                <p className="text-sm font-semibold text-foreground">Tap to add video</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Max 30s · 100MB</p>
-              </div>
-            </button>
-          ) : (
-            <div className="mb-4">
-              {/* Video preview - autoplay loop, no controls */}
-              <div className="w-1/2 mx-auto">
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="group flex aspect-[9/16] w-2/3 max-w-[240px] flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-muted-foreground/30 bg-muted/20 transition-all hover:border-primary/50 hover:bg-muted/30"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                  <Upload className="h-6 w-6" />
+                </div>
+                <div className="text-center">
+                  <p className="text-base font-semibold text-foreground">Select video</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Max 30s · 100MB</p>
+                </div>
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* STEP 2: Trim Video */}
+        {step === "trim" && videoUrl && (
+          <motion.div
+            key="trim"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="flex flex-1 flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Back
+              </button>
+              <h1 className="text-lg font-bold text-foreground">Trim</h1>
+              <button
+                onClick={handleTrimDone}
+                className="flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
+              >
+                Next
+              </button>
+            </div>
+
+            {/* Video preview */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4">
+              <div className="w-full max-w-[280px]">
                 <div className="relative overflow-hidden rounded-2xl bg-black">
                   <div className="aspect-[9/16] w-full">
                     <video
@@ -179,12 +316,7 @@ export default function PostPage() {
                       src={videoUrl}
                       className="h-full w-full object-cover"
                       onLoadedData={handleVideoLoaded}
-                      onClick={(e) => {
-                        const vid = e.currentTarget;
-                        vid.muted = false; // Unmute on user interaction
-                        if (vid.paused) vid.play();
-                        else vid.pause();
-                      }}
+                      onClick={togglePlayPause}
                       playsInline
                       autoPlay
                       muted
@@ -194,71 +326,135 @@ export default function PostPage() {
                     />
                   </div>
 
+                  {/* Play/Pause overlay */}
                   <button
-                    onClick={() => fileRef.current?.click()}
-                    className="absolute right-2 top-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm"
+                    onClick={togglePlayPause}
+                    className="absolute bottom-3 left-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm"
                   >
-                    Change
+                    {isPlaying ? (
+                      <Pause className="h-5 w-5" />
+                    ) : (
+                      <Play className="h-5 w-5 ml-0.5" />
+                    )}
                   </button>
                 </div>
               </div>
+            </div>
 
-              {/* Trim bar */}
+            {/* Trim controls */}
+            <div className="px-4 pb-6" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
               {duration > 0 && (
-                <>
-                  <VideoTrimmer
-                    videoUrl={videoUrl}
-                    duration={duration}
-                    trimStart={trimStart}
-                    trimEnd={trimEnd}
-                    onTrimChange={handleTrimChange}
-                    onScrub={handleScrub}
-                    currentTime={currentTime}
-                    isPlaying={true}
-                  />
-
-                  {/* Cover frame slider */}
-                  <div className="mt-2 rounded-xl bg-muted/30 px-4 py-2.5">
-                    <p className="mb-1.5 text-xs font-medium text-muted-foreground">Choose your cover frame</p>
-                    <Slider
-                      value={[thumbnailTime]}
-                      onValueChange={handleCoverDrag}
-                      onValueCommit={handleCoverCommit}
-                      min={0}
-                      max={duration}
-                      step={0.1}
-                      className="w-full"
-                    />
-                    <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                      <span>{formatTime(0)}</span>
-                      <span>{formatTime(thumbnailTime)}</span>
-                      <span>{formatTime(duration)}</span>
-                    </div>
-                  </div>
-                </>
+                <VideoTrimmer
+                  videoUrl={videoUrl}
+                  duration={duration}
+                  trimStart={trimStart}
+                  trimEnd={trimEnd}
+                  onTrimChange={handleTrimChange}
+                  onScrub={handleScrub}
+                  currentTime={currentTime}
+                  isPlaying={isPlaying}
+                />
               )}
             </div>
-          )}
+          </motion.div>
+        )}
 
-          {/* Caption */}
-          <textarea
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Add a caption (optional)"
-            rows={2}
-            className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-
-          {/* Post button */}
-          <button
-            onClick={handlePost}
-            disabled={!videoFile || globalStatus === "uploading"}
-            className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+        {/* STEP 3: Choose Thumbnail & Post */}
+        {step === "post" && videoUrl && (
+          <motion.div
+            key="post"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="flex flex-1 flex-col"
           >
-            Post to Feed
-          </button>
-        </div>
-      </div>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Back
+              </button>
+              <h1 className="text-lg font-bold text-foreground">New Post</h1>
+              <div className="w-16" /> {/* Spacer for centering */}
+            </div>
+
+            {/* Scrollable content */}
+            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6">
+              <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
+
+              {/* Thumbnail preview */}
+              <div className="mb-4 flex justify-center">
+                <div className="w-32 overflow-hidden rounded-xl bg-muted">
+                  <div className="aspect-[9/16] w-full flex items-center justify-center">
+                    {loadingThumbnails ? (
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    ) : thumbnailFrames.length > 0 ? (
+                      <img
+                        src={thumbnailFrames[selectedThumbIndex] || thumbnailFrames[0]}
+                        alt="Thumbnail"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              {/* Thumbnail selector */}
+              <div className="mb-5">
+                <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
+                <div className="flex gap-1.5 justify-center overflow-x-auto pb-2">
+                  {loadingThumbnails ? (
+                    Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="h-16 w-12 flex-shrink-0 rounded-lg bg-muted animate-pulse" />
+                    ))
+                  ) : (
+                    thumbnailFrames.map((frame, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSelectThumbnail(i)}
+                        className={`relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg transition-all ${
+                          selectedThumbIndex === i
+                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                            : "opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={frame} alt="" className="h-full w-full object-cover" />
+                        {selectedThumbIndex === i && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
+                            <Check className="h-4 w-4 text-primary" />
+                          </div>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Caption */}
+              <textarea
+                ref={captionRef}
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Add a caption (optional)"
+                rows={3}
+                className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+
+              {/* Post button */}
+              <button
+                onClick={handlePost}
+                disabled={!videoFile || globalStatus === "uploading"}
+                className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              >
+                Post to Feed
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

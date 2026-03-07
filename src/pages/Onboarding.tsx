@@ -114,16 +114,6 @@ function OtpScreen({
     }
   }, [otp]);
 
-  const [keyboardUp, setKeyboardUp] = useState(false);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const handleResize = () => setKeyboardUp(vv.height < window.innerHeight * 0.75);
-    vv.addEventListener("resize", handleResize);
-    return () => vv.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <motion.div
       key="otp"
@@ -131,19 +121,17 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className={`flex flex-col items-center transition-all duration-200 ${keyboardUp ? "-mt-40" : ""}`}
+      className="flex flex-col items-center -mt-64"
     >
-      <div className={`transition-all duration-200 overflow-hidden ${keyboardUp ? "h-0 opacity-0 mb-0" : "h-auto opacity-100"}`}>
-        <span className="mb-3 text-5xl block text-center">✉️</span>
-      </div>
+      <span className="mb-2 text-4xl">✉️</span>
       <h2 className="mb-1 text-2xl font-bold text-primary-foreground">Enter your code</h2>
       <p className="mb-1 text-sm text-primary-foreground/60">
         We sent a 6-digit code to
       </p>
-      <p className="mb-6 text-sm font-medium text-primary-foreground/80">{email}</p>
+      <p className="mb-4 text-sm font-medium text-primary-foreground/80">{email}</p>
 
       {/* OTP input boxes */}
-      <div className="mb-4 flex gap-2.5" onPaste={handlePaste}>
+      <div className="mb-3 flex gap-2.5" onPaste={handlePaste}>
         {Array.from({ length: 6 }).map((_, i) => (
           <input
             key={i}
@@ -165,7 +153,7 @@ function OtpScreen({
       <button
         onClick={() => doVerify(otp)}
         disabled={otp.length !== 6 || verifying}
-        className="mb-4 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40"
+        className="mb-3 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40"
       >
         {verifying ? (
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -174,18 +162,16 @@ function OtpScreen({
         )}
       </button>
 
-      <div className={`transition-all duration-200 ${keyboardUp ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
-        <p className="mb-3 text-xs text-primary-foreground/40">
-          Didn't get the code? Check your spam folder.
-        </p>
+      <p className="mb-2 text-xs text-primary-foreground/40">
+        Didn't get the code? Check your spam folder.
+      </p>
 
-        <button
-          onClick={onBack}
-          className="text-sm font-medium text-primary-foreground/60"
-        >
-          ← Use a different email
-        </button>
-      </div>
+      <button
+        onClick={onBack}
+        className="text-sm font-medium text-primary-foreground/60"
+      >
+        ← Back
+      </button>
     </motion.div>
   );
 }
@@ -196,22 +182,8 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<"welcome" | "form">("welcome");
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isJoining, setIsJoining] = useState(true);
   const sendingRef = useRef(false);
-
-  // Listen for keyboard visibility via visualViewport
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const handleResize = () => {
-      const keyboardUp = vv.height < window.innerHeight * 0.75;
-      setKeyboardVisible(keyboardUp);
-    };
-
-    vv.addEventListener("resize", handleResize);
-    return () => vv.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleSendOtp = async () => {
     const trimmed = email.trim();
@@ -284,13 +256,13 @@ export default function Onboarding() {
 
                 <div className="w-full max-w-sm space-y-3">
                   <button
-                    onClick={() => setMode("form")}
+                    onClick={() => { setIsJoining(true); setMode("form"); }}
                     className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
                   >
                     Join Now
                   </button>
                   <button
-                    onClick={() => setMode("form")}
+                    onClick={() => { setIsJoining(false); setMode("form"); }}
                     className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-semibold text-primary-foreground"
                   >
                     Log In
@@ -304,17 +276,12 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className={`flex flex-col items-center transition-all duration-200 ${keyboardVisible ? "-mt-48" : "-mt-16"}`}
+                className="flex flex-col items-center -mt-64"
               >
-                <div className={`transition-all duration-200 overflow-hidden ${keyboardVisible ? "h-0 opacity-0 mb-0" : "h-auto opacity-100"}`}>
-                  <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20 mx-auto" />
-                  <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground text-center">
-                    Rejection Bounty
-                  </h1>
-                  <p className="mb-6 text-base text-primary-foreground/60 text-center">
-                    100 rejections will change your life
-                  </p>
-                </div>
+                <span className="mb-3 text-4xl">✉️</span>
+                <h1 className="mb-4 text-2xl font-bold text-primary-foreground text-center">
+                  {isJoining ? "Join with your email" : "Log in with your email"}
+                </h1>
 
                 <div className="w-full max-w-sm space-y-3">
                   <input
@@ -324,6 +291,7 @@ export default function Onboarding() {
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
                     disabled={loading}
+                    autoFocus
                     className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50"
                   />
                   <button
@@ -337,12 +305,12 @@ export default function Onboarding() {
                       "Continue"
                     )}
                   </button>
-                  <p className={`pt-2 text-xs text-primary-foreground/40 transition-opacity duration-200 ${keyboardVisible ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
+                  <p className="pt-1 text-xs text-primary-foreground/40">
                     We'll send a 6-digit code to your email. No password needed.
                   </p>
                   <button
                     onClick={handleBack}
-                    className={`pt-1 text-sm font-medium text-primary-foreground/60 transition-opacity duration-200 ${keyboardVisible ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}
+                    className="text-sm font-medium text-primary-foreground/60"
                   >
                     ← Back
                   </button>

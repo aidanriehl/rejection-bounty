@@ -91,6 +91,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           {/* Scrollable content */}
           <div
             ref={scrollRef}
+            data-scroll-container
             className="flex-1 overflow-y-auto overscroll-contain"
             style={{ WebkitOverflowScrolling: "touch" }}
           >

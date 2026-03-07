@@ -154,6 +154,7 @@ export default function WinnerMessageThread({
       {/* Messages */}
       <div
         ref={scrollRef}
+        data-scroll-container
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
         style={{ WebkitOverflowScrolling: "touch" }}
       >

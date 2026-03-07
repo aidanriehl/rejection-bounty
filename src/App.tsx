@@ -19,7 +19,6 @@ import SettingsTerms from "@/pages/SettingsTerms";
 import SettingsRules from "@/pages/SettingsRules";
 import SettingsMessages from "@/pages/SettingsMessages";
 import PostPage from "@/pages/Post";
-import FriendsPage from "@/pages/Friends";
 import NotFound from "./pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
@@ -115,7 +114,6 @@ function AppRoutes() {
         <Route path="/settings/rules" element={<SettingsRules />} />
         <Route path="/settings/messages" element={<SettingsMessages />} />
         <Route path="/post" element={<PostPage />} />
-        <Route path="/friends" element={<FriendsPage />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/onboarding" element={<Navigate to="/" replace />} />
         <Route path="/setup" element={<Navigate to="/" replace />} />
@@ -131,8 +129,45 @@ function AppRoutes() {
 function ScrollToTop() {
   const { pathname } = useLocation();
 
+  // Disable browser's scroll restoration on mount
   useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  useEffect(() => {
+    // Reset ALL possible scroll positions immediately
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Reset any custom scroll containers
+    document.querySelectorAll('[data-scroll-container]').forEach((el) => {
+      el.scrollTop = 0;
+    });
+
+    // Also reset after a frame to catch late-rendering containers
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.querySelectorAll('[data-scroll-container]').forEach((el) => {
+        el.scrollTop = 0;
+      });
+    });
+
+    // And again after render completes for slow pages
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.querySelectorAll('[data-scroll-container]').forEach((el) => {
+        el.scrollTop = 0;
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   return null;
