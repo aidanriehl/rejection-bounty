@@ -298,7 +298,7 @@ export default function Profile() {
           }
 
           {/* Username */}
-          <h1 className="mt-2 text-base font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+          <h1 className="mt-2 text-base font-extrabold text-foreground">{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
