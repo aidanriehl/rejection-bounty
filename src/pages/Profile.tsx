@@ -79,12 +79,15 @@ export default function Profile() {
   const avatar = (profile?.avatar || "dragon") as AvatarType;
   const avatarStage = (profile?.avatar_stage ?? 0) as AvatarStage;
   const streak = profile?.streak ?? 0;
+  const bestStreak = profile?.best_streak ?? 0;
   const totalCompleted = profile?.total_completed ?? 0;
+  const weeksCompleted = profile?.weeks_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
   // User's posts
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [friendsCount, setFriendsCount] = useState(0);
 
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
@@ -103,6 +106,19 @@ export default function Profile() {
       }
     }
   }, [totalCompleted, user]);
+
+  // Fetch friends count
+  useEffect(() => {
+    const fetchFriends = async () => {
+      if (!user) return;
+      const { count } = await supabase
+        .from("friendships")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setFriendsCount(count ?? 0);
+    };
+    fetchFriends();
+  }, [user]);
 
   // Fetch user's posts
   useEffect(() => {
@@ -127,7 +143,6 @@ export default function Profile() {
 
     fetchPosts();
 
-    // Refresh when a new video is uploaded
     const handleUploadComplete = () => {
       setTimeout(fetchPosts, 2000);
     };
@@ -193,6 +208,17 @@ export default function Profile() {
   const ms = getMilestone(totalCompleted);
   const progressPct = Math.min((ms.current / ms.goal) * 100, 100);
 
+  // Calculate weeks since signup for percentage
+  const weeksSinceSignup = (() => {
+    if (!profile?.created_at) return 1;
+    const created = new Date(profile.created_at);
+    const now = new Date();
+    const diffMs = now.getTime() - created.getTime();
+    const weeks = Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
+    return weeks;
+  })();
+  const weeksCompletedPct = Math.min(Math.round((weeksCompleted / weeksSinceSignup) * 100), 100);
+
   return (
     <div className="min-h-screen pb-24" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
       {celebrateMilestone && (
@@ -232,10 +258,11 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Avatar + username */}
-        <div className="mb-6 mt-4 flex flex-col items-center">
+        {/* IG-style header: Avatar + Stats row */}
+        <div className="mb-5 mt-2 flex items-center gap-5 px-2">
+          {/* Avatar */}
           <div
-            className="relative inline-flex cursor-pointer select-none"
+            className="relative shrink-0 cursor-pointer select-none"
             onPointerDown={handleLongPressStart}
             onPointerUp={handleLongPressEnd}
             onPointerLeave={handleLongPressEnd}
@@ -247,191 +274,100 @@ export default function Profile() {
               stage={avatarStage}
               size="lg"
               photoUrl={photoUrl}
-              className="!h-[104px] !w-[104px] !text-5xl"
+              className="!h-20 !w-20 !text-4xl"
             />
-            {/* IG-style plus badge — only show when no custom photo */}
             {!photoUrl && (
-              <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary border-[2.5px] border-background shadow-sm">
-                <span className="text-xs font-bold text-primary-foreground leading-none">+</span>
+              <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary border-[2px] border-background shadow-sm">
+                <span className="text-[9px] font-bold text-primary-foreground leading-none">+</span>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoUpload} />
           </div>
           {uploading && (
-            <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
+            <p className="absolute mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
-          <h1 className="mt-3 text-xl font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+
+          {/* Stats row */}
+          <div className="flex flex-1 justify-around text-center">
+            <div>
+              <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
+            </div>
+            <div
+              className="cursor-pointer"
+              onClick={() => navigate("/friends")}
+            >
+              <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
+            </div>
+            <div>
+              <p className="text-xl font-extrabold text-foreground leading-none">{totalCompleted}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Completed</p>
+            </div>
+          </div>
         </div>
 
-        {/* Photo action sheet */}
-        {showPhotoMenu && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-            onClick={() => setShowPhotoMenu(false)}
-          >
-            <div
-              className="w-72 animate-in zoom-in-95 duration-200 rounded-2xl bg-card p-2 shadow-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => { setShowPhotoMenu(false); cameraInputRef.current?.click(); }}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-foreground active:bg-muted"
-              >
-                <Camera className="h-4 w-4 text-muted-foreground" />
-                Take Photo
-              </button>
-              <button
-                onClick={() => { setShowPhotoMenu(false); fileInputRef.current?.click(); }}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-foreground active:bg-muted"
-              >
-                <ImagePlus className="h-4 w-4 text-muted-foreground" />
-                Choose from Library
-              </button>
-              <div className="mx-3 h-px bg-border" />
-              <button
-                onClick={() => setShowPhotoMenu(false)}
-                className="flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground active:bg-muted"
-              >
-                Cancel
-              </button>
+        {/* Username */}
+        <div className="mb-5 px-2">
+          <h1 className="text-base font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+        </div>
+
+        {/* Stat boxes - 2x2 grid */}
+        <div className="mb-5 grid grid-cols-2 gap-2.5">
+          {/* Week Streak */}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-3.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl leading-none">🔥</span>
+              <span className="text-2xl font-extrabold leading-none text-foreground">{streak}</span>
             </div>
-          </div>
-        )}
-
-        {/* Why get rejected modal */}
-        {showWhyModal && (
-          <div
-            className="fixed inset-0 z-50 bg-black/50"
-            onClick={() => setShowWhyModal(false)}
-          >
-            <div className="fixed inset-0 z-50 flex items-center justify-center pb-[72px] pointer-events-none">
-              <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="pointer-events-auto relative mx-4 max-h-[60vh] w-full max-w-lg rounded-2xl bg-card shadow-xl overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-              {/* Scroll progress bar */}
-              <div className="absolute right-1.5 top-14 bottom-3 w-1 rounded-full bg-muted z-10">
-                <motion.div
-                  className="w-full rounded-full bg-primary"
-                  initial={false}
-                  animate={{ height: `${scrollProgress}%` }}
-                  transition={{ type: "tween", duration: 0.1 }}
-                />
-              </div>
-
-              <div
-                ref={scrollViewportRef}
-                data-scroll-container
-                className="max-h-[60vh] overflow-y-auto p-6 pr-5"
-                onScroll={(e) => {
-                  const el = e.currentTarget;
-                  const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
-                  setScrollProgress(Math.min(pct, 100));
-                }}
-              >
-              <button
-                onClick={() => setShowWhyModal(false)}
-                className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground active:bg-muted/70 z-20"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              <h2 className="mb-6 text-2xl font-extrabold text-primary leading-tight">
-                Why get rejected?
-              </h2>
-
-              <div className="space-y-4 text-[15px] leading-relaxed text-foreground/90">
-                <p className="font-semibold text-foreground">
-                  We live in a world where you never have to experience rejection if you don't want to.
-                </p>
-
-                <p>
-                  You can remain tongue-tied,<br />
-                  stay comfortable,<br />
-                  and survive fine.
-                </p>
-
-                <p className="text-base font-semibold text-foreground">
-                  But we want more in life than that.
-                </p>
-
-                <p>
-                  Yet it isn't — because our brains still think rejection is dangerous.
-                </p>
-
-                <p>
-                  You see for most of human history, getting cast out from the social group could be the difference between <strong>life and death.</strong>
-                </p>
-
-                <p className="text-primary italic">
-                  Now that threat is gone, but the alarm isn't.
-                </p>
-
-                <p>
-                  And what people don't realize is rejection, confidence, and not giving a f*** is a muscle we can work on just like anything else.
-                </p>
-
-                <p className="text-primary italic">
-                  We don't realize this, because we never practice it.
-                </p>
-
-                <p>
-                  Start small, have consistency, and after 100 rejections people will start to ask what changed.
-                </p>
-
-                <p className="text-foreground">
-                  And remember:
-                </p>
-
-                <blockquote className="border-l-4 border-primary pl-4">
-                  <p className="text-lg font-bold text-foreground">
-                    Danger is real — but fear isn't.<br />
-                    It's made up, and we can control it.
-                  </p>
-                </blockquote>
-              </div>
-              </div>
-              </motion.div>
-            </div>
-          </div>
-        )}
-
-        {/* Stats - 2 column grid */}
-        <div className="mb-5 space-y-3">
-          {/* Streak */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-2">
-              <span className="text-4xl leading-none flex items-center justify-center" style={{ width: '1em', height: '1em' }}>🔥</span>
-              <span className="text-3xl font-extrabold leading-none text-foreground">{streak}</span>
-              <span className="text-lg font-semibold leading-none text-foreground">Week Streak</span>
-            </div>
-            <div className="flex items-center gap-3 mt-1.5">
-              <p className="text-[11px] text-muted-foreground/50">Best Streak: {streak}</p>
-            </div>
+            <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">Week Streak</p>
           </div>
 
-          {/* Challenges */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-4 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-2">
-              <span className="text-4xl leading-none flex items-center justify-center" style={{ width: '1em', height: '1em' }}>🎯</span>
-              <span className="text-3xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
-              <span className="text-lg font-semibold leading-none text-foreground">challenges completed</span>
+          {/* Best Streak */}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-3.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl leading-none">⚡</span>
+              <span className="text-2xl font-extrabold leading-none text-foreground">{bestStreak}</span>
             </div>
+            <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">Best Streak</p>
+          </div>
+
+          {/* Challenges Completed */}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-3.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl leading-none">🎯</span>
+              <span className="text-2xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
+            </div>
+            <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">Challenges</p>
             {ms.medal && (
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <MedalIcon tier={ms.medal.tier} size={16} />
-                <span className="text-[10px] font-semibold text-muted-foreground">{ms.medal.label} unlocked!</span>
+              <div className="flex items-center gap-1 mt-1">
+                <MedalIcon tier={ms.medal.tier} size={14} />
+                <span className="text-[9px] font-semibold text-muted-foreground">{ms.medal.label}</span>
               </div>
             )}
-            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+            <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-primary"
                 initial={false}
                 animate={{ width: `${progressPct}%` }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              />
+            </div>
+          </div>
+
+          {/* Weeks Completed % */}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-3.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl leading-none">📅</span>
+              <span className="text-2xl font-extrabold leading-none text-foreground">{weeksCompletedPct}%</span>
+            </div>
+            <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">Weeks Completed</p>
+            <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={false}
+                animate={{ width: `${weeksCompletedPct}%` }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               />
             </div>
