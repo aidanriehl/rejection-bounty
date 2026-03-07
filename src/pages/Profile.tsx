@@ -107,6 +107,19 @@ export default function Profile() {
     }
   }, [totalCompleted, user]);
 
+  // Fetch friends count
+  useEffect(() => {
+    const fetchFriends = async () => {
+      if (!user) return;
+      const { count } = await supabase
+        .from("friendships")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setFriendsCount(count ?? 0);
+    };
+    fetchFriends();
+  }, [user]);
+
   // Fetch user's posts
   useEffect(() => {
     const fetchPosts = async () => {
@@ -130,7 +143,6 @@ export default function Profile() {
 
     fetchPosts();
 
-    // Refresh when a new video is uploaded
     const handleUploadComplete = () => {
       setTimeout(fetchPosts, 2000);
     };
