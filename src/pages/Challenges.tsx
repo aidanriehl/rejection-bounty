@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen, Loader2 } from "lucide-react";
@@ -56,6 +56,7 @@ export default function Challenges() {
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
   const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
+  const libraryFileRef = useRef<HTMLInputElement>(null);
   const [subscribers, setSubscribers] = useState<number>(0);
   const [prizePool, setPrizePool] = useState<number>(0);
   const [ticketCount, setTicketCount] = useState<number | null>(null);
@@ -501,6 +502,25 @@ export default function Challenges() {
           </div>
         </div>
 
+        {/* Hidden file input for Photo Library */}
+        <input
+          ref={libraryFileRef}
+          type="file"
+          accept="video/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file || !choiceChallenge) return;
+            // Store file temporarily for Post page to pick up
+            (window as any).__pendingVideoFile = file;
+            const title = choiceChallenge.title;
+            const id = choiceChallenge.id;
+            setChoiceChallenge(null);
+            navigate("/post", { state: { challengeTitle: title, challengeId: id, fromLibrary: true } });
+            if (libraryFileRef.current) libraryFileRef.current.value = "";
+          }}
+        />
+
         {/* Choice modal: Record or Upload */}
         <AnimatePresence>
           {choiceChallenge && !cameraChallenge && (
@@ -540,8 +560,7 @@ export default function Challenges() {
 
                 <button
                   onClick={() => {
-                    setChoiceChallenge(null);
-                    navigate("/post", { state: { challengeTitle: choiceChallenge.title, challengeId: choiceChallenge.id } });
+                    libraryFileRef.current?.click();
                   }}
                   className="mb-3 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/50"
                 >
