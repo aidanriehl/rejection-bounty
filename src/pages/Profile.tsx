@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2 } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2, Heart, MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -434,25 +435,57 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Video player modal */}
+      {/* Video player modal - Instagram Reels style */}
       {selectedPost && selectedPost.video_id && (
-        <div
-          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
-          onClick={() => setSelectedPost(null)}
-        >
+        <div className="fixed inset-0 z-50 bg-black">
+          {/* Video */}
+          <iframe
+            src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
+            className="absolute inset-0 w-full h-full"
+            allow="autoplay; fullscreen"
+            style={{ border: "none" }}
+          />
+
+          {/* Back button - top left */}
           <button
             onClick={() => setSelectedPost(null)}
-            className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white"
-            style={{ top: 'calc(env(safe-area-inset-top) + 16px)' }}
+            className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
+            style={{ top: 'calc(env(safe-area-inset-top) + 12px)' }}
           >
-            <X className="h-6 w-6" />
+            <ChevronLeft className="h-8 w-8" />
           </button>
-          <iframe
-            src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=true`}
-            className="w-full h-full max-w-lg"
-            style={{ aspectRatio: '9/16', maxHeight: '90vh' }}
-            allow="autoplay; fullscreen"
-          />
+
+          {/* Right side actions */}
+          <div
+            className="absolute right-4 flex flex-col items-center gap-5"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}
+          >
+            <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
+            <button className="flex flex-col items-center gap-1">
+              <Heart className="h-7 w-7 text-white drop-shadow-md" />
+              <span className="text-xs font-semibold text-white drop-shadow-md">{selectedPost.likes}</span>
+            </button>
+            <button className="flex flex-col items-center gap-1">
+              <MessageCircle className="h-7 w-7 text-white drop-shadow-md" />
+              <span className="text-xs font-semibold text-white drop-shadow-md">0</span>
+            </button>
+          </div>
+
+          {/* Bottom gradient */}
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+          {/* Bottom info */}
+          <div
+            className="absolute left-5 right-20"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}
+          >
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <span className="text-sm font-semibold text-white drop-shadow-md">@{username}</span>
+            </div>
+            {selectedPost.caption && (
+              <p className="text-xs text-white/80 drop-shadow-md">{selectedPost.caption}</p>
+            )}
+          </div>
         </div>
       )}
     </div>
