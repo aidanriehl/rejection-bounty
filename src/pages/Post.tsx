@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload, Play, Pause, ChevronLeft, Check } from "lucide-react";
+import { X, Upload, ChevronLeft, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useUpload } from "@/contexts/UploadContext";
@@ -31,7 +31,7 @@ export default function PostPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailFrames, setThumbnailFrames] = useState<string[]>([]);
-  const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
+  const [coverSliderValue, setCoverSliderValue] = useState(0);
   const [loadingThumbnails, setLoadingThumbnails] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -157,6 +157,7 @@ export default function PostPage() {
       const dur = video.duration;
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
+      video.muted = false;
       video.play();
     }
   };
@@ -180,7 +181,6 @@ export default function PostPage() {
   const togglePlayPause = () => {
     const video = videoRef.current;
     if (!video) return;
-    video.muted = false;
     if (video.paused) {
       video.play();
     } else {
@@ -190,7 +190,7 @@ export default function PostPage() {
 
   const handleTrimDone = () => {
     setThumbnailFrames([]);
-    setSelectedThumbIndex(0);
+    setCoverSliderValue(0);
     setStep("post");
   };
 
@@ -208,9 +208,8 @@ export default function PostPage() {
 
   const handlePost = () => {
     if (!videoFile) return;
-    // Calculate thumbnail time from selected index
-    const frameCount = thumbnailFrames.length || 1;
-    const thumbTime = trimStart + (selectedThumbIndex / Math.max(1, frameCount - 1)) * (trimEnd - trimStart);
+    const trimDuration = trimEnd - trimStart;
+    const thumbTime = trimStart + (coverSliderValue / 100) * trimDuration;
     startUpload(videoFile, {
       challengeTitle,
       challengeId,
@@ -220,10 +219,6 @@ export default function PostPage() {
       thumbnailTime: thumbTime,
     });
     navigate("/challenges");
-  };
-
-  const handleSelectThumbnail = (index: number) => {
-    setSelectedThumbIndex(index);
   };
 
   return (
@@ -306,9 +301,10 @@ export default function PostPage() {
               </button>
             </div>
 
-            {/* Video preview */}
+            {/* Video + Trimmer centered vertically in available space */}
             <div className="flex-1 flex flex-col items-center justify-center px-4">
               <div className="w-full max-w-[280px]">
+                {/* Video preview */}
                 <div className="relative overflow-hidden rounded-2xl bg-black">
                   <div className="aspect-[9/16] w-full">
                     <video
@@ -316,7 +312,6 @@ export default function PostPage() {
                       src={videoUrl}
                       className="h-full w-full object-cover"
                       onLoadedData={handleVideoLoaded}
-                      onClick={togglePlayPause}
                       playsInline
                       autoPlay
                       muted
@@ -325,36 +320,24 @@ export default function PostPage() {
                       controls={false}
                     />
                   </div>
-
-                  {/* Play/Pause overlay */}
-                  <button
-                    onClick={togglePlayPause}
-                    className="absolute bottom-3 left-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5 ml-0.5" />
-                    )}
-                  </button>
                 </div>
-              </div>
-            </div>
 
-            {/* Trim controls */}
-            <div className="px-4 pb-6" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-              {duration > 0 && (
-                <VideoTrimmer
-                  videoUrl={videoUrl}
-                  duration={duration}
-                  trimStart={trimStart}
-                  trimEnd={trimEnd}
-                  onTrimChange={handleTrimChange}
-                  onScrub={handleScrub}
-                  currentTime={currentTime}
-                  isPlaying={isPlaying}
-                />
-              )}
+                {/* Trim controls — directly under video */}
+                {duration > 0 && (
+                  <div className="mt-2">
+                    <VideoTrimmer
+                      videoUrl={videoUrl}
+                      duration={duration}
+                      trimStart={trimStart}
+                      trimEnd={trimEnd}
+                      onTrimChange={handleTrimChange}
+                      onScrub={handleScrub}
+                      currentTime={currentTime}
+                      isPlaying={isPlaying}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -393,7 +376,7 @@ export default function PostPage() {
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     ) : thumbnailFrames.length > 0 ? (
                       <img
-                        src={thumbnailFrames[selectedThumbIndex] || thumbnailFrames[0]}
+                        src={thumbnailFrames[Math.round((coverSliderValue / 100) * Math.max(0, thumbnailFrames.length - 1))] || thumbnailFrames[0]}
                         alt="Thumbnail"
                         className="h-full w-full object-cover"
                       />
@@ -402,34 +385,33 @@ export default function PostPage() {
                 </div>
               </div>
 
-              {/* Thumbnail selector */}
+              {/* Cover slider */}
               <div className="mb-5">
                 <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
-                <div className="flex gap-1.5 justify-center overflow-x-auto pb-2">
-                  {loadingThumbnails ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="h-16 w-12 flex-shrink-0 rounded-lg bg-muted animate-pulse" />
-                    ))
-                  ) : (
-                    thumbnailFrames.map((frame, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelectThumbnail(i)}
-                        className={`relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg transition-all ${
-                          selectedThumbIndex === i
-                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                            : "opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img src={frame} alt="" className="h-full w-full object-cover" />
-                        {selectedThumbIndex === i && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
-                            <Check className="h-4 w-4 text-primary" />
-                          </div>
-                        )}
-                      </button>
-                    ))
-                  )}
+                {/* Filmstrip behind slider */}
+                <div className="relative mx-auto max-w-xs">
+                  <div className="flex h-12 overflow-hidden rounded-lg">
+                    {loadingThumbnails ? (
+                      <div className="h-full w-full bg-muted animate-pulse" />
+                    ) : (
+                      thumbnailFrames.map((frame, i) => (
+                        <img key={i} src={frame} alt="" className="h-full flex-1 object-cover" draggable={false} />
+                      ))
+                    )}
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={coverSliderValue}
+                    onChange={(e) => setCoverSliderValue(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {/* Slider indicator line */}
+                  <div
+                    className="absolute top-0 bottom-0 w-[3px] bg-white rounded-full shadow-[0_0_4px_rgba(0,0,0,0.5)] pointer-events-none"
+                    style={{ left: `${coverSliderValue}%`, transform: 'translateX(-50%)' }}
+                  />
                 </div>
               </div>
 
