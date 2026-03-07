@@ -157,11 +157,10 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
           console.log("[Upload] Inserting completion:", JSON.stringify(completionPayload));
 
-          // First try insert, if duplicate then it's already recorded
-          const { data: completionData, error: completionError } = await supabase
+          // Insert completion WITHOUT .select() to avoid RLS RETURNING rollback issues
+          const { error: completionError } = await supabase
             .from("challenge_completions")
-            .insert(completionPayload)
-            .select();
+            .insert(completionPayload);
 
           if (completionError) {
             // If it's a unique constraint violation, the completion already exists — that's fine
@@ -169,9 +168,10 @@ export function UploadProvider({ children }: { children: ReactNode }) {
               console.log("[Upload] Completion already exists for this challenge/week, skipping");
             } else {
               console.error("[Upload] Failed to insert challenge completion:", completionError.message, completionError.code, completionError.details);
+              // Don't throw - post is already saved, completion failure shouldn't block success
             }
           } else {
-            console.log("[Upload] Challenge completion saved:", completionData);
+            console.log("[Upload] Challenge completion saved successfully");
           }
 
           // Verify count
@@ -195,12 +195,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, status: "done", progress: 100 }));
       // No toast - the UploadIndicator banner already shows success
 
-      // Auto-clear after a few seconds
+      // Auto-clear after enough time for UploadIndicator to fetch & display ticket count
       setTimeout(() => {
         setState(initialState);
         fileRef.current = null;
         metaRef.current = null;
-      }, 3000);
+      }, 8000);
     } catch (err: any) {
       console.error("Upload error:", err);
       setState((s) => ({ ...s, status: "error" }));
