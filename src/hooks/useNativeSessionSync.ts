@@ -27,18 +27,23 @@ export function useNativeSessionSync() {
         // Re-hydrate localStorage in case iOS purged it
         await rehydrateOnForeground();
 
-        // Try to refresh the session — this will use the hydrated token
+        // Try to get the session — this will use the hydrated token
         const { data, error } = await supabase.auth.getSession();
         if (error) {
           console.error("[NativeSessionSync] getSession error on foreground:", error);
         } else if (data.session) {
           console.log("[NativeSessionSync] ✅ Session valid on foreground");
-          // Force a token refresh to get a fresh refresh token
-          const { error: refreshError } = await supabase.auth.refreshSession();
-          if (refreshError) {
-            console.error("[NativeSessionSync] refreshSession error:", refreshError);
-          } else {
-            console.log("[NativeSessionSync] ✅ Session refreshed successfully");
+          // Only refresh if the token is close to expiring (within 5 minutes)
+          const expiresAt = data.session.expires_at;
+          const now = Math.floor(Date.now() / 1000);
+          if (expiresAt && expiresAt - now < 300) {
+            console.log("[NativeSessionSync] Token expiring soon, refreshing...");
+            const { error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) {
+              console.error("[NativeSessionSync] refreshSession error:", refreshError);
+            } else {
+              console.log("[NativeSessionSync] ✅ Session refreshed successfully");
+            }
           }
         } else {
           console.log("[NativeSessionSync] No session on foreground");
