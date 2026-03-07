@@ -450,7 +450,7 @@ export default function Profile() {
           <button
             onClick={() => setSelectedPost(null)}
             className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
-            style={{ top: 'calc(env(safe-area-inset-top) + 12px)' }}
+            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
           >
             <ChevronLeft className="h-8 w-8" />
           </button>
