@@ -268,9 +268,8 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* IG-style header: Avatar + Stats row */}
-        <div className="mb-5 mt-2 flex items-center gap-5 px-2">
-          {/* Avatar */}
+        {/* Centered Avatar */}
+        <div className="mb-3 mt-2 flex flex-col items-center">
           <div
             className="relative shrink-0 cursor-pointer select-none"
             onPointerDown={handleLongPressStart}
@@ -295,35 +294,33 @@ export default function Profile() {
             <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoUpload} />
           </div>
           {uploading && (
-            <p className="absolute mt-1 text-[10px] text-muted-foreground">Uploading…</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
           )}
 
-          {/* Stats row */}
-          <div className="flex flex-1 justify-around text-center">
-            <div>
-              <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
-            </div>
-            <div
-              className="cursor-pointer"
-              onClick={() => navigate("/friends?tab=friends")}
-            >
-              <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
-            </div>
-            <div
-              className="cursor-pointer"
-              onClick={() => navigate("/friends?tab=following")}
-            >
-              <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
-            </div>
-          </div>
+          {/* Username */}
+          <h1 className="mt-2 text-base font-extrabold text-foreground">@{profile?.username || "username"}</h1>
         </div>
 
-        {/* Username */}
-        <div className="mb-5 px-2">
-          <h1 className="text-base font-extrabold text-foreground">@{profile?.username || "username"}</h1>
+        {/* Stats row */}
+        <div className="mb-5 flex justify-around text-center">
+          <div>
+            <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
+          </div>
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate("/friends?tab=friends")}
+          >
+            <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
+          </div>
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate("/friends?tab=following")}
+          >
+            <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
+          </div>
         </div>
 
         {/* Stat boxes - 2x2 grid */}
