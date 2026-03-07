@@ -83,9 +83,11 @@ function AppRoutes() {
     );
   }
 
-  // Signed in but no username → setup
+  // Signed in but no username → check if profile is still loading from cache/network
   if (!profile?.username) {
-    console.log("[AppRoutes] ⚠️ Redirecting to setup - profile state:", {
+    // If we just finished loading and truly have no profile, show setup
+    // But add a brief grace period for cache hydration
+    console.log("[AppRoutes] ⚠️ No profile username - profile state:", {
       profileExists: !!profile,
       username: profile?.username,
       userId: user.id
