@@ -23,6 +23,7 @@ const config: CapacitorConfig = {
       resize: 'none',
       style: 'dark',
       resizeOnFullScreen: false,
+      hideFormAccessoryBar: false,
     },
   },
   ios: {
