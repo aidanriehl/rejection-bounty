@@ -301,7 +301,7 @@ export default function Profile() {
           }
 
           {/* Username */}
-          <h1 className="mt-2 text-base font-extrabold text-foreground">{profile?.username || "username"}</h1>
+          <h1 className="mt-2 font-extrabold text-foreground text-lg">{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
@@ -393,73 +393,73 @@ export default function Profile() {
 
       {/* Video grid - full width */}
       <div className="w-full">
-        {loadingPosts ? (
-          <div className="flex items-center justify-center py-16">
+        {loadingPosts ?
+        <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
+          </div> :
+        posts.length === 0 ?
+        <div className="flex items-center justify-center py-16">
             <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-0.5">
-            {posts.map((post) => {
-              // Use stored thumbnail URL (video_url field), fallback to Cloudflare generated
-              const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
-              const thumbnailUrl = post.video_url || (post.video_id
-                ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
-                : null);
+          </div> :
 
-              return (
-                <div
-                  key={post.id}
-                  className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
-                  onClick={() => setSelectedPost(post)}
-                >
-                  {thumbnailUrl ? (
-                    <img
-                      src={thumbnailUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-muted" />
-                  )}
-                </div>
-              );
-            })}
+        <div className="grid grid-cols-3 gap-0.5">
+            {posts.map((post) => {
+            // Use stored thumbnail URL (video_url field), fallback to Cloudflare generated
+            const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+            const thumbnailUrl = post.video_url || (post.video_id ?
+            `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
+            null);
+
+            return (
+              <div
+                key={post.id}
+                className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
+                onClick={() => setSelectedPost(post)}>
+                
+                  {thumbnailUrl ?
+                <img
+                  src={thumbnailUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }} /> :
+
+
+                <div className="h-full w-full bg-muted" />
+                }
+                </div>);
+
+          })}
           </div>
-        )}
+        }
       </div>
 
       {/* Video player modal - Instagram Reels style */}
-      {selectedPost && selectedPost.video_id && (
-        <div className="fixed inset-0 z-50 bg-black">
+      {selectedPost && selectedPost.video_id &&
+      <div className="fixed inset-0 z-50 bg-black">
           {/* Video */}
           <iframe
-            src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
-            className="absolute inset-0 w-full h-full"
-            allow="autoplay; fullscreen"
-            style={{ border: "none" }}
-          />
+          src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen"
+          style={{ border: "none" }} />
+        
 
           {/* Back button - top left */}
           <button
-            onClick={() => setSelectedPost(null)}
-            className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
-            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
-          >
+          onClick={() => setSelectedPost(null)}
+          className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
+          style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}>
+          
             <ChevronLeft className="h-8 w-8" />
           </button>
 
           {/* Right side actions - account for nav bar */}
           <div
-            className="absolute right-4 flex flex-col items-center gap-5"
-            style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 144px)' }}
-          >
+          className="absolute right-4 flex flex-col items-center gap-5"
+          style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 144px)' }}>
+          
             <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
             <button className="flex flex-col items-center gap-1">
               <Heart className="h-7 w-7 text-white drop-shadow-md" />
@@ -476,16 +476,16 @@ export default function Profile() {
 
           {/* Bottom info - account for nav bar */}
           <div
-            className="absolute left-5 right-20"
-            style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}
-          >
+          className="absolute left-5 right-20"
+          style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}>
+          
             <div className="flex items-center gap-2.5 mb-1.5">
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
             <p className="text-sm text-white/90 drop-shadow-md min-h-[1.25rem]">{selectedPost.caption || ""}</p>
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
