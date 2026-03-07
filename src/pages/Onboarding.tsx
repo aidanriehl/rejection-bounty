@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const SPLASH_DURATION = 2200;
 
-function SplashScreen({ onDone }: { onDone: () => void }) {
+function SplashScreen({ onDone }: {onDone: () => void;}) {
   useEffect(() => {
     const t = setTimeout(onDone, SPLASH_DURATION);
     return () => clearTimeout(t);
@@ -17,30 +17,30 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "hsl(var(--primary))" }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+      transition={{ duration: 0.4 }}>
+      
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className="-mt-16 flex flex-col items-center gap-3"
-      >
+        className="-mt-16 flex flex-col items-center gap-3">
+        
         <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
         <h1 className="text-3xl font-extrabold tracking-tight text-white">
           Rejection Bounty
         </h1>
       </motion.div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 function OtpScreen({
   email,
-  onBack,
-}: {
-  email: string;
-  onBack: () => void;
-}) {
+  onBack
+
+
+
+}: {email: string;onBack: () => void;}) {
   const [otp, setOtp] = useState("");
   const [verifying, setVerifying] = useState(false);
   const verifyingRef = useRef(false);
@@ -91,7 +91,7 @@ function OtpScreen({
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: code,
-        type: "email",
+        type: "email"
       });
       if (error) {
         toast({ title: "Invalid code", description: error.message, variant: "destructive" });
@@ -121,8 +121,8 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="flex flex-col items-center -mt-64"
-    >
+      className="flex flex-col items-center -mt-64">
+      
       <span className="mb-2 text-4xl">✉️</span>
       <h2 className="mb-1 text-2xl font-bold text-primary-foreground">Enter your code</h2>
       <p className="mb-1 text-sm text-primary-foreground/60">
@@ -132,34 +132,34 @@ function OtpScreen({
 
       {/* OTP input boxes */}
       <div className="mb-3 flex gap-2.5" onPaste={handlePaste}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <input
-            key={i}
-            ref={(el) => { inputRefs.current[i] = el; }}
-            type="text"
-            inputMode="numeric"
-            maxLength={i === 0 ? 6 : 1}
-            value={otp[i] || ""}
-            onChange={(e) => handleChange(i, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(i, e)}
-            disabled={verifying}
-            autoFocus={i === 0}
-            autoComplete={i === 0 ? "one-time-code" : "off"}
-            className="flex h-14 w-11 items-center justify-center rounded-xl border-2 border-primary-foreground/20 bg-primary-foreground/10 text-center text-xl font-bold text-primary-foreground focus:border-primary-foreground/50 focus:outline-none disabled:opacity-50"
-          />
-        ))}
+        {Array.from({ length: 6 }).map((_, i) =>
+        <input
+          key={i}
+          ref={(el) => {inputRefs.current[i] = el;}}
+          type="text"
+          inputMode="numeric"
+          maxLength={i === 0 ? 6 : 1}
+          value={otp[i] || ""}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          disabled={verifying}
+          autoFocus={i === 0}
+          autoComplete={i === 0 ? "one-time-code" : "off"}
+          className="flex h-14 w-11 items-center justify-center rounded-xl border-2 border-primary-foreground/20 bg-primary-foreground/10 text-center text-xl font-bold text-primary-foreground focus:border-primary-foreground/50 focus:outline-none disabled:opacity-50" />
+
+        )}
       </div>
 
       <button
         onClick={() => doVerify(otp)}
         disabled={otp.length !== 6 || verifying}
-        className="mb-3 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40"
-      >
-        {verifying ? (
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : (
-          "Verify"
-        )}
+        className="mb-3 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40">
+        
+        {verifying ?
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
+
+        "Verify"
+        }
       </button>
 
       <p className="mb-2 text-xs text-primary-foreground/40">
@@ -168,12 +168,12 @@ function OtpScreen({
 
       <button
         onClick={onBack}
-        className="text-sm font-medium text-primary-foreground/60"
-      >
+        className="text-sm font-medium text-primary-foreground/60">
+        
         ← Back
       </button>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 export default function Onboarding() {
@@ -196,7 +196,7 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email: trimmed,
+        email: trimmed
       });
       if (error) {
         toast({ title: "Failed to send code", description: error.message, variant: "destructive" });
@@ -208,7 +208,7 @@ export default function Onboarding() {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
-      setTimeout(() => { sendingRef.current = false; }, 3000);
+      setTimeout(() => {sendingRef.current = false;}, 3000);
     }
   };
 
@@ -228,24 +228,24 @@ export default function Onboarding() {
         {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       </AnimatePresence>
 
-      {!showSplash && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center overflow-hidden"
-          style={{ backgroundColor: "hsl(var(--primary))" }}
-        >
+      {!showSplash &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 flex flex-col items-center justify-center px-6 text-center overflow-hidden"
+        style={{ backgroundColor: "hsl(var(--primary))" }}>
+        
           <AnimatePresence mode="wait">
-            {mode === "welcome" && !sent ? (
-              <motion.div
-                key="welcome"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="flex flex-col items-center -mt-16"
-              >
+            {mode === "welcome" && !sent ?
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-col items-center -mt-16">
+            
                 <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
                   Rejection Bounty
@@ -256,72 +256,72 @@ export default function Onboarding() {
 
                 <div className="w-full max-w-sm space-y-3 -mt-2">
                   <button
-                    onClick={() => { setIsJoining(true); setMode("form"); }}
-                    className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
-                  >
+                onClick={() => {setIsJoining(true);setMode("form");}}
+                className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md">
+                
                     Join Now
                   </button>
                   <button
-                    onClick={() => { setIsJoining(false); setMode("form"); }}
-                    className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-semibold text-primary-foreground"
-                  >
+                onClick={() => {setIsJoining(false);setMode("form");}}
+                className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-semibold text-primary-foreground">
+                
                     Log In
                   </button>
                 </div>
-              </motion.div>
-            ) : !sent ? (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="flex flex-col items-center -mt-64"
-              >
-                <span className="mb-3 text-4xl">✉️</span>
+              </motion.div> :
+          !sent ?
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="items-center flex flex-col mt-0 mb-[220px]">
+            
+                <span className="mb-3 text-5xl">✉️</span>
                 <h1 className="mb-4 text-2xl font-bold text-primary-foreground text-center">
                   {isJoining ? "Join with your email" : "Log in with your email"}
                 </h1>
 
                 <div className="w-full max-w-sm space-y-3">
                   <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
-                    disabled={loading}
-                    autoFocus
-                    className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50"
-                  />
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
+                disabled={loading}
+                autoFocus
+                className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50" />
+              
                   <button
-                    onClick={handleSendOtp}
-                    disabled={loading}
-                    className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-50"
-                  >
-                    {loading ? (
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : (
-                      "Continue"
-                    )}
+                onClick={handleSendOtp}
+                disabled={loading}
+                className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-50">
+                
+                    {loading ?
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
+
+                "Continue"
+                }
                   </button>
-                  <p className="pt-1 text-xs text-primary-foreground/40">
+                  <p className="text-xs text-primary-foreground/40 pt-[6px]">
                     We'll send a 6-digit code to your email. No password needed.
                   </p>
                   <button
-                    onClick={handleBack}
-                    className="text-sm font-medium text-primary-foreground/60"
-                  >
+                onClick={handleBack}
+                className="text-sm font-medium text-primary-foreground/60">
+                
                     ← Back
                   </button>
                 </div>
-              </motion.div>
-            ) : (
-              <OtpScreen email={email} onBack={handleBack} />
-            )}
+              </motion.div> :
+
+          <OtpScreen email={email} onBack={handleBack} />
+          }
           </AnimatePresence>
         </motion.div>
-      )}
-    </>
-  );
+      }
+    </>);
+
 }
