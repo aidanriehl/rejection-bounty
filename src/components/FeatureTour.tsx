@@ -140,7 +140,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const next = () => {
     if (step < STEPS.length - 1) {
-      setRect(null);
+      // Don't clear rect - keep overlay visible during transition
       setStep(step + 1);
     } else {
       onComplete();
@@ -180,11 +180,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   }
 
   return (
-    <div className="fixed inset-0 z-[100]" style={{ pointerEvents: rect ? "auto" : "none" }}>
-      {/* Dark overlay with spotlight hole */}
+    <div className="fixed inset-0 z-[100]" style={{ pointerEvents: "auto" }}>
+      {/* Persistent dark background - always visible */}
+      <div className="absolute inset-0 bg-black/85" style={{ zIndex: 0 }} />
+
+      {/* Spotlight hole that reveals content underneath */}
       {rect && (
         <div
-          className="absolute rounded-xl transition-all duration-300 ease-out"
+          className="absolute rounded-xl transition-all duration-300 ease-out bg-transparent"
           style={{
             top: rect.top - 8,
             left: rect.left - 8,
@@ -195,9 +198,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
           }}
         />
       )}
-
-      {/* Clickable backdrop to prevent interaction */}
-      <div className="absolute inset-0" style={{ zIndex: 0 }} />
 
       {/* Tooltip card */}
       <AnimatePresence mode="popLayout">
