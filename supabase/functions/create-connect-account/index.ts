@@ -27,9 +27,7 @@ serve(async (req) => {
     if (userError || !userData.user) throw new Error("Not authenticated");
     const user = userData.user;
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-04-30.basil",
-    });
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "");
 
     // Check if user already has a connect account
     const { data: existing } = await supabaseClient
