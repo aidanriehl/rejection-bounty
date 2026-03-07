@@ -431,6 +431,18 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {/* Social list modal */}
+      {user && (
+        <SocialListModal
+          open={socialModal.open}
+          onClose={() => setSocialModal({ ...socialModal, open: false })}
+          userId={user.id}
+          initialTab={socialModal.tab}
+          friendsCount={friendsCount}
+          followingCount={followingCount}
+        />
+      )}
     </div>
   );
 }
