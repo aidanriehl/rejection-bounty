@@ -9,7 +9,9 @@ export interface Profile {
   avatar: string;
   avatar_stage: number;
   streak: number;
+  best_streak: number;
   total_completed: number;
+  weeks_completed: number;
   profile_photo_url: string | null;
   created_at: string;
 }
