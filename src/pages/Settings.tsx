@@ -78,13 +78,24 @@ export default function SettingsPage() {
     setConnectLinking(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-connect-account");
-      if (error) throw error;
+      if (error) {
+        console.error("Connect invoke error:", error);
+        // Try to extract the actual error message from the response
+        const errorMsg = typeof error === 'object' && 'message' in error ? error.message : String(error);
+        throw new Error(errorMsg);
+      }
+      if (data?.error) {
+        console.error("Connect response error:", data.error);
+        throw new Error(data.error);
+      }
       if (data?.url) {
         window.location.href = data.url;
+      } else {
+        throw new Error("No onboarding URL returned");
       }
     } catch (e) {
       console.error("Failed to start connect onboarding:", e);
-      toast({ title: "Error", description: "Failed to start bank linking. Please try again.", variant: "destructive" });
+      toast({ title: "Error", description: `Failed to start bank linking: ${e instanceof Error ? e.message : 'Please try again.'}`, variant: "destructive" });
     } finally {
       setConnectLinking(false);
     }
