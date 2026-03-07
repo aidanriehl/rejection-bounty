@@ -306,14 +306,17 @@ export default function Profile() {
             </div>
             <div
               className="cursor-pointer"
-              onClick={() => navigate("/friends")}
+              onClick={() => setSocialModal({ open: true, tab: "friends" })}
             >
               <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
             </div>
-            <div>
-              <p className="text-xl font-extrabold text-foreground leading-none">{totalCompleted}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Completed</p>
+            <div
+              className="cursor-pointer"
+              onClick={() => setSocialModal({ open: true, tab: "following" })}
+            >
+              <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
             </div>
           </div>
         </div>
