@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
   { key: "week", label: "This Week" },
+  { key: "friends", label: "Friends" },
   { key: "alltime", label: "All Time" },
 ] as const;
 
@@ -269,6 +270,7 @@ function CommentsSheet({ postId, onClose }: { postId: string; onClose: () => voi
 export default function Feed() {
   const [tabIndex, setTabIndex] = useState(0);
   const [posts, setPosts] = useState<FeedPostData[]>([]);
+  const [friendIds, setFriendIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null);
   const { user } = useAuth();
@@ -276,7 +278,7 @@ export default function Feed() {
 
   const fetchData = async () => {
     setLoading(true);
-    
+
     // Fetch posts with profile data via FK join
     const { data, error } = await supabase
       .from("posts")
@@ -287,6 +289,15 @@ export default function Feed() {
       console.error("[Feed] Failed to fetch posts:", error);
     }
     setPosts((data || []) as FeedPostData[]);
+
+    // Fetch friends list
+    if (user) {
+      const { data: friendData } = await supabase
+        .from("friendships")
+        .select("friend_id")
+        .eq("user_id", user.id);
+      setFriendIds((friendData || []).map((f: any) => f.friend_id));
+    }
     setLoading(false);
   };
 
@@ -311,9 +322,13 @@ export default function Feed() {
     .filter((p) => new Date(p.created_at).getTime() > oneWeekAgo)
     .sort((a, b) => b.likes - a.likes);
 
+  const friendPosts = posts
+    .filter((p) => friendIds.includes(p.user_id))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
   const allTimePosts = [...posts].sort((a, b) => b.likes - a.likes);
 
-  const panes = [weekPosts, allTimePosts];
+  const panes = [weekPosts, friendPosts, allTimePosts];
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     const threshold = 50;
