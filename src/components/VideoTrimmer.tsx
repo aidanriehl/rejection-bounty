@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Image } from "lucide-react";
 
 interface VideoTrimmerProps {
@@ -17,7 +17,7 @@ interface VideoTrimmerProps {
 const HANDLE_WIDTH = 16;
 const FILMSTRIP_FRAMES = 10;
 
-export default function VideoTrimmer({
+function VideoTrimmer({
   videoUrl,
   duration,
   trimStart,
@@ -30,11 +30,23 @@ export default function VideoTrimmer({
   onSetCover,
 }: VideoTrimmerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
+  const playheadRef = useRef<HTMLDivElement>(null);
   const [frames, setFrames] = useState<string[]>([]);
   const [dragging, setDragging] = useState<"left" | "right" | "playhead" | null>(null);
-  const [localPlayheadTime, setLocalPlayheadTime] = useState(currentTime);
   const dragStartRef = useRef({ x: 0, trimStart: 0, trimEnd: 0 });
+
+  // Use ref for playhead position during drag to avoid re-renders
+  const playheadTimeRef = useRef(currentTime);
+  const rafRef = useRef<number | null>(null);
+
+  // Cleanup RAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   // Extract filmstrip frames
   useEffect(() => {
@@ -97,18 +109,29 @@ export default function VideoTrimmer({
     return Math.max(0, Math.min(duration, t));
   }, [duration, getContainerWidth]);
 
-  // Sync localPlayheadTime with currentTime when not dragging
+  // Direct DOM update for playhead position (no React re-render)
+  const updatePlayheadVisual = useCallback((time: number) => {
+    if (!playheadRef.current || !duration) return;
+    const w = getContainerWidth() - HANDLE_WIDTH * 2;
+    const clampedTime = Math.max(trimStart, Math.min(trimEnd, time));
+    const x = HANDLE_WIDTH + (clampedTime / duration) * w;
+    playheadRef.current.style.left = `${x - 20}px`;
+  }, [duration, trimStart, trimEnd, getContainerWidth]);
+
+  // Sync playhead ref with currentTime when not dragging
   useEffect(() => {
     if (!dragging) {
-      setLocalPlayheadTime(currentTime);
+      playheadTimeRef.current = currentTime;
+      // Update playhead position via DOM for smooth non-dragging updates
+      updatePlayheadVisual(currentTime);
     }
-  }, [currentTime, dragging]);
+  }, [currentTime, dragging, updatePlayheadVisual]);
 
-  // Throttle video seeking only - visual updates are immediate
+  // Throttle video seeking - 100ms for smoother scrubbing
   const lastSeekRef = useRef(0);
   const throttledVideoSeek = useCallback((time: number) => {
     const now = Date.now();
-    if (now - lastSeekRef.current > 50) {
+    if (now - lastSeekRef.current > 100) {
       lastSeekRef.current = now;
       onScrub(time);
     }
@@ -136,34 +159,53 @@ export default function VideoTrimmer({
       const newStart = Math.min(time, trimEnd - minDuration);
       const clampedStart = Math.max(0, newStart);
       onTrimChange(clampedStart, trimEnd);
-      setLocalPlayheadTime(clampedStart);
+      playheadTimeRef.current = clampedStart;
+      // Use RAF for smooth visual update
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        updatePlayheadVisual(clampedStart);
+      });
       throttledVideoSeek(clampedStart);
     } else if (dragging === "right") {
       const newEnd = Math.max(time, trimStart + minDuration);
       const clampedEnd = Math.min(duration, newEnd);
       onTrimChange(trimStart, clampedEnd);
-      setLocalPlayheadTime(clampedEnd);
+      playheadTimeRef.current = clampedEnd;
+      // Use RAF for smooth visual update
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        updatePlayheadVisual(clampedEnd);
+      });
       throttledVideoSeek(clampedEnd);
     } else if (dragging === "playhead") {
       const clampedTime = Math.max(trimStart, Math.min(trimEnd, time));
-      setLocalPlayheadTime(clampedTime); // Immediate visual update
-      throttledVideoSeek(clampedTime); // Throttled video seek
+      playheadTimeRef.current = clampedTime;
+      // Use RAF for smooth 60fps visual update - no state update!
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        updatePlayheadVisual(clampedTime);
+      });
+      throttledVideoSeek(clampedTime);
     }
-  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, throttledVideoSeek]);
+  }, [dragging, trimStart, trimEnd, duration, xToTime, onTrimChange, throttledVideoSeek, updatePlayheadVisual]);
 
   const handlePointerUp = useCallback(() => {
+    // Cancel any pending RAF
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     // Final seek to exact position when drag ends
-    if (dragging === "playhead") {
-      onScrub(localPlayheadTime);
+    if (dragging) {
+      onScrub(playheadTimeRef.current);
     }
     setDragging(null);
-  }, [dragging, localPlayheadTime, onScrub]);
+  }, [dragging, onScrub]);
 
   const leftX = timeToX(trimStart);
   const rightX = timeToX(trimEnd);
-  // Use localPlayheadTime for smooth dragging visuals
-  const displayTime = dragging === "playhead" ? localPlayheadTime : currentTime;
-  const playheadX = timeToX(Math.max(trimStart, Math.min(trimEnd, displayTime)));
+  // Initial playhead position (will be updated via ref during drag)
+  const initialPlayheadX = timeToX(Math.max(trimStart, Math.min(trimEnd, currentTime)));
   const thumbnailX = timeToX(Math.max(trimStart, Math.min(trimEnd, thumbnailTime)));
 
   return (
@@ -246,9 +288,15 @@ export default function VideoTrimmer({
         )}
 
         {/* Playhead - wide touch target, thin visual line */}
+        {/* Uses ref for direct DOM updates during drag for smooth 60fps movement */}
         <div
+          ref={playheadRef}
           className="absolute inset-y-0 z-20 flex cursor-col-resize items-center justify-center touch-none"
-          style={{ left: playheadX - 20, width: 40 }}
+          style={{
+            left: initialPlayheadX - 20,
+            width: 40,
+            willChange: dragging === "playhead" ? "left" : "auto",
+          }}
           onPointerDown={(e) => handlePointerDown("playhead", e)}
         >
           <div className="h-full w-[3px] rounded-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.5)]" />
@@ -281,3 +329,6 @@ function formatTime(seconds: number): string {
   const s = Math.floor(Math.abs(seconds) % 60);
   return `${m}:${String(s).padStart(2, "0")}`;
 }
+
+// Memoize to prevent re-renders when parent state changes during scrubbing
+export default memo(VideoTrimmer);
