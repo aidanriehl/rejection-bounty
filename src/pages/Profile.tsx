@@ -286,11 +286,11 @@ export default function Profile() {
               stage={avatarStage}
               size="lg"
               photoUrl={photoUrl}
-              className="!h-20 !w-20 !text-4xl" />
-            
+              className="!h-[92px] !w-[92px] !text-[2.5rem]" />
+
             {!photoUrl &&
-            <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary border-[2px] border-background shadow-sm">
-                <span className="text-[9px] font-bold text-primary-foreground leading-none">+</span>
+            <div className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-primary border-[2.5px] border-background shadow-sm">
+                <span className="text-[10px] font-bold text-primary-foreground leading-none">+</span>
               </div>
             }
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
