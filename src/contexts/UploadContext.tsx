@@ -116,7 +116,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       if (meta) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Get current week key - MUST match format in UploadIndicator.tsx
+          // Get current week key - MUST match format in UploadIndicator.tsx and mock-data.ts
           const now = new Date();
           const startOfYear = new Date(now.getFullYear(), 0, 1);
           const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
@@ -127,7 +127,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
           console.log("[Upload] User ID:", session.user.id);
           console.log("[Upload] Challenge ID:", meta.challengeId);
 
-          // Insert post with all required fields
+          // Insert post
           const { data: postData, error: insertError } = await supabase.from("posts").insert({
             user_id: session.user.id,
             challenge_id: meta.challengeId,
@@ -137,7 +137,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             trim_end: meta.trimEnd,
             caption: meta.caption || "",
             likes: 0,
-          } as any).select().single();
+          }).select().single();
 
           if (insertError) {
             console.error("[Upload] Failed to insert post:", insertError);
@@ -146,38 +146,42 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
           console.log("[Upload] Post inserted successfully:", postData?.id);
 
-          // Mark challenge as complete in challenge_completions - WITH ERROR HANDLING
-          console.log("[Upload] Attempting to upsert completion:", {
+          // Mark challenge as complete in challenge_completions
+          // Use insert with explicit conflict handling
+          const completionPayload = {
             user_id: session.user.id,
             challenge_id: meta.challengeId,
             week_key: weekKey,
-          });
+            video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
+          };
 
+          console.log("[Upload] Inserting completion:", JSON.stringify(completionPayload));
+
+          // First try insert, if duplicate then it's already recorded
           const { data: completionData, error: completionError } = await supabase
             .from("challenge_completions")
-            .upsert({
-              user_id: session.user.id,
-              challenge_id: meta.challengeId,
-              week_key: weekKey,
-              video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
-            } as any, { onConflict: "user_id,challenge_id,week_key" })
+            .insert(completionPayload)
             .select();
 
           if (completionError) {
-            console.error("[Upload] Failed to insert challenge completion:", completionError);
-            // Don't throw - post was saved, completion is secondary
+            // If it's a unique constraint violation, the completion already exists — that's fine
+            if (completionError.code === '23505') {
+              console.log("[Upload] Completion already exists for this challenge/week, skipping");
+            } else {
+              console.error("[Upload] Failed to insert challenge completion:", completionError.message, completionError.code, completionError.details);
+            }
           } else {
-            console.log("[Upload] Challenge completion saved successfully:", completionData);
-
-            // Verify count immediately
-            const { count, error: countError } = await supabase
-              .from("challenge_completions")
-              .select("*", { count: "exact", head: true })
-              .eq("user_id", session.user.id)
-              .eq("week_key", weekKey);
-
-            console.log("[Upload] Verified completion count for week:", weekKey, "count:", count, "error:", countError);
+            console.log("[Upload] Challenge completion saved:", completionData);
           }
+
+          // Verify count
+          const { count, error: countError } = await supabase
+            .from("challenge_completions")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", session.user.id)
+            .eq("week_key", weekKey);
+
+          console.log("[Upload] Verified completion count for week:", weekKey, "count:", count, "error:", countError);
 
           // Dispatch event so Challenges page can trigger confetti
           window.dispatchEvent(new CustomEvent("challenge-completed", {
