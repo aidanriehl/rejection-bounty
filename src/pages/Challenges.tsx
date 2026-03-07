@@ -533,7 +533,7 @@ export default function Challenges() {
                     <Video className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Record Now</p>
+                    <p className="text-sm font-semibold text-foreground">Take Video</p>
                     <p className="text-xs text-muted-foreground">Film directly in the app</p>
                   </div>
                 </button>
@@ -549,7 +549,7 @@ export default function Challenges() {
                     <FolderOpen className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Upload from Library</p>
+                    <p className="text-sm font-semibold text-foreground">Photo Library</p>
                     <p className="text-xs text-muted-foreground">Choose a video from your camera roll</p>
                   </div>
                 </button>
