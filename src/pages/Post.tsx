@@ -181,7 +181,6 @@ export default function PostPage() {
   const togglePlayPause = () => {
     const video = videoRef.current;
     if (!video) return;
-    video.muted = false;
     if (video.paused) {
       video.play();
     } else {
