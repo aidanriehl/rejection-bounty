@@ -89,6 +89,8 @@ export default function Profile() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [friendsCount, setFriendsCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [socialModal, setSocialModal] = useState<{ open: boolean; tab: "friends" | "following" }>({ open: false, tab: "friends" });
 
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
