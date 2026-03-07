@@ -243,7 +243,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="flex flex-col items-center"
+                className="flex flex-col items-center -mt-16"
               >
                 <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
@@ -275,7 +275,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="flex flex-col items-center"
+                className="flex flex-col items-center -mt-16"
               >
                 <img src={logoImg} alt="Rejection Bounty" className="mb-4 h-20 w-20" />
                 <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-primary-foreground">
