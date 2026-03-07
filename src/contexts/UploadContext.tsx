@@ -75,8 +75,24 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", uploadURL);
 
+      // Track if we've received any progress events
+      let receivedProgress = false;
+      let simulatedProgress = 0;
+
+      // Simulate progress if real events don't fire (CORS issue with some upload endpoints)
+      const progressInterval = setInterval(() => {
+        if (!receivedProgress && simulatedProgress < 90) {
+          simulatedProgress += Math.random() * 15 + 5;
+          simulatedProgress = Math.min(simulatedProgress, 90);
+          setState((s) => ({ ...s, progress: Math.round(simulatedProgress) }));
+        }
+      }, 500);
+
       xhr.upload.onprogress = (e) => {
+        console.log("[Upload] Progress event:", e.loaded, "/", e.total, "computable:", e.lengthComputable);
         if (e.lengthComputable) {
+          receivedProgress = true;
+          clearInterval(progressInterval);
           const pct = Math.round((e.loaded / e.total) * 100);
           setState((s) => ({ ...s, progress: pct }));
         }
@@ -84,10 +100,14 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
       await new Promise<void>((resolve, reject) => {
         xhr.onload = () => {
+          clearInterval(progressInterval);
           if (xhr.status >= 200 && xhr.status < 300) resolve();
           else reject(new Error(`Upload failed (${xhr.status})`));
         };
-        xhr.onerror = () => reject(new Error("Upload failed"));
+        xhr.onerror = () => {
+          clearInterval(progressInterval);
+          reject(new Error("Upload failed"));
+        };
         xhr.send(formData);
       });
 
@@ -127,6 +147,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
           console.log("[Upload] Post inserted successfully:", postData?.id);
 
           // Mark challenge as complete in challenge_completions - WITH ERROR HANDLING
+          console.log("[Upload] Attempting to upsert completion:", {
+            user_id: session.user.id,
+            challenge_id: meta.challengeId,
+            week_key: weekKey,
+          });
+
           const { data: completionData, error: completionError } = await supabase
             .from("challenge_completions")
             .upsert({
@@ -141,7 +167,16 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             console.error("[Upload] Failed to insert challenge completion:", completionError);
             // Don't throw - post was saved, completion is secondary
           } else {
-            console.log("[Upload] Challenge completion saved:", completionData);
+            console.log("[Upload] Challenge completion saved successfully:", completionData);
+
+            // Verify count immediately
+            const { count, error: countError } = await supabase
+              .from("challenge_completions")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", session.user.id)
+              .eq("week_key", weekKey);
+
+            console.log("[Upload] Verified completion count for week:", weekKey, "count:", count, "error:", countError);
           }
 
           // Dispatch event so Challenges page can trigger confetti

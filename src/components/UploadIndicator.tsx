@@ -58,7 +58,8 @@ export default function UploadIndicator() {
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 60, opacity: 0 }}
-        className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-lg"
+        className="fixed left-4 right-4 z-50 mx-auto max-w-lg"
+        style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
       >
         <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg relative">
           {/* Icon */}
