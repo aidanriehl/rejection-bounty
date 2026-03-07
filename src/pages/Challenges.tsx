@@ -502,6 +502,25 @@ export default function Challenges() {
           </div>
         </div>
 
+        {/* Hidden file input for Photo Library */}
+        <input
+          ref={libraryFileRef}
+          type="file"
+          accept="video/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file || !choiceChallenge) return;
+            // Store file temporarily for Post page to pick up
+            (window as any).__pendingVideoFile = file;
+            const title = choiceChallenge.title;
+            const id = choiceChallenge.id;
+            setChoiceChallenge(null);
+            navigate("/post", { state: { challengeTitle: title, challengeId: id, fromLibrary: true } });
+            if (libraryFileRef.current) libraryFileRef.current.value = "";
+          }}
+        />
+
         {/* Choice modal: Record or Upload */}
         <AnimatePresence>
           {choiceChallenge && !cameraChallenge && (
