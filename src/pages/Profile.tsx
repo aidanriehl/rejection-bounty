@@ -79,12 +79,15 @@ export default function Profile() {
   const avatar = (profile?.avatar || "dragon") as AvatarType;
   const avatarStage = (profile?.avatar_stage ?? 0) as AvatarStage;
   const streak = profile?.streak ?? 0;
+  const bestStreak = profile?.best_streak ?? 0;
   const totalCompleted = profile?.total_completed ?? 0;
+  const weeksCompleted = profile?.weeks_completed ?? 0;
   const photoUrl = profile?.profile_photo_url ?? null;
 
   // User's posts
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [friendsCount, setFriendsCount] = useState(0);
 
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
