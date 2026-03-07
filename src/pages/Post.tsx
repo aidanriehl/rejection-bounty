@@ -31,7 +31,7 @@ export default function PostPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailFrames, setThumbnailFrames] = useState<string[]>([]);
-  const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
+  const [coverSliderValue, setCoverSliderValue] = useState(0);
   const [loadingThumbnails, setLoadingThumbnails] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
