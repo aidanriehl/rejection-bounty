@@ -560,8 +560,7 @@ export default function Challenges() {
 
                 <button
                   onClick={() => {
-                    setChoiceChallenge(null);
-                    navigate("/post", { state: { challengeTitle: choiceChallenge.title, challengeId: choiceChallenge.id } });
+                    libraryFileRef.current?.click();
                   }}
                   className="mb-3 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/50"
                 >
