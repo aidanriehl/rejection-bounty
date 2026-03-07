@@ -164,7 +164,7 @@ function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: 
         <div className="flex items-center gap-2.5 mb-1.5">
           <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
         </div>
-        <p className="text-sm text-white/90 drop-shadow-md">{post.caption}</p>
+        <p className="text-sm text-white/90 drop-shadow-md min-h-[1.25rem]">{post.caption || ""}</p>
       </div>
     </div>);
 

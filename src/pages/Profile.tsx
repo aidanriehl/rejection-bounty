@@ -482,9 +482,7 @@ export default function Profile() {
             <div className="flex items-center gap-2.5 mb-1.5">
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
-            {selectedPost.caption && (
-              <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
-            )}
+            <p className="text-sm text-white/90 drop-shadow-md min-h-[1.25rem]">{selectedPost.caption || ""}</p>
           </div>
         </div>
       )}
