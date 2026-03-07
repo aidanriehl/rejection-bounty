@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Play, Loader2 } from "lucide-react";
+import SocialListModal from "@/components/SocialListModal";
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { useAuth } from "@/hooks/useAuth";
@@ -88,6 +89,8 @@ export default function Profile() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [friendsCount, setFriendsCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [socialModal, setSocialModal] = useState<{ open: boolean; tab: "friends" | "following" }>({ open: false, tab: "friends" });
 
   // Milestone celebration — check if a new milestone was just reached
   const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
@@ -107,17 +110,24 @@ export default function Profile() {
     }
   }, [totalCompleted, user]);
 
-  // Fetch friends count
+  // Fetch friends (followers) and following counts
   useEffect(() => {
-    const fetchFriends = async () => {
+    const fetchCounts = async () => {
       if (!user) return;
-      const { count } = await supabase
+      // Following = people I follow
+      const { count: fCount } = await supabase
         .from("friendships")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id);
-      setFriendsCount(count ?? 0);
+      setFollowingCount(fCount ?? 0);
+      // Friends = people who follow me
+      const { count: frCount } = await supabase
+        .from("friendships")
+        .select("*", { count: "exact", head: true })
+        .eq("friend_id", user.id);
+      setFriendsCount(frCount ?? 0);
     };
-    fetchFriends();
+    fetchCounts();
   }, [user]);
 
   // Fetch user's posts
@@ -296,14 +306,17 @@ export default function Profile() {
             </div>
             <div
               className="cursor-pointer"
-              onClick={() => navigate("/friends")}
+              onClick={() => setSocialModal({ open: true, tab: "friends" })}
             >
               <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
             </div>
-            <div>
-              <p className="text-xl font-extrabold text-foreground leading-none">{totalCompleted}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Completed</p>
+            <div
+              className="cursor-pointer"
+              onClick={() => setSocialModal({ open: true, tab: "following" })}
+            >
+              <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
             </div>
           </div>
         </div>
@@ -418,6 +431,18 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {/* Social list modal */}
+      {user && (
+        <SocialListModal
+          open={socialModal.open}
+          onClose={() => setSocialModal({ ...socialModal, open: false })}
+          userId={user.id}
+          initialTab={socialModal.tab}
+          friendsCount={friendsCount}
+          followingCount={followingCount}
+        />
+      )}
     </div>
   );
 }
