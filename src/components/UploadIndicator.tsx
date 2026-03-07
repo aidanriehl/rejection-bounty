@@ -15,7 +15,7 @@ export default function UploadIndicator() {
       return;
     }
 
-    const fetchEntries = async () => {
+    const fetchEntries = async (attempt = 1) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
         console.log("[UploadIndicator] No session found");
@@ -28,8 +28,7 @@ export default function UploadIndicator() {
       const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
       const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
-      console.log("[UploadIndicator] Fetching entries for week:", weekKey);
-      console.log("[UploadIndicator] User ID:", session.user.id);
+      console.log("[UploadIndicator] Fetching entries for week:", weekKey, "attempt:", attempt);
 
       // Count completions for THIS week only
       const { count, error } = await supabase
@@ -43,6 +42,14 @@ export default function UploadIndicator() {
       }
 
       console.log("[UploadIndicator] Entry count:", count);
+      
+      // If count is 0 and this is first attempt, retry after more delay
+      // (completion may still be writing)
+      if ((count === null || count === 0) && attempt < 3) {
+        setTimeout(() => fetchEntries(attempt + 1), 2000);
+        return;
+      }
+      
       setEntryCount(count ?? 0);
     };
 
