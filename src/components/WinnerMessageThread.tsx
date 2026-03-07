@@ -43,29 +43,8 @@ export default function WinnerMessageThread({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const targetUserId = adminTargetUserId ?? userId;
-
-  // Track keyboard height using visualViewport
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const handleResize = () => {
-      // Calculate keyboard height as difference between window and viewport
-      const kbHeight = window.innerHeight - vv.height;
-      setKeyboardHeight(kbHeight > 50 ? kbHeight : 0);
-    };
-
-    vv.addEventListener("resize", handleResize);
-    vv.addEventListener("scroll", handleResize);
-    return () => {
-      vv.removeEventListener("resize", handleResize);
-      vv.removeEventListener("scroll", handleResize);
-    };
-  }, []);
 
   const fetchMessages = async () => {
     const { data } = await supabase
@@ -98,12 +77,11 @@ export default function WinnerMessageThread({
     return () => { supabase.removeChannel(channel); };
   }, [weekKey, targetUserId]);
 
-  // Scroll to bottom when messages change or keyboard appears
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, keyboardHeight]);
+  }, [messages]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
@@ -219,16 +197,14 @@ export default function WinnerMessageThread({
 
       {/* Input - Instagram style */}
       <div
-        className="px-4 pt-2 border-t flex items-center gap-3 transition-all duration-100"
+        className="px-4 pt-2 border-t flex items-center gap-3"
         style={{
           borderColor: "rgba(255,255,255,0.1)",
-          paddingBottom: keyboardHeight > 0 ? 12 : "calc(env(safe-area-inset-bottom) + 12px)",
-          marginBottom: keyboardHeight > 0 ? keyboardHeight : 0,
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
           backgroundColor: GOLD.bg,
         }}
       >
         <input
-          ref={inputRef}
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
