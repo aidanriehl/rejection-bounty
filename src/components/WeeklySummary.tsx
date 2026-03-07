@@ -95,7 +95,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             style={{ WebkitOverflowScrolling: "touch" }}
           >
           {/* Header */}
-          <div className="px-4 pt-12 pb-4 text-center">
+          <div className="px-4 pb-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}>
             <motion.h1
               className="text-3xl font-extrabold text-foreground"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -224,13 +224,14 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
           </div>
 
           {/* Spacer for button */}
-          <div className="h-24" />
+          <div className="h-32" />
           </div>
 
           {/* Continue button - fixed at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 py-6 flex flex-col items-center"
+          <div className="absolute bottom-0 left-0 right-0 pt-8 flex flex-col items-center"
             style={{
-              background: "linear-gradient(0deg, hsl(var(--background)) 60%, transparent 100%)",
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)',
+              background: "linear-gradient(0deg, hsl(var(--background)) 70%, transparent 100%)",
             }}
           >
             <button
