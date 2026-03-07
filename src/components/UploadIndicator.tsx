@@ -28,29 +28,32 @@ export default function UploadIndicator() {
       const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
       const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
-      console.log("[UploadIndicator] Fetching entries for week:", weekKey, "attempt:", attempt);
+      console.log("[UploadIndicator] Fetching tickets for week:", weekKey, "attempt:", attempt);
 
-      // Count completions for THIS week only
-      const { count, error } = await supabase
-        .from("challenge_completions")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", session.user.id)
-        .eq("week_key", weekKey);
+      // Use calculate_tickets RPC to get the real ticket count
+      const { data: ticketData, error } = await supabase
+        .rpc("calculate_tickets", { p_week_key: weekKey });
 
       if (error) {
-        console.error("[UploadIndicator] Error fetching entries:", error);
+        console.error("[UploadIndicator] Error fetching tickets:", error);
       }
 
-      console.log("[UploadIndicator] Entry count:", count);
-      
-      // If count is 0 and this is first attempt, retry after more delay
-      // (completion may still be writing)
-      if ((count === null || count === 0) && attempt < 3) {
+      // Find this user's ticket count from the result
+      const userTickets = (ticketData as any[])?.find(
+        (t: any) => t.user_id === session.user.id
+      );
+
+      console.log("[UploadIndicator] Ticket data:", ticketData, "User tickets:", userTickets);
+
+      const tickets = userTickets?.tickets ?? 0;
+
+      // If 0 and first attempt, retry (completion may still be writing)
+      if (tickets === 0 && attempt < 3) {
         setTimeout(() => fetchEntries(attempt + 1), 2000);
         return;
       }
-      
-      setEntryCount(count ?? 0);
+
+      setEntryCount(tickets);
     };
 
     // Longer delay to ensure completion is inserted first
