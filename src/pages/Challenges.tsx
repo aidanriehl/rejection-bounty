@@ -58,6 +58,7 @@ export default function Challenges() {
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
   const [subscribers, setSubscribers] = useState<number>(0);
   const [prizePool, setPrizePool] = useState<number>(0);
+  const [ticketCount, setTicketCount] = useState<number | null>(null);
 
   // Fetch challenges from database based on current week
   useEffect(() => {
@@ -173,6 +174,22 @@ export default function Challenges() {
     fetchSubscribers();
   }, []);
 
+  // Fetch ticket count for this week
+  const fetchTickets = async () => {
+    if (!user) return;
+    const { data, error } = await supabase.rpc("calculate_tickets", { p_week_key: weekKey });
+    if (error) {
+      console.error("Failed to fetch tickets:", error);
+      return;
+    }
+    const userTickets = (data as any[])?.find((t: any) => t.user_id === user.id);
+    setTicketCount(userTickets?.tickets ?? 0);
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, [user, weekKey]);
+
   // Listen for challenge completion from upload
   useEffect(() => {
     const handleUploadComplete = (e: CustomEvent<{ challengeId: string }>) => {
@@ -205,6 +222,9 @@ export default function Challenges() {
 
         return next;
       });
+
+      // Refresh ticket count after upload
+      setTimeout(fetchTickets, 2000);
     };
 
     window.addEventListener("challenge-completed", handleUploadComplete as EventListener);
@@ -391,6 +411,11 @@ export default function Challenges() {
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               />
             </div>
+            {ticketCount !== null && ticketCount > 0 && (
+              <p className="mt-2 text-xs font-medium text-muted-foreground">
+                🎟️ {ticketCount} {ticketCount === 1 ? "entry" : "entries"} in this week's draw
+              </p>
+            )}
           </div>
 
           {/* Challenge List */}

@@ -1,64 +1,9 @@
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, CheckCircle2, AlertCircle, X, Ticket } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { useUpload } from "@/contexts/UploadContext";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function UploadIndicator() {
   const { status, progress, retry, clearUpload } = useUpload();
-  const [entryCount, setEntryCount] = useState<number | null>(null);
-
-  // Fetch entry count when upload completes
-  useEffect(() => {
-    if (status !== "done") {
-      setEntryCount(null);
-      return;
-    }
-
-    const fetchEntries = async (attempt = 1) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        console.log("[UploadIndicator] No session found");
-        return;
-      }
-
-      // Get current week key (YYYY-WXX format) - MUST match UploadContext.tsx
-      const now = new Date();
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-      const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
-      const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
-
-      console.log("[UploadIndicator] Fetching tickets for week:", weekKey, "attempt:", attempt);
-
-      // Use calculate_tickets RPC to get the real ticket count
-      const { data: ticketData, error } = await supabase
-        .rpc("calculate_tickets", { p_week_key: weekKey });
-
-      if (error) {
-        console.error("[UploadIndicator] Error fetching tickets:", error);
-      }
-
-      // Find this user's ticket count from the result
-      const userTickets = (ticketData as any[])?.find(
-        (t: any) => t.user_id === session.user.id
-      );
-
-      console.log("[UploadIndicator] Ticket data:", ticketData, "User tickets:", userTickets);
-
-      const tickets = userTickets?.tickets ?? 0;
-
-      // If 0 and first attempt, retry (completion may still be writing)
-      if (tickets === 0 && attempt < 3) {
-        setTimeout(() => fetchEntries(attempt + 1), 2000);
-        return;
-      }
-
-      setEntryCount(tickets);
-    };
-
-    // Longer delay to ensure completion is inserted first
-    setTimeout(fetchEntries, 1500);
-  }, [status]);
 
   if (status === "idle") return null;
 
@@ -85,22 +30,23 @@ export default function UploadIndicator() {
 
           {/* Text */}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-foreground truncate">
+            <p className="text-sm font-semibold text-foreground truncate">
               {status === "uploading"
                 ? `Uploading video… ${progress}%`
                 : status === "done"
                 ? "Upload complete! 🎬"
                 : "Upload failed"}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate">
-              {status === "uploading"
-                ? "Don't leave app until upload finishes"
-                : status === "done" && entryCount !== null
-                ? `🎟️ You have ${entryCount} ${entryCount === 1 ? "entry" : "entries"} in this week's draw`
-                : status === "error"
-                ? "Tap retry to try again"
-                : ""}
-            </p>
+            {status === "uploading" && (
+              <p className="text-[10px] text-muted-foreground truncate">
+                Don't leave app until upload finishes
+              </p>
+            )}
+            {status === "error" && (
+              <p className="text-[10px] text-muted-foreground truncate">
+                Tap retry to try again
+              </p>
+            )}
           </div>
 
           {/* Actions */}
