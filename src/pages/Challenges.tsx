@@ -396,11 +396,11 @@ export default function Challenges() {
 
           {/* Progress */}
           <div className="mb-6">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex items-center justify-between pl-1">
               <span className="text-sm font-bold text-foreground">
                 {completed}/5 completed
               </span>
-              <span className="text-xs font-semibold text-primary">
+              <span className="text-xs font-semibold text-primary pr-1">
                 {progressMessages[completed] || ""}
               </span>
             </div>
@@ -413,7 +413,7 @@ export default function Challenges() {
               />
             </div>
             {ticketCount !== null && ticketCount > 0 && (
-              <p className="mt-2 text-xs font-medium text-muted-foreground">
+              <p className="mt-2 pl-1 text-xs font-medium text-muted-foreground">
                 🎟️ {ticketCount} {ticketCount === 1 ? "entry" : "entries"} in this week's draw
               </p>
             )}
@@ -421,7 +421,7 @@ export default function Challenges() {
 
           {/* Challenge List */}
           <div data-tour="challenge-list">
-            <p className="mb-2 text-sm font-bold text-foreground">
+            <p className="mb-2 pl-1 text-sm font-bold text-foreground">
               Complete 5 of 8 challenges
             </p>
             <div className="space-y-2">
