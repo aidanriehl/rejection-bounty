@@ -8,10 +8,10 @@ import WinnerBanner from "@/components/WinnerBanner";
 import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
-  { key: "week", label: "This Week" },
-  { key: "friends", label: "Friends" },
-  { key: "alltime", label: "All Time" },
-] as const;
+{ key: "week", label: "This Week" },
+{ key: "friends", label: "Friends" },
+{ key: "alltime", label: "All Time" }] as
+const;
 
 // Get liked posts from localStorage
 function getLikedPosts(): Set<string> {
@@ -47,7 +47,7 @@ interface FeedPostData {
   } | null;
 }
 
-function ReelCard({ post, onOpenComments }: { post: FeedPostData; onOpenComments: (postId: string) => void }) {
+function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: (postId: string) => void;}) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(() => getLikedPosts());
   const liked = likedPosts.has(post.id);
   const [likeCount, setLikeCount] = useState(post.likes);
@@ -55,9 +55,9 @@ function ReelCard({ post, onOpenComments }: { post: FeedPostData; onOpenComments
   const lastTapRef = useRef(0);
 
   const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
-  const thumbnailUrl = post.video_id
-    ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
-    : post.video_url || "/placeholder.svg";
+  const thumbnailUrl = post.video_id ?
+  `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
+  post.video_url || "/placeholder.svg";
 
   const doLike = useCallback(async () => {
     if (!liked) {
@@ -103,56 +103,56 @@ function ReelCard({ post, onOpenComments }: { post: FeedPostData; onOpenComments
     <div
       className="relative w-full snap-start snap-always flex-shrink-0"
       style={{ height: "calc(100dvh - 3rem - env(safe-area-inset-bottom))" }}
-      onClick={handleDoubleTap}
-    >
-      {post.video_id ? (
-        <iframe
-          src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false`}
-          className="h-full w-full object-cover select-none pointer-events-none"
-          allow="autoplay; fullscreen"
-          style={{ border: "none" }}
-        />
-      ) : (
-        <img
-          src={thumbnailUrl}
-          alt={post.caption || "Post"}
-          className="h-full w-full object-cover select-none"
-          draggable={false}
-        />
-      )}
+      onClick={handleDoubleTap}>
+      
+      {post.video_id ?
+      <iframe
+        src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false`}
+        className="h-full w-full object-cover select-none pointer-events-none"
+        allow="autoplay; fullscreen"
+        style={{ border: "none" }} /> :
+
+
+      <img
+        src={thumbnailUrl}
+        alt={post.caption || "Post"}
+        className="h-full w-full object-cover select-none"
+        draggable={false} />
+
+      }
 
       <AnimatePresence>
-        {showHeartAnim && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.4, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          >
+        {showHeartAnim &&
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 1.4, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          
             <Heart className="h-24 w-24 fill-rose-500 text-rose-500 drop-shadow-lg" />
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       <div className="absolute right-4 bottom-36 flex flex-col items-center gap-5">
         <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
         <button
-          onClick={(e) => { e.stopPropagation(); toggleLike(); }}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
+          onClick={(e) => {e.stopPropagation();toggleLike();}}
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90">
+          
           <Heart
             className={cn(
               "h-7 w-7 transition-colors drop-shadow-md",
               liked ? "fill-rose-500 text-rose-500" : "text-white"
-            )}
-          />
+            )} />
+          
           <span className="text-xs font-semibold text-white drop-shadow-md">{likeCount}</span>
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); onOpenComments(post.id); }}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
+          onClick={(e) => {e.stopPropagation();onOpenComments(post.id);}}
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90">
+          
           <MessageCircle className="h-7 w-7 text-white drop-shadow-md" />
           <span className="text-xs font-semibold text-white drop-shadow-md">0</span>
         </button>
@@ -162,40 +162,40 @@ function ReelCard({ post, onOpenComments }: { post: FeedPostData; onOpenComments
 
       <div className="absolute bottom-8 left-5 right-20">
         <div className="flex items-center gap-2.5 mb-1.5">
-          <span className="text-sm font-semibold text-white drop-shadow-md">@{username}</span>
+          <span className="font-semibold text-white drop-shadow-md text-base">@{username}</span>
         </div>
         <p className="text-xs text-white/80 drop-shadow-md">{post.caption}</p>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
-function FeedPane({ posts, emptyMessage, loading, onOpenComments }: { posts: FeedPostData[]; emptyMessage: string; loading?: boolean; onOpenComments: (postId: string) => void }) {
+function FeedPane({ posts, emptyMessage, loading, onOpenComments }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;onOpenComments: (postId: string) => void;}) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-white/40" />
-      </div>
-    );
+      </div>);
+
   }
   if (posts.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-white/60">{emptyMessage}</p>
-      </div>
-    );
+      </div>);
+
   }
   return (
     <div data-scroll-container className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
-      {posts.map((post) => (
-        <ReelCard key={post.id} post={post} onOpenComments={onOpenComments} />
-      ))}
-    </div>
-  );
+      {posts.map((post) =>
+      <ReelCard key={post.id} post={post} onOpenComments={onOpenComments} />
+      )}
+    </div>);
+
 }
 
 // Instagram-style comments sheet
-function CommentsSheet({ postId, onClose }: { postId: string; onClose: () => void }) {
+function CommentsSheet({ postId, onClose }: {postId: string;onClose: () => void;}) {
   const [comment, setComment] = useState("");
   const [sending, setSending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -220,8 +220,8 @@ function CommentsSheet({ postId, onClose }: { postId: string; onClose: () => voi
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-black/50"
-      onClick={onClose}
-    >
+      onClick={onClose}>
+      
       <motion.div
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
@@ -229,8 +229,8 @@ function CommentsSheet({ postId, onClose }: { postId: string; onClose: () => voi
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
         className="absolute bottom-0 left-0 right-0 bg-background rounded-t-2xl max-h-[70vh] flex flex-col"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <span className="text-base font-semibold text-foreground">Comments</span>
@@ -252,19 +252,19 @@ function CommentsSheet({ postId, onClose }: { postId: string; onClose: () => voi
             onChange={(e) => setComment(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Add a comment..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-          />
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+          
           <button
             onClick={handleSend}
             disabled={!comment.trim() || sending}
-            className="text-primary font-semibold text-sm disabled:opacity-40"
-          >
+            className="text-primary font-semibold text-sm disabled:opacity-40">
+            
             Post
           </button>
         </div>
       </motion.div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 export default function Feed() {
@@ -280,10 +280,10 @@ export default function Feed() {
     setLoading(true);
 
     // Fetch posts with profile data via FK join
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*, profiles!posts_user_id_fkey(username, avatar, avatar_stage)")
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.
+    from("posts").
+    select("*, profiles!posts_user_id_fkey(username, avatar, avatar_stage)").
+    order("created_at", { ascending: false });
 
     if (error) {
       console.error("[Feed] Failed to fetch posts:", error);
@@ -292,10 +292,10 @@ export default function Feed() {
 
     // Fetch friends list
     if (user) {
-      const { data: friendData } = await supabase
-        .from("friendships")
-        .select("friend_id")
-        .eq("user_id", user.id);
+      const { data: friendData } = await supabase.
+      from("friendships").
+      select("friend_id").
+      eq("user_id", user.id);
       setFriendIds((friendData || []).map((f: any) => f.friend_id));
     }
     setLoading(false);
@@ -318,13 +318,13 @@ export default function Feed() {
   const now = Date.now();
   const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-  const weekPosts = posts
-    .filter((p) => new Date(p.created_at).getTime() > oneWeekAgo)
-    .sort((a, b) => b.likes - a.likes);
+  const weekPosts = posts.
+  filter((p) => new Date(p.created_at).getTime() > oneWeekAgo).
+  sort((a, b) => b.likes - a.likes);
 
-  const friendPosts = posts
-    .filter((p) => friendIds.includes(p.user_id))
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const friendPosts = posts.
+  filter((p) => friendIds.includes(p.user_id)).
+  sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const allTimePosts = [...posts].sort((a, b) => b.likes - a.likes);
 
@@ -343,42 +343,42 @@ export default function Feed() {
     dragX,
     [200, 0, -200],
     [
-      `${Math.max(0, tabIndex - 1) * (100 / TABS.length)}%`,
-      `${tabIndex * (100 / TABS.length)}%`,
-      `${Math.min(TABS.length - 1, tabIndex + 1) * (100 / TABS.length)}%`,
-    ]
+    `${Math.max(0, tabIndex - 1) * (100 / TABS.length)}%`,
+    `${tabIndex * (100 / TABS.length)}%`,
+    `${Math.min(TABS.length - 1, tabIndex + 1) * (100 / TABS.length)}%`]
+
   );
 
   return (
     <div
       data-tour="feed"
       className="fixed inset-0 overflow-hidden bg-black"
-      style={{ paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" }}
-    >
+      style={{ paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" }}>
+      
       {/* Tabs header - positioned with safe area */}
       <div
         className="absolute top-0 inset-x-0 z-20 px-4"
-        style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}
-      >
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}>
+        
         <WinnerBanner />
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
-        style={{ top: "calc(env(safe-area-inset-top) + 20px)" }}
-      >
+        style={{ top: "calc(env(safe-area-inset-top) + 20px)" }}>
+        
         <div className="flex items-center justify-center gap-6">
-          {TABS.map((tab, i) => (
-            <button
-              key={tab.key}
-              onClick={() => setTabIndex(i)}
-              className={cn(
-                "text-[1.2rem] font-bold transition-colors",
-                i === tabIndex ? "text-white" : "text-white/40"
-              )}
-            >
+          {TABS.map((tab, i) =>
+          <button
+            key={tab.key}
+            onClick={() => setTabIndex(i)}
+            className={cn(
+              "text-[1.2rem] font-bold transition-colors",
+              i === tabIndex ? "text-white" : "text-white/40"
+            )}>
+            
               {tab.label}
             </button>
-          ))}
+          )}
         </div>
       </div>
 
@@ -391,26 +391,26 @@ export default function Feed() {
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.15}
-        onDragEnd={handleDragEnd}
-      >
-        {panes.map((panePosts, i) => (
-          <div key={TABS[i].key} className="h-full w-full flex-shrink-0">
+        onDragEnd={handleDragEnd}>
+        
+        {panes.map((panePosts, i) =>
+        <div key={TABS[i].key} className="h-full w-full flex-shrink-0">
             <FeedPane
-              posts={panePosts}
-              emptyMessage="No videos uploaded yet"
-              loading={loading}
-              onOpenComments={setCommentsPostId}
-            />
+            posts={panePosts}
+            emptyMessage="No videos uploaded yet"
+            loading={loading}
+            onOpenComments={setCommentsPostId} />
+          
           </div>
-        ))}
+        )}
       </motion.div>
 
       {/* Comments sheet */}
       <AnimatePresence>
-        {commentsPostId && (
-          <CommentsSheet postId={commentsPostId} onClose={() => setCommentsPostId(null)} />
-        )}
+        {commentsPostId &&
+        <CommentsSheet postId={commentsPostId} onClose={() => setCommentsPostId(null)} />
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
