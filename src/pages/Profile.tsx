@@ -205,6 +205,9 @@ export default function Profile() {
     );
   }
 
+  const ms = getMilestone(totalCompleted);
+  const progressPct = Math.min((ms.current / ms.goal) * 100, 100);
+
   // Calculate weeks since signup for percentage
   const weeksSinceSignup = (() => {
     if (!profile?.created_at) return 1;
