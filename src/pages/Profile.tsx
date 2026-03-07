@@ -325,7 +325,7 @@ export default function Profile() {
         </div>
 
         {/* Stat boxes - 2x2 grid */}
-        <div className="mb-5 grid grid-cols-2 gap-2.5">
+        <div className="mb-5 mx-auto grid grid-cols-2 gap-2.5" style={{ maxWidth: '80%' }}>
           {/* Week Streak */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-3.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-1.5">
