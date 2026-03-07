@@ -131,15 +131,12 @@ export default function WinnerMessageThread({
         </button>
 
         <div className="flex items-center gap-3 flex-1">
-          {/* Gold trophy avatar */}
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
-            style={{
-              background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.dark} 100%)`,
-            }}
-          >
-            🏆
-          </div>
+          {/* Logo avatar */}
+          <img
+            src="/logo.png"
+            alt="Rejection Bounty"
+            className="h-10 w-10 rounded-full object-cover"
+          />
           <div>
             <p className="font-bold" style={{ color: GOLD.text }}>
               {isAdmin ? (winnerName || "Winner") : "Rejection Bounty"}
@@ -160,12 +157,11 @@ export default function WinnerMessageThread({
       >
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <div
-              className="flex h-16 w-16 items-center justify-center rounded-full text-3xl"
-              style={{ background: `linear-gradient(135deg, ${GOLD.primary} 0%, ${GOLD.dark} 100%)` }}
-            >
-              🏆
-            </div>
+            <img
+              src="/logo.png"
+              alt="Rejection Bounty"
+              className="h-16 w-16 rounded-full object-cover"
+            />
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
               {isAdmin ? "Start a conversation with the winner" : "You won! We'll be in touch."}
             </p>
