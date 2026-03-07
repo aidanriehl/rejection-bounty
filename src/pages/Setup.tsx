@@ -43,6 +43,14 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     return AVATAR_EMOJIS[Math.abs(hash) % AVATAR_EMOJIS.length];
   }, [userId]);
 
+  // Auto-focus input on mount to bring up keyboard
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 400); // Small delay for animation to complete
+    return () => clearTimeout(timer);
+  }, []);
+
   // Listen for keyboard visibility via visualViewport
   useEffect(() => {
     const vv = window.visualViewport;
@@ -147,14 +155,13 @@ export default function Setup({ userId, onComplete }: SetupProps) {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col overflow-auto"
+      className="fixed inset-0 flex flex-col"
       style={{ backgroundColor: "hsl(var(--primary))" }}
     >
-      {/* Scrollable content area */}
-      <div className="flex-1 flex flex-col items-center px-6 pt-safe">
-        {/* Spacer - shrinks when keyboard appears */}
-        <div className={`transition-all duration-200 ${keyboardVisible ? "h-8" : "h-[15vh]"}`} />
-
+      <div
+        className="flex-1 flex flex-col items-center px-6 transition-all duration-200"
+        style={{ paddingTop: keyboardVisible ? "calc(env(safe-area-inset-top) + 24px)" : "calc(env(safe-area-inset-top) + 80px)" }}
+      >
         <motion.form
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -162,12 +169,15 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           onSubmit={handleSubmit}
           className="flex w-full max-w-sm flex-col items-center"
         >
-          <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-white">
-            Setup Your Account
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            Set up profile
           </h1>
+          <p className="mt-1 mb-5 text-sm text-white/60">
+            Add a profile photo and name to show your vibes.
+          </p>
 
-          {/* Avatar - hide when keyboard visible to save space */}
-          <div className={`transition-all duration-200 ${keyboardVisible ? "scale-75 mb-2" : "mb-2"}`}>
+          {/* Avatar - hide completely when keyboard visible */}
+          <div className={`transition-all duration-200 overflow-hidden ${keyboardVisible ? "h-0 opacity-0 mb-0" : "h-auto opacity-100 mb-4"}`}>
             <div className="relative">
               <button
                 type="button"
@@ -214,14 +224,13 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           />
 
           {/* Username input */}
-          <div className="w-full mt-4">
-            <p className="mb-2 text-sm font-medium text-white/70 text-center">Pick a username</p>
+          <div className="w-full">
             <input
               ref={inputRef}
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="@codymaverick"
+              placeholder="Username"
               maxLength={20}
               autoCapitalize="off"
               autoCorrect="off"
@@ -235,12 +244,9 @@ export default function Setup({ userId, onComplete }: SetupProps) {
             disabled={!isValid || saving}
             className="mt-4 h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-60"
           >
-            {uploading ? "Uploading..." : saving ? "Saving..." : "Let's go"}
+            {uploading ? "Uploading..." : saving ? "Saving..." : "Continue"}
           </button>
         </motion.form>
-
-        {/* Bottom padding for safe area */}
-        <div className="h-8 pb-safe" />
       </div>
     </div>
   );
