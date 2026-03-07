@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import BottomNav from "@/components/BottomNav";
 import Challenges from "@/pages/Challenges";
@@ -128,6 +128,16 @@ function AppRoutes() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function KeyboardSetup() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -196,6 +206,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
           <UploadProvider>
+            <ScrollToTop />
             <KeyboardSetup />
             <DeepLinkHandler />
             <NativeSessionSync />
