@@ -170,10 +170,10 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           className="flex w-full max-w-sm flex-col items-center"
         >
           <h1 className="text-2xl font-extrabold tracking-tight text-white">
-            Set up profile
+            Setup Your Account
           </h1>
           <p className="mt-1 mb-5 text-sm text-white/60">
-            Add a profile photo and name to show your vibes.
+            Pick a profile photo and username
           </p>
 
           {/* Avatar - hide completely when keyboard visible */}
