@@ -39,8 +39,13 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   const measure = useCallback(() => {
     const el = document.querySelector(current.selector);
     if (el) {
-      const r = el.getBoundingClientRect();
-      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+      // Scroll element into view if needed
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Wait a bit for scroll to complete, then measure
+      setTimeout(() => {
+        const r = el.getBoundingClientRect();
+        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+      }, 300);
     }
   }, [current.selector]);
 
@@ -77,7 +82,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   const tooltipLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - 140, window.innerWidth - 296));
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <motion.div
         key={step}
         initial={{ opacity: 0, y: -4 }}
