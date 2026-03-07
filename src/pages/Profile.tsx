@@ -305,7 +305,7 @@ export default function Profile() {
         </div>
 
         {/* Stats row */}
-        <div className="mb-5 flex justify-center gap-10 text-center pt-[10px]">
+        <div className="mb-5 mx-auto grid grid-cols-3 text-center pt-[10px]" style={{ maxWidth: '280px' }}>
           <div>
             <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
