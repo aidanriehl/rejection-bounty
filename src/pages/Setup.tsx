@@ -177,8 +177,8 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           </p>
 
           {/* Avatar - hide completely when keyboard visible */}
-          <div className={`transition-all duration-200 overflow-hidden ${keyboardVisible ? "h-0 opacity-0 mb-0" : "h-auto opacity-100 mb-4"}`}>
-            <div className="relative">
+          <div className={`transition-all duration-200 ${keyboardVisible ? "h-0 opacity-0 overflow-hidden mb-0" : "h-auto opacity-100 mb-4"}`}>
+            <div className="relative px-2">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
