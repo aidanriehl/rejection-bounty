@@ -25,6 +25,7 @@ function isNative(): boolean {
 
 const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "uxjjfbxpednwxggeicld";
 const AUTH_KEY = `sb-${PROJECT_ID}-auth-token`;
+const PROFILE_KEY = `app-cached-profile`;
 
 export const capacitorStorage: Storage = {
   get length() {
@@ -123,5 +124,58 @@ export async function rehydrateOnForeground(): Promise<void> {
     }
   } catch (e) {
     console.warn("[capacitor-storage] Foreground rehydration failed:", e);
+  }
+}
+
+/**
+ * Cache profile data to native Preferences so it survives app restarts
+ * even if the network profile fetch fails.
+ */
+export async function cacheProfile(profile: unknown): Promise<void> {
+  try {
+    const json = JSON.stringify(profile);
+    localStorage.setItem(PROFILE_KEY, json);
+    if (isNative()) {
+      await Preferences.set({ key: PROFILE_KEY, value: json });
+    }
+  } catch (e) {
+    console.warn("[capacitor-storage] cacheProfile error:", e);
+  }
+}
+
+/**
+ * Retrieve cached profile from native Preferences (fallback if network fails).
+ */
+export async function getCachedProfile(): Promise<unknown | null> {
+  try {
+    const local = localStorage.getItem(PROFILE_KEY);
+    if (local) {
+      return JSON.parse(local);
+    }
+    if (isNative()) {
+      const { value } = await Preferences.get({ key: PROFILE_KEY });
+      if (value) {
+        const parsed = JSON.parse(value);
+        localStorage.setItem(PROFILE_KEY, value);
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn("[capacitor-storage] getCachedProfile error:", e);
+  }
+  return null;
+}
+
+/**
+ * Clear cached profile (on sign out).
+ */
+export async function clearCachedProfile(): Promise<void> {
+  try {
+    localStorage.removeItem(PROFILE_KEY);
+    if (isNative()) {
+      await Preferences.remove({ key: PROFILE_KEY });
+    }
+  } catch (e) {
+    console.warn("[capacitor-storage] clearCachedProfile error:", e);
   }
 }
