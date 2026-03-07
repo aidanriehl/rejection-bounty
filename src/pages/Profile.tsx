@@ -255,13 +255,13 @@ export default function Profile() {
                 navigate("/challenges");
                 setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground"
             >
               <Info className="h-5 w-5" />
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground"
             >
               <Settings className="h-5 w-5" />
             </button>
