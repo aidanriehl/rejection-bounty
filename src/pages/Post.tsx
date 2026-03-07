@@ -306,9 +306,10 @@ export default function PostPage() {
               </button>
             </div>
 
-            {/* Video preview */}
+            {/* Video + Trimmer centered vertically in available space */}
             <div className="flex-1 flex flex-col items-center justify-center px-4">
               <div className="w-full max-w-[280px]">
+                {/* Video preview */}
                 <div className="relative overflow-hidden rounded-2xl bg-black">
                   <div className="aspect-[9/16] w-full">
                     <video
@@ -316,7 +317,6 @@ export default function PostPage() {
                       src={videoUrl}
                       className="h-full w-full object-cover"
                       onLoadedData={handleVideoLoaded}
-                      onClick={togglePlayPause}
                       playsInline
                       autoPlay
                       muted
@@ -325,36 +325,24 @@ export default function PostPage() {
                       controls={false}
                     />
                   </div>
-
-                  {/* Play/Pause overlay */}
-                  <button
-                    onClick={togglePlayPause}
-                    className="absolute bottom-3 left-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5 ml-0.5" />
-                    )}
-                  </button>
                 </div>
-              </div>
-            </div>
 
-            {/* Trim controls */}
-            <div className="px-4 pb-6" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-              {duration > 0 && (
-                <VideoTrimmer
-                  videoUrl={videoUrl}
-                  duration={duration}
-                  trimStart={trimStart}
-                  trimEnd={trimEnd}
-                  onTrimChange={handleTrimChange}
-                  onScrub={handleScrub}
-                  currentTime={currentTime}
-                  isPlaying={isPlaying}
-                />
-              )}
+                {/* Trim controls — directly under video */}
+                {duration > 0 && (
+                  <div className="mt-2">
+                    <VideoTrimmer
+                      videoUrl={videoUrl}
+                      duration={duration}
+                      trimStart={trimStart}
+                      trimEnd={trimEnd}
+                      onTrimChange={handleTrimChange}
+                      onScrub={handleScrub}
+                      currentTime={currentTime}
+                      isPlaying={isPlaying}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
