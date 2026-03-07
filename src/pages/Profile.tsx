@@ -302,7 +302,7 @@ export default function Profile() {
         </div>
 
         {/* Stats row */}
-        <div className="mb-5 flex justify-around text-center pt-[10px] pr-[50px] pl-[70px]">
+        <div className="mb-5 grid grid-cols-3 text-center pt-[10px]">
           <div>
             <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
@@ -310,14 +310,12 @@ export default function Profile() {
           <div
             className="cursor-pointer"
             onClick={() => navigate("/friends?tab=friends")}>
-            
             <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
           </div>
           <div
             className="cursor-pointer"
             onClick={() => navigate("/friends?tab=following")}>
-            
             <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
           </div>
