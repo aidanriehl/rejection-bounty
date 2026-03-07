@@ -390,41 +390,49 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Video grid - full width, no padding */}
-      {loadingPosts ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : posts.length === 0 ? (
-        <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-3 gap-px bg-border">
-          {posts.map((post) => {
-            // Use stored thumbnail URL (video_url field)
-            const thumbnailUrl = post.video_url;
+      {/* Video grid - full width */}
+      <div className="w-full">
+        {loadingPosts ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="flex items-center justify-center py-16">
+            <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-0.5">
+            {posts.map((post) => {
+              // Use stored thumbnail URL (video_url field), fallback to Cloudflare generated
+              const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+              const thumbnailUrl = post.video_url || (post.video_id
+                ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
+                : null);
 
-            return (
-              <div
-                key={post.id}
-                className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
-                onClick={() => setSelectedPost(post)}
-              >
-                {thumbnailUrl ? (
-                  <img
-                    src={thumbnailUrl}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-muted" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+              return (
+                <div
+                  key={post.id}
+                  className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
+                  onClick={() => setSelectedPost(post)}
+                >
+                  {thumbnailUrl ? (
+                    <img
+                      src={thumbnailUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-muted" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Video player modal */}
       {selectedPost && selectedPost.video_id && (
