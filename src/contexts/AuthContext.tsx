@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -69,11 +69,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const profileRef = useRef<Profile | null>(null);
 
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
-      setProfile(profileData);
+      if (profileData) {
+        profileRef.current = profileData;
+        setProfile(profileData);
+      }
     }
   };
 
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Handle token refresh failures — sign out cleanly
         if (event === "TOKEN_REFRESHED" && !session) {
           console.error("[AuthContext] Token refresh failed, signing out");
+          profileRef.current = null;
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -98,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Handle explicit sign out
         if (event === "SIGNED_OUT") {
           console.log("[AuthContext] User signed out");
+          profileRef.current = null;
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -108,16 +114,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(currentUser);
 
         if (currentUser) {
+          // Skip re-fetch if we already have a valid profile for this user
+          const existingProfile = profileRef.current;
+          if (existingProfile?.id === currentUser.id && existingProfile?.username) {
+            console.log("[AuthContext] Skipping profile re-fetch, already loaded");
+            setLoading(false);
+            return;
+          }
+
           // Defer profile fetch to avoid Supabase auth deadlock
           setTimeout(async () => {
             if (!mounted) return;
             const profileData = await fetchProfile(currentUser.id);
             if (mounted) {
-              setProfile(profileData);
+              // Only update profile if we got valid data, don't overwrite existing profile with null
+              if (profileData) {
+                profileRef.current = profileData;
+                setProfile(profileData);
+              } else {
+                console.warn("[AuthContext] Profile re-fetch returned null, keeping existing profile");
+              }
               setLoading(false);
             }
           }, 0);
         } else {
+          profileRef.current = null;
           setProfile(null);
           setLoading(false);
         }
@@ -143,7 +164,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentUser) {
         const profileData = await fetchProfile(currentUser.id);
         if (mounted) {
-          setProfile(profileData);
+          if (profileData) {
+            profileRef.current = profileData;
+            setProfile(profileData);
+          }
           setLoading(false);
         }
       } else {
@@ -159,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    profileRef.current = null;
     setUser(null);
     setProfile(null);
   };
