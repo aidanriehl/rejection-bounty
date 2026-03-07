@@ -456,10 +456,7 @@ export default function Profile() {
           </button>
 
           {/* Right side actions */}
-          <div
-            className="absolute right-4 flex flex-col items-center gap-5"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}
-          >
+          <div className="absolute right-4 bottom-36 flex flex-col items-center gap-5">
             <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
             <button className="flex flex-col items-center gap-1">
               <Heart className="h-7 w-7 text-white drop-shadow-md" />
@@ -475,10 +472,7 @@ export default function Profile() {
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
           {/* Bottom info */}
-          <div
-            className="absolute left-5 right-20"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}
-          >
+          <div className="absolute bottom-8 left-5 right-20">
             <div className="flex items-center gap-2.5 mb-1.5">
               <span className="text-sm font-semibold text-white drop-shadow-md">@{username}</span>
             </div>
