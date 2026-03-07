@@ -157,6 +157,7 @@ export default function PostPage() {
       const dur = video.duration;
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
+      video.muted = false;
       video.play();
     }
   };
