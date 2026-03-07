@@ -56,6 +56,7 @@ export default function Challenges() {
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
   const [choiceChallenge, setChoiceChallenge] = useState<Challenge | null>(null);
   const [cameraChallenge, setCameraChallenge] = useState<Challenge | null>(null);
+  const libraryFileRef = useRef<HTMLInputElement>(null);
   const [subscribers, setSubscribers] = useState<number>(0);
   const [prizePool, setPrizePool] = useState<number>(0);
   const [ticketCount, setTicketCount] = useState<number | null>(null);
