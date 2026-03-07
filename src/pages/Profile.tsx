@@ -261,7 +261,7 @@ export default function Profile() {
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground"
             >
               <Settings className="h-5 w-5" />
             </button>
