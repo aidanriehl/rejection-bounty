@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
+import FriendsPage from "@/pages/Friends";
 import FeatureTour from "@/components/FeatureTour";
 import AuthCallback from "@/pages/AuthCallback";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
