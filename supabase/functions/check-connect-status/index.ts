@@ -40,9 +40,7 @@ serve(async (req) => {
     }
 
     // Check status with Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "");
 
     const account = await stripe.accounts.retrieve(connectData.stripe_account_id);
     const onboardingComplete = account.details_submitted ?? false;
