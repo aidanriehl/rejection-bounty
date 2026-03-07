@@ -25,6 +25,7 @@ function isNative(): boolean {
 
 const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "uxjjfbxpednwxggeicld";
 const AUTH_KEY = `sb-${PROJECT_ID}-auth-token`;
+const PROFILE_KEY = `app-cached-profile`;
 
 export const capacitorStorage: Storage = {
   get length() {
