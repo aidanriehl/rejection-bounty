@@ -480,10 +480,10 @@ export default function Profile() {
             style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}
           >
             <div className="flex items-center gap-2.5 mb-1.5">
-              <span className="text-sm font-semibold text-white drop-shadow-md">@{username}</span>
+              <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
             {selectedPost.caption && (
-              <p className="text-xs text-white/80 drop-shadow-md">{selectedPost.caption}</p>
+              <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
             )}
           </div>
         </div>
