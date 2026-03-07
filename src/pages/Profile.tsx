@@ -23,23 +23,23 @@ const MILESTONES = [10, 50, 100, 150, 200] as const;
 
 export type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
 
-const MEDAL_COLORS: Record<MedalTier, { fill: string; stroke: string; ribbon: string }> = {
-  bronze:   { fill: "#CD7F32", stroke: "#A0522D", ribbon: "#8B4513" },
-  silver:   { fill: "#C0C0C0", stroke: "#A8A8A8", ribbon: "#808080" },
-  gold:     { fill: "#FFD700", stroke: "#DAA520", ribbon: "#B8860B" },
-  diamond:  { fill: "#B9F2FF", stroke: "#7EC8E3", ribbon: "#4A90D9" },
-  champion: { fill: "#E8D44D", stroke: "#DAA520", ribbon: "#8B0000" },
+const MEDAL_COLORS: Record<MedalTier, {fill: string;stroke: string;ribbon: string;}> = {
+  bronze: { fill: "#CD7F32", stroke: "#A0522D", ribbon: "#8B4513" },
+  silver: { fill: "#C0C0C0", stroke: "#A8A8A8", ribbon: "#808080" },
+  gold: { fill: "#FFD700", stroke: "#DAA520", ribbon: "#B8860B" },
+  diamond: { fill: "#B9F2FF", stroke: "#7EC8E3", ribbon: "#4A90D9" },
+  champion: { fill: "#E8D44D", stroke: "#DAA520", ribbon: "#8B0000" }
 };
 
-const MEDALS: Record<number, { tier: MedalTier; label: string }> = {
-  10:  { tier: "bronze", label: "Bronze" },
-  50:  { tier: "silver", label: "Silver" },
+const MEDALS: Record<number, {tier: MedalTier;label: string;}> = {
+  10: { tier: "bronze", label: "Bronze" },
+  50: { tier: "silver", label: "Silver" },
   100: { tier: "gold", label: "Gold" },
   150: { tier: "diamond", label: "Diamond" },
-  200: { tier: "champion", label: "Champion" },
+  200: { tier: "champion", label: "Champion" }
 };
 
-function MedalIcon({ tier, size = 28 }: { tier: MedalTier; size?: number }) {
+function MedalIcon({ tier, size = 28 }: {tier: MedalTier;size?: number;}) {
   const c = MEDAL_COLORS[tier];
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,8 +47,8 @@ function MedalIcon({ tier, size = 28 }: { tier: MedalTier; size?: number }) {
       <circle cx="16" cy="20" r="10" fill={c.fill} stroke={c.stroke} strokeWidth="1.5" />
       <circle cx="16" cy="20" r="6.5" fill="none" stroke={c.stroke} strokeWidth="0.8" opacity="0.5" />
       <path d="M16 15.5L17.5 18.5L20.5 19L18.2 21.2L18.8 24.5L16 23L13.2 24.5L13.8 21.2L11.5 19L14.5 18.5Z" fill={c.stroke} opacity="0.6" />
-    </svg>
-  );
+    </svg>);
+
 }
 
 function getMilestone(completed: number) {
@@ -90,10 +90,10 @@ export default function Profile() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [friendsCount, setFriendsCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  
+
 
   // Milestone celebration — check if a new milestone was just reached
-  const [celebrateMilestone, setCelebrateMilestone] = useState<{ tier: MedalTier; milestone: number } | null>(null);
+  const [celebrateMilestone, setCelebrateMilestone] = useState<{tier: MedalTier;milestone: number;} | null>(null);
 
   useEffect(() => {
     if (!user || totalCompleted === 0) return;
@@ -115,16 +115,16 @@ export default function Profile() {
     const fetchCounts = async () => {
       if (!user) return;
       // Following = people I follow
-      const { count: fCount } = await supabase
-        .from("friendships")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      const { count: fCount } = await supabase.
+      from("friendships").
+      select("*", { count: "exact", head: true }).
+      eq("user_id", user.id);
       setFollowingCount(fCount ?? 0);
       // Friends = people who follow me
-      const { count: frCount } = await supabase
-        .from("friendships")
-        .select("*", { count: "exact", head: true })
-        .eq("friend_id", user.id);
+      const { count: frCount } = await supabase.
+      from("friendships").
+      select("*", { count: "exact", head: true }).
+      eq("friend_id", user.id);
       setFriendsCount(frCount ?? 0);
     };
     fetchCounts();
@@ -138,16 +138,16 @@ export default function Profile() {
         return;
       }
       setLoadingPosts(true);
-      const { data, error } = await supabase
-        .from("posts")
-        .select("id, video_id, thumbnail_time, caption, likes, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.
+      from("posts").
+      select("id, video_id, thumbnail_time, caption, likes, created_at").
+      eq("user_id", user.id).
+      order("created_at", { ascending: false });
 
       if (error) {
         console.error("Failed to fetch posts:", error);
       }
-      setPosts((data as UserPost[]) ?? []);
+      setPosts(data as UserPost[] ?? []);
       setLoadingPosts(false);
     };
 
@@ -171,18 +171,18 @@ export default function Profile() {
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const filePath = `${user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage.
+      from("avatars").
+      upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.
+      from("avatars").
+      getPublicUrl(filePath);
       const urlWithBuster = `${publicUrl}?t=${Date.now()}`;
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ profile_photo_url: urlWithBuster })
-        .eq("id", user.id);
+      const { error: updateError } = await supabase.
+      from("profiles").
+      update({ profile_photo_url: urlWithBuster }).
+      eq("id", user.id);
       if (updateError) throw updateError;
       setProfile({ ...profile!, profile_photo_url: urlWithBuster });
     } catch (err) {
@@ -211,12 +211,12 @@ export default function Profile() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   const ms = getMilestone(totalCompleted);
-  const progressPct = Math.min((ms.current / ms.goal) * 100, 100);
+  const progressPct = Math.min(ms.current / ms.goal * 100, 100);
 
   // Calculate weeks since signup for percentage
   const weeksSinceSignup = (() => {
@@ -227,25 +227,25 @@ export default function Profile() {
     const weeks = Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
     return weeks;
   })();
-  const weeksCompletedPct = Math.min(Math.round((weeksCompleted / weeksSinceSignup) * 100), 100);
+  const weeksCompletedPct = Math.min(Math.round(weeksCompleted / weeksSinceSignup * 100), 100);
 
   return (
     <div className="min-h-screen pb-24" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
-      {celebrateMilestone && (
-        <MilestoneCelebration
-          tier={celebrateMilestone.tier}
-          milestone={celebrateMilestone.milestone}
-          onDone={() => setCelebrateMilestone(null)}
-        />
-      )}
+      {celebrateMilestone &&
+      <MilestoneCelebration
+        tier={celebrateMilestone.tier}
+        milestone={celebrateMilestone.milestone}
+        onDone={() => setCelebrateMilestone(null)} />
+
+      }
       <div className="mx-auto max-w-lg px-4">
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button
             data-tour="why-rejected"
             onClick={() => setShowWhyModal(true)}
-            className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70"
-          >
+            className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70">
+            
             <HelpCircle className="h-3.5 w-3.5" />
             Why get rejected?
           </button>
@@ -255,14 +255,14 @@ export default function Profile() {
                 navigate("/challenges");
                 setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
               }}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground"
-            >
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground">
+              
               <Info className="h-5 w-5" />
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground"
-            >
+              className="flex h-11 w-11 items-center justify-center rounded-full text-foreground">
+              
               <Settings className="h-5 w-5" />
             </button>
           </div>
@@ -276,48 +276,48 @@ export default function Profile() {
             onPointerUp={handleLongPressEnd}
             onPointerLeave={handleLongPressEnd}
             onContextMenu={(e) => e.preventDefault()}
-            onClick={() => !photoUrl && setShowPhotoMenu(true)}
-          >
+            onClick={() => !photoUrl && setShowPhotoMenu(true)}>
+            
             <AvatarDisplay
               avatar={avatar}
               stage={avatarStage}
               size="lg"
               photoUrl={photoUrl}
-              className="!h-20 !w-20 !text-4xl"
-            />
-            {!photoUrl && (
-              <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary border-[2px] border-background shadow-sm">
+              className="!h-20 !w-20 !text-4xl" />
+            
+            {!photoUrl &&
+            <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary border-[2px] border-background shadow-sm">
                 <span className="text-[9px] font-bold text-primary-foreground leading-none">+</span>
               </div>
-            )}
+            }
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoUpload} />
           </div>
-          {uploading && (
-            <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
-          )}
+          {uploading &&
+          <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
+          }
 
           {/* Username */}
           <h1 className="mt-2 text-base font-extrabold text-foreground">@{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
-        <div className="mb-5 flex justify-around text-center">
+        <div className="mb-5 flex justify-around text-center pt-[10px] pr-[50px] pl-[70px]">
           <div>
             <p className="text-xl font-extrabold text-foreground leading-none">{posts.length}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Posts</p>
           </div>
           <div
             className="cursor-pointer"
-            onClick={() => navigate("/friends?tab=friends")}
-          >
+            onClick={() => navigate("/friends?tab=friends")}>
+            
             <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
           </div>
           <div
             className="cursor-pointer"
-            onClick={() => navigate("/friends?tab=following")}
-          >
+            onClick={() => navigate("/friends?tab=following")}>
+            
             <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">Following</p>
           </div>
@@ -350,19 +350,19 @@ export default function Profile() {
               <span className="text-2xl font-extrabold leading-none text-foreground">{ms.current}/{ms.goal}</span>
             </div>
             <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">Challenges</p>
-            {ms.medal && (
-              <div className="flex items-center gap-1 mt-1">
+            {ms.medal &&
+            <div className="flex items-center gap-1 mt-1">
                 <MedalIcon tier={ms.medal.tier} size={14} />
                 <span className="text-[9px] font-semibold text-muted-foreground">{ms.medal.label}</span>
               </div>
-            )}
+            }
             <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-primary"
                 initial={false}
                 animate={{ width: `${progressPct}%` }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              />
+                transition={{ type: "spring", stiffness: 200, damping: 20 }} />
+              
             </div>
           </div>
 
@@ -378,8 +378,8 @@ export default function Profile() {
                 className="h-full rounded-full bg-primary"
                 initial={false}
                 animate={{ width: `${weeksCompletedPct}%` }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              />
+                transition={{ type: "spring", stiffness: 200, damping: 20 }} />
+              
             </div>
           </div>
         </div>
@@ -390,45 +390,45 @@ export default function Profile() {
         </div>
 
         {/* Video grid */}
-        {loadingPosts ? (
-          <div className="flex items-center justify-center py-16">
+        {loadingPosts ?
+        <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
+          </div> :
+        posts.length === 0 ?
+        <div className="flex items-center justify-center py-16">
             <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-0.5">
-            {posts.map((post) => {
-              const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
-              const thumbnailUrl = post.video_id
-                ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
-                : "/placeholder.svg";
+          </div> :
 
-              return (
-                <div
-                  key={post.id}
-                  className="relative aspect-[9/16] bg-muted overflow-hidden"
-                >
+        <div className="grid grid-cols-3 gap-0.5">
+            {posts.map((post) => {
+            const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+            const thumbnailUrl = post.video_id ?
+            `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
+            "/placeholder.svg";
+
+            return (
+              <div
+                key={post.id}
+                className="relative aspect-[9/16] bg-muted overflow-hidden">
+                
                   <img
-                    src={thumbnailUrl}
-                    alt={post.caption || "Video"}
-                    className="h-full w-full object-cover"
-                  />
+                  src={thumbnailUrl}
+                  alt={post.caption || "Video"}
+                  className="h-full w-full object-cover" />
+                
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/30 transition-opacity">
                     <Play className="h-8 w-8 text-white fill-white" />
                   </div>
                   <div className="absolute bottom-1 left-1 flex items-center gap-1 text-white text-xs drop-shadow-md">
                     <span>❤️ {post.likes}</span>
                   </div>
-                </div>
-              );
-            })}
+                </div>);
+
+          })}
           </div>
-        )}
+        }
       </div>
 
-    </div>
-  );
+    </div>);
+
 }
