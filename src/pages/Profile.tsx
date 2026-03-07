@@ -110,17 +110,24 @@ export default function Profile() {
     }
   }, [totalCompleted, user]);
 
-  // Fetch friends count
+  // Fetch friends (followers) and following counts
   useEffect(() => {
-    const fetchFriends = async () => {
+    const fetchCounts = async () => {
       if (!user) return;
-      const { count } = await supabase
+      // Following = people I follow
+      const { count: fCount } = await supabase
         .from("friendships")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id);
-      setFriendsCount(count ?? 0);
+      setFollowingCount(fCount ?? 0);
+      // Friends = people who follow me
+      const { count: frCount } = await supabase
+        .from("friendships")
+        .select("*", { count: "exact", head: true })
+        .eq("friend_id", user.id);
+      setFriendsCount(frCount ?? 0);
     };
-    fetchFriends();
+    fetchCounts();
   }, [user]);
 
   // Fetch user's posts
