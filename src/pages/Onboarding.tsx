@@ -280,7 +280,7 @@ export default function Onboarding() {
             
                 <span className="mb-3 text-5xl">✉️</span>
                 <h1 className="mb-4 text-2xl font-bold text-primary-foreground text-center">
-                  {isJoining ? "Join with your email" : "Log in with your email"}
+                  {isJoining ? "Join With Your Email!" : "Log in with your email"}
                 </h1>
 
                 <div className="w-full max-w-sm space-y-3">
