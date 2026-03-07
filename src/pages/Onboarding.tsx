@@ -254,7 +254,7 @@ export default function Onboarding() {
                   100 rejections will change your life
                 </p>
 
-                <div className="w-full max-w-sm space-y-3">
+                <div className="w-full max-w-sm space-y-3 -mt-2">
                   <button
                     onClick={() => { setIsJoining(true); setMode("form"); }}
                     className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md"
