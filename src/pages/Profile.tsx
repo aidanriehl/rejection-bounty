@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Play, Loader2 } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, X, Info, Loader2 } from "lucide-react";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -88,6 +88,7 @@ export default function Profile() {
   // User's posts
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [selectedPost, setSelectedPost] = useState<UserPost | null>(null);
   const [friendsCount, setFriendsCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
@@ -386,47 +387,70 @@ export default function Profile() {
         <div className="mb-0.5 flex justify-center border-b border-border pb-2">
           <Grid3X3 className="h-5 w-5 text-foreground" />
         </div>
+      </div>
 
-        {/* Video grid */}
-        {loadingPosts ?
+      {/* Video grid - full width, no padding */}
+      {loadingPosts ? (
         <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div> :
-        posts.length === 0 ?
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : posts.length === 0 ? (
         <div className="flex items-center justify-center py-16">
-            <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
-          </div> :
-
-        <div className="grid grid-cols-3 gap-0.5">
-            {posts.map((post) => {
+          <p className="text-sm text-muted-foreground text-center">No videos uploaded yet</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-px bg-border">
+          {posts.map((post) => {
             const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
-            const thumbnailUrl = post.video_id ?
-            `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
-            "/placeholder.svg";
+            const thumbnailUrl = post.video_id
+              ? `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s`
+              : null;
 
             return (
               <div
                 key={post.id}
-                className="relative aspect-[9/16] bg-muted overflow-hidden">
-                
+                className="relative aspect-[9/16] bg-muted overflow-hidden cursor-pointer"
+                onClick={() => setSelectedPost(post)}
+              >
+                {thumbnailUrl ? (
                   <img
-                  src={thumbnailUrl}
-                  alt={post.caption || "Video"}
-                  className="h-full w-full object-cover" />
-                
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/30 transition-opacity">
-                    <Play className="h-8 w-8 text-white fill-white" />
-                  </div>
-                  <div className="absolute bottom-1 left-1 flex items-center gap-1 text-white text-xs drop-shadow-md">
-                    <span>❤️ {post.likes}</span>
-                  </div>
-                </div>);
-
+                    src={thumbnailUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted" />
+                )}
+              </div>
+            );
           })}
-          </div>
-        }
-      </div>
+        </div>
+      )}
 
-    </div>);
-
+      {/* Video player modal */}
+      {selectedPost && selectedPost.video_id && (
+        <div
+          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+          onClick={() => setSelectedPost(null)}
+        >
+          <button
+            onClick={() => setSelectedPost(null)}
+            className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white"
+            style={{ top: 'calc(env(safe-area-inset-top) + 16px)' }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <iframe
+            src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=true`}
+            className="w-full h-full max-w-lg"
+            style={{ aspectRatio: '9/16', maxHeight: '90vh' }}
+            allow="autoplay; fullscreen"
+          />
+        </div>
+      )}
+    </div>
+  );
 }
