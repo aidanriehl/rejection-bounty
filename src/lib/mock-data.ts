@@ -86,7 +86,9 @@ export const getCompletedCount = (challenges: Challenge[]) =>
 export const getTimeUntilSunday = () => {
   const now = new Date();
   const sunday = new Date(now);
-  sunday.setDate(now.getDate() + (7 - now.getDay()));
+  const daysUntilSunday = now.getDay() === 0 ? 0 : 7 - now.getDay();
+  sunday.setDate(now.getDate() + daysUntilSunday);
+  sunday.setHours(23, 59, 59, 999);
   sunday.setHours(0, 0, 0, 0);
   const diff = sunday.getTime() - now.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
