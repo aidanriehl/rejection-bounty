@@ -208,9 +208,8 @@ export default function PostPage() {
 
   const handlePost = () => {
     if (!videoFile) return;
-    // Calculate thumbnail time from selected index
-    const frameCount = thumbnailFrames.length || 1;
-    const thumbTime = trimStart + (selectedThumbIndex / Math.max(1, frameCount - 1)) * (trimEnd - trimStart);
+    const trimDuration = trimEnd - trimStart;
+    const thumbTime = trimStart + (coverSliderValue / 100) * trimDuration;
     startUpload(videoFile, {
       challengeTitle,
       challengeId,
@@ -220,10 +219,6 @@ export default function PostPage() {
       thumbnailTime: thumbTime,
     });
     navigate("/challenges");
-  };
-
-  const handleSelectThumbnail = (index: number) => {
-    setSelectedThumbIndex(index);
   };
 
   return (
