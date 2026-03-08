@@ -473,7 +473,7 @@ export default function Admin() {
     completions.filter((c) => c.user_id === userId);
 
   const getChallengeInfo = (challengeId: string) => {
-    const ch = mockChallenges.find((c) => c.id === challengeId);
+    const ch = challenges.find((c) => c.id === challengeId);
     return ch ? { emoji: ch.emoji, title: ch.title } : { emoji: "🎯", title: `Challenge ${challengeId}` };
   };
 

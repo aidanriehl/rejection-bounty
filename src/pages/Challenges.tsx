@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
+import { getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
 import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
 import { useAuth } from "@/hooks/useAuth";
