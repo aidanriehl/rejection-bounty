@@ -76,22 +76,13 @@ export default function Challenges() {
 
       if (error) {
         console.error("Failed to fetch challenges:", error);
-        // Fallback to mock challenges if DB fails
-        setChallenges(mockChallenges);
+        setChallenges([]);
         setLoadingChallenges(false);
         return;
       }
 
-      // If no challenges in DB for this week, use mock challenges
       if (!dbChallenges || dbChallenges.length === 0) {
-        console.log("No challenges in DB for week", weekKey, "- using mock challenges");
-        const saved = localStorage.getItem(`${weekKey}-completed`);
-        if (saved) {
-          const completedIds: string[] = JSON.parse(saved);
-          setChallenges(mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) })));
-        } else {
-          setChallenges(mockChallenges);
-        }
+        setChallenges([]);
         setLoadingChallenges(false);
         return;
       }
