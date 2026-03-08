@@ -89,10 +89,20 @@ export default function DuoButton({
         "h-14",
         // Variants
         isPrimary
-          ? `bg-primary-foreground text-primary shadow-[0_${depth}px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]`
-          : `border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_${depth}px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]`,
+          ? subtle
+            ? "bg-primary-foreground text-primary shadow-[0_2px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]"
+            : "bg-primary-foreground text-primary shadow-[0_4px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]"
+          : subtle
+            ? "border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_2px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]"
+            : "border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_4px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]",
         // Disabled
-        `disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_${depth}px_0_0_hsl(0_0%_85%)]`,
+        isPrimary
+          ? subtle
+            ? "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_2px_0_0_hsl(0_0%_85%)]"
+            : "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_0_hsl(0_0%_85%)]"
+          : subtle
+            ? "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_2px_0_0_hsl(160_30%_35%)]"
+            : "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_0_hsl(160_30%_35%)]",
         className,
       )}
       {...props}
