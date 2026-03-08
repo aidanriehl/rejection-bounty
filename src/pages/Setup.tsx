@@ -5,6 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { compressImage } from "@/lib/imageUtils";
+import DuoButton from "@/components/DuoButton";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
