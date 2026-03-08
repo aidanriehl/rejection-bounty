@@ -170,7 +170,11 @@ export default function PostPage() {
       setDuration(dur);
       setTrimEnd(Math.min(dur, 30));
       video.muted = false;
-      video.play();
+      video.play().catch(() => {
+        // Browser blocked unmuted autoplay; play muted then unmute on first interaction
+        video.muted = true;
+        video.play();
+      });
     }
   };
 
