@@ -327,7 +327,7 @@ export default function Profile() {
         </div>
 
         {/* Stat cards - 2 columns side by side, wider */}
-        <div className="mb-5 grid grid-cols-2 gap-2" style={{ margin: '0 -4px' }}>
+        <div className="mb-5 grid grid-cols-2 gap-2 px-2">
           {/* Week Streak card */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-1.5">
