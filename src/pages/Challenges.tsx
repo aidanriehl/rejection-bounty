@@ -66,6 +66,7 @@ export default function Challenges() {
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
+  const hasFetchedRef = useRef(false);
 
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
