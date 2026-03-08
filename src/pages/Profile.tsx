@@ -322,15 +322,15 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Stat cards - 2 cards stacked */}
-        <div className="mb-5 mx-auto flex flex-col gap-2.5" style={{ maxWidth: '80%' }}>
+        {/* Stat cards - 2 column grid */}
+        <div className="mb-5 mx-auto grid grid-cols-2 gap-2.5" style={{ maxWidth: '92%' }}>
           {/* Week Streak card */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-2">
               <span className="text-lg leading-none">🔥</span>
               <span className="text-base font-bold text-foreground">{streak} Week Streak</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">best: {bestStreak}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Longest: {bestStreak}</p>
           </div>
 
           {/* Challenges card */}
@@ -344,7 +344,7 @@ export default function Profile() {
                 </>
               }
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">weeks done: {weeksCompletedPct}%</p>
+            <p className="mt-1 text-xs text-muted-foreground">Weeks Completed: {weeksCompletedPct}%</p>
           </div>
         </div>
 
