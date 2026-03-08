@@ -279,8 +279,9 @@ export default function PostPage() {
               <div className="w-full flex flex-col min-h-0 flex-1 items-center">
                 {/* Video preview - fixed 9:16 aspect ratio, sized to fit */}
                 <div
-                  className="relative overflow-hidden rounded-2xl bg-black"
+                  className="relative overflow-hidden rounded-2xl bg-black cursor-pointer"
                   style={{ aspectRatio: '9/16', maxHeight: 'calc(100vh - 260px)', width: 'auto' }}
+                  onClick={togglePlayPause}
                 >
                   <video
                     ref={videoRef}
@@ -298,7 +299,7 @@ export default function PostPage() {
 
                 {/* Trim controls with play button - same width as video */}
                 {duration > 0 && (
-                  <div className="mt-1 shrink-0 w-full" style={{ maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
+                  <div className="mt-[10px] shrink-0 w-full" style={{ maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
                     <VideoTrimmer
                       videoUrl={videoUrl}
                       duration={duration}
