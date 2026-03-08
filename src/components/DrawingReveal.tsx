@@ -598,19 +598,26 @@ export default function DrawingReveal({
       <AnimatePresence>
         {showVideo && (
           <motion.div
-            className="flex flex-col items-center w-full max-w-sm"
+            className="flex flex-col items-center w-full px-6"
+            style={{ maxHeight: "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem)" }}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {/* Video player */}
-            <div className="w-full aspect-[9/16] rounded-2xl overflow-hidden border-2 shadow-2xl" style={{ borderColor: "hsl(var(--border))" }}>
+            {/* Video player — height-constrained so it doesn't overflow */}
+            <div
+              className="w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden border-2 shadow-2xl flex-shrink"
+              style={{
+                borderColor: "hsl(var(--border))",
+                maxHeight: "55vh",
+              }}
+            >
               <WinningVideoPlayer videoId={winningVideoId} emoji={winningEmoji} />
             </div>
 
             {/* Winner info below video */}
             <motion.div
-              className="mt-4 text-center"
+              className="mt-3 text-center"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -618,7 +625,7 @@ export default function DrawingReveal({
               <p className="text-lg font-bold text-foreground">
                 wins <span className="text-primary">${potAmount.toLocaleString()}</span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">Congratulations! 🎉</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Congratulations! 🎉</p>
             </motion.div>
 
             {/* Continue button */}
@@ -627,7 +634,7 @@ export default function DrawingReveal({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               onClick={onContinue}
-              className="mt-4 w-full rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+              className="mt-3 w-full max-w-xs rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
             >
               See Last Week's Recap
             </motion.button>
