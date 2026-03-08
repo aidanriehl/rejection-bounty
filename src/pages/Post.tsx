@@ -367,12 +367,9 @@ export default function PostPage() {
 
             {/* Section B: Content */}
             <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[23px]">
-              <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
-
               {/* Thumbnail preview */}
-              <div className="mb-4 flex justify-center">
+              <div className="mb-3 flex justify-center">
                 <div className="w-32 overflow-hidden rounded-xl bg-muted">
-                  <div className="aspect-[9/16] w-full flex items-center justify-center">
                     {loadingThumbnails ? (
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     ) : thumbnailFrames.length > 0 ? (
