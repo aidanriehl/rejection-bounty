@@ -12,44 +12,44 @@ interface TourStep {
 }
 
 const STEPS: TourStep[] = [
-  {
-    title: "Each week we'll assign you 8 challenges",
-    description: "Complete 5 of them to beat your week.",
-    highlightSelector: '[data-tour="challenge-list"]',
-    tooltipSide: "above",
-    capToViewport: true,
-  },
-  {
-    title: "Upload challenge videos for prize entries",
-    description: "Free users get 1 entry. Subscribers get 2 per challenge + 3 bonus for completing 5 (the max).",
-    highlightSelector: '[data-tour="upload-btn"]',
-    tooltipSide: "above",
-  },
-  {
-    title: "Submitting videos should feel uncomfortable",
-    description: "But that's the point, discomfort is where you grow.",
-    highlightSelector: '[data-tour="upload-btn"]',
-    tooltipSide: "above",
-  },
-  {
-    title: "Number of players",
-    description: "People who pay to play on this app are **60% more likely** to complete their challenges.",
-    highlightSelector: '[data-tour="players-card"]',
-    tooltipSide: "below",
-  },
-  {
-    title: "The prize pool",
-    description: "We put **100% of our profits** into the prize pool. Just a fun reason to complete your challenges.",
-    highlightSelector: '[data-tour="prize-pool-card"]',
-    tooltipSide: "below",
-  },
-  {
-    title: "Time left to enter the drawing",
-    description: "When the countdown ends, a random winner is drawn and a weekly recap is revealed.",
-    highlightSelector: '[data-tour="countdown"]',
-    tooltipSide: "below",
-  },
-];
+{
+  title: "Each week we'll assign you 8 challenges",
+  description: "Complete 5 of them to beat your week.",
+  highlightSelector: '[data-tour="challenge-list"]',
+  tooltipSide: "above",
+  capToViewport: true
+},
+{
+  title: "Upload challenge videos for prize entries",
+  description: "Free users get 1 entry. Subscribers get 2 per challenge + 3 bonus for completing 5 (the max).",
+  highlightSelector: '[data-tour="upload-btn"]',
+  tooltipSide: "above"
+},
+{
+  title: "Submitting videos should feel uncomfortable",
+  description: "But that's the point, discomfort is where you grow.",
+  highlightSelector: '[data-tour="upload-btn"]',
+  tooltipSide: "above"
+},
+{
+  title: "Number of players",
+  description: "People who pay to play on this app are **60% more likely** to complete their challenges.",
+  highlightSelector: '[data-tour="players-card"]',
+  tooltipSide: "below"
+},
+{
+  title: "The prize pool",
+  description: "We put **100% of our profits** into the prize pool. Just a fun reason to complete your challenges.",
+  highlightSelector: '[data-tour="prize-pool-card"]',
+  tooltipSide: "below"
+},
+{
+  title: "Time left to enter the drawing",
+  description: "When the countdown ends, a random winner is drawn and a weekly recap is revealed.",
+  highlightSelector: '[data-tour="countdown"]',
+  tooltipSide: "below"
+}];
+
 
 interface Rect {
   top: number;
@@ -74,7 +74,7 @@ const ARROW_SIZE = 10;
 const HIGHLIGHT_PAD = 8;
 const NAV_HEIGHT = 72;
 
-export default function FeatureTour({ onComplete }: { onComplete: () => void }) {
+export default function FeatureTour({ onComplete }: {onComplete: () => void;}) {
   const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<Rect | null>(null);
@@ -146,7 +146,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       top: r.top,
       left: r.left,
       width: r.width,
-      height,
+      height
     });
   }, [current.highlightSelector, current.capToViewport]);
 
@@ -163,8 +163,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   }, [measure, showIntro]);
 
   const handleNext = () => {
-    if (step < STEPS.length - 1) setStep(step + 1);
-    else {
+    if (step < STEPS.length - 1) setStep(step + 1);else
+    {
       playSuccessDing();
       onComplete();
     }
@@ -178,21 +178,21 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background"
-        style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
+        style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+        
         <div className="text-center px-8">
           <span className="text-4xl mb-4 block">✨</span>
-          <h1 className="text-2xl font-bold text-primary mb-2">Quick App Demo</h1>
-          <p className="text-muted-foreground mb-6">understand how the app works</p>
+          <h1 className="text-2xl font-bold text-primary mb-2">​Welcome!         </h1>
+          <p className="text-muted-foreground mb-8">      See how the app works </p>
           <button
             onClick={() => setShowIntro(false)}
-            className="px-12 py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-lg -mt-2"
-          >
+            className="px-12 py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-lg">
+            
             Start
           </button>
         </div>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   // --- Tooltip positioning ---
@@ -208,14 +208,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       return {
         top: hBottom + GAP + ARROW_SIZE,
         left: EDGE_PAD,
-        right: EDGE_PAD,
+        right: EDGE_PAD
       };
     }
     // above
     return {
       bottom: window.innerHeight - hTop + GAP + ARROW_SIZE,
       left: EDGE_PAD,
-      right: EDGE_PAD,
+      right: EDGE_PAD
     };
   };
 
@@ -231,7 +231,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       left: clamped - EDGE_PAD,
       transform: "translateX(-50%) rotate(45deg)",
       width: ARROW_SIZE * 2,
-      height: ARROW_SIZE * 2,
+      height: ARROW_SIZE * 2
     };
 
     if (current.tooltipSide === "below") {
@@ -249,39 +249,39 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         <defs>
           <mask id="tour-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
-            {highlightRect && (
-              <rect
-                x={highlightRect.left - HIGHLIGHT_PAD}
-                y={highlightRect.top - HIGHLIGHT_PAD}
-                width={highlightRect.width + HIGHLIGHT_PAD * 2}
-                height={highlightRect.height + HIGHLIGHT_PAD * 2}
-                rx="14"
-                fill="black"
-              />
-            )}
+            {highlightRect &&
+            <rect
+              x={highlightRect.left - HIGHLIGHT_PAD}
+              y={highlightRect.top - HIGHLIGHT_PAD}
+              width={highlightRect.width + HIGHLIGHT_PAD * 2}
+              height={highlightRect.height + HIGHLIGHT_PAD * 2}
+              rx="14"
+              fill="black" />
+
+            }
           </mask>
         </defs>
         <rect
           x="0" y="0" width="100%" height="100%"
           fill="rgba(0, 0, 0, 0.3)"
-          mask="url(#tour-mask)"
-        />
+          mask="url(#tour-mask)" />
+        
       </svg>
 
       {/* Highlight border */}
-      {highlightRect && (
-        <div
-          className="absolute rounded-xl"
-          style={{
-            pointerEvents: "none",
-            top: highlightRect.top - HIGHLIGHT_PAD,
-            left: highlightRect.left - HIGHLIGHT_PAD,
-            width: highlightRect.width + HIGHLIGHT_PAD * 2,
-            height: highlightRect.height + HIGHLIGHT_PAD * 2,
-            border: "2px solid hsl(var(--primary))",
-          }}
-        />
-      )}
+      {highlightRect &&
+      <div
+        className="absolute rounded-xl"
+        style={{
+          pointerEvents: "none",
+          top: highlightRect.top - HIGHLIGHT_PAD,
+          left: highlightRect.left - HIGHLIGHT_PAD,
+          width: highlightRect.width + HIGHLIGHT_PAD * 2,
+          height: highlightRect.height + HIGHLIGHT_PAD * 2,
+          border: "2px solid hsl(var(--primary))"
+        }} />
+
+      }
 
       {/* Tooltip */}
       <AnimatePresence mode="popLayout">
@@ -293,13 +293,13 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
           exit={{ opacity: 0, scale: 0.97 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           className="absolute rounded-2xl bg-card shadow-xl px-5 py-4"
-          style={{ ...getTooltipStyle(), pointerEvents: "auto" }}
-        >
+          style={{ ...getTooltipStyle(), pointerEvents: "auto" }}>
+          
           {/* Arrow nub */}
           <div
             className="absolute bg-card"
-            style={getArrowStyle()}
-          />
+            style={getArrowStyle()} />
+          
 
           {/* Content */}
           <h2 className="text-lg font-bold text-foreground mb-1.5 relative z-10">
@@ -319,18 +319,18 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                   // Completed - warm gold, subtle gradient
                   dotStyle = {
                     background: "linear-gradient(145deg, #F5D060 0%, #D4A017 100%)",
-                    boxShadow: "0 1px 3px rgba(164, 124, 0, 0.3)",
+                    boxShadow: "0 1px 3px rgba(164, 124, 0, 0.3)"
                   };
                 } else if (i === step) {
                   // Current - teal green, subtle gradient
                   dotStyle = {
                     background: "linear-gradient(145deg, #3DCCA8 0%, #1A8A6A 100%)",
-                    boxShadow: "0 1px 3px rgba(26, 138, 106, 0.35)",
+                    boxShadow: "0 1px 3px rgba(26, 138, 106, 0.35)"
                   };
                 } else {
                   // Future - muted flat
                   dotStyle = {
-                    background: "hsl(var(--muted-foreground) / 0.22)",
+                    background: "hsl(var(--muted-foreground) / 0.22)"
                   };
                 }
 
@@ -338,21 +338,21 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                   <div
                     key={i}
                     className="h-3 w-3 rounded-full"
-                    style={dotStyle}
-                  />
-                );
+                    style={dotStyle} />);
+
+
               })}
             </div>
             <button
               data-tour-button
               onClick={handleNext}
-              className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
-            >
+              className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+              
               {isLastStep ? "Got it! 🎉" : "Next"}
             </button>
           </div>
         </motion.div>
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
