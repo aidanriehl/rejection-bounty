@@ -623,9 +623,9 @@ export default function DrawingReveal({
               transition={{ delay: 0.3 }}
             >
               <p className="text-lg font-bold text-foreground">
-                wins <span className="text-primary">${potAmount.toLocaleString()}</span>
+                Congratulations {winnerName}! 🎉
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Congratulations! 🎉</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{winningEmoji} {winningChallenge}</p>
             </motion.div>
 
             {/* Continue button */}
