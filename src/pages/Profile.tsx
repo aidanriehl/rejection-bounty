@@ -331,7 +331,7 @@ export default function Profile() {
           }
 
           {/* Username */}
-          <h1 className="mt-[9px] font-extrabold text-foreground text-xl">{profile?.username || "username"}</h1>
+          <h1 className="mt-[11px] font-extrabold text-foreground text-xl">{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
