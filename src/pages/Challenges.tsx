@@ -40,7 +40,11 @@ export default function Challenges() {
   const { user, profile, setProfile } = useAuth();
   const weekKey = getCurrentWeekKey();
   const [dropRevealed] = useState(true);
-  const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(`${weekKey}-summary`) === "true");
+  const [summaryDone, setSummaryDone] = useState(() => {
+    // Don't show weekly summary for brand new users (just completed setup)
+    if (localStorage.getItem("show-tour") === "true") return true;
+    return localStorage.getItem(`${weekKey}-summary`) === "true";
+  });
 
   // Persist summary dismissal
   const dismissSummary = () => {
