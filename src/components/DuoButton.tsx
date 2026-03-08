@@ -13,34 +13,30 @@ function playClick() {
     if (a.state === "suspended") a.resume();
     const t = a.currentTime;
 
-    // Short, bright "pop" — a quick sine blip
-    const o = a.createOscillator();
-    const g = a.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(900, t);
-    o.frequency.exponentialRampToValueAtTime(600, t + 0.04);
-    g.gain.setValueAtTime(0.18, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-    o.connect(g);
-    g.connect(a.destination);
-    o.start(t);
-    o.stop(t + 0.06);
-
-    // Tiny noise transient for tactile feel
-    const buf = a.createBuffer(1, a.sampleRate * 0.012, a.sampleRate);
+    // Subtle keyboard click — very short filtered noise burst
+    const bufSize = Math.floor(a.sampleRate * 0.006);
+    const buf = a.createBuffer(1, bufSize, a.sampleRate);
     const data = buf.getChannelData(0);
-    for (let j = 0; j < buf.length; j++) {
-      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / buf.length, 10);
+    for (let j = 0; j < bufSize; j++) {
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 16);
     }
     const src = a.createBufferSource();
     src.buffer = buf;
-    const ng = a.createGain();
-    ng.gain.setValueAtTime(0.08, t);
-    ng.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
-    src.connect(ng);
-    ng.connect(a.destination);
+    const hp = a.createBiquadFilter();
+    hp.type = "highpass";
+    hp.frequency.value = 1800;
+    const lp = a.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 6000;
+    const g = a.createGain();
+    g.gain.setValueAtTime(0.06, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
+    src.connect(hp);
+    hp.connect(lp);
+    lp.connect(g);
+    g.connect(a.destination);
     src.start(t);
-    src.stop(t + 0.015);
+    src.stop(t + 0.008);
   } catch {}
 }
 
