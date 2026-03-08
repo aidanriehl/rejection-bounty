@@ -92,6 +92,8 @@ export default function Profile() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [selectedPost, setSelectedPost] = useState<UserPost | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [friendsCount, setFriendsCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
