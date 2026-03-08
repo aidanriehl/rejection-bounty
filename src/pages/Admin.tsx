@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send } from "lucide-react";
-import { mockChallenges } from "@/lib/mock-data";
+import { getCurrentWeekKey } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
 import { Input } from "@/components/ui/input";
