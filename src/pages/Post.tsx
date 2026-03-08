@@ -384,8 +384,7 @@ export default function PostPage() {
               </div>
 
               {/* Cover slider */}
-              <div className="mb-5">
-                <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
+              <div className="mb-4">
                 {/* Filmstrip behind slider */}
                 <div className="relative mx-auto max-w-xs">
                   <div className="flex h-8 overflow-hidden rounded-lg">
