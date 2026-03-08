@@ -355,7 +355,7 @@ export default function PostPage() {
                 <ChevronLeft className="h-5 w-5" />
                 Back
               </button>
-              <h1 className="text-lg font-bold text-foreground">New Post</h1>
+              <h1 className="text-lg font-bold text-foreground">Choose cover</h1>
               <button
                 onClick={handlePost}
                 disabled={!videoFile || globalStatus === "uploading"}
@@ -367,10 +367,8 @@ export default function PostPage() {
 
             {/* Section B: Content */}
             <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[23px]">
-              <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
-
               {/* Thumbnail preview */}
-              <div className="mb-4 flex justify-center">
+              <div className="mb-3 flex justify-center">
                 <div className="w-32 overflow-hidden rounded-xl bg-muted">
                   <div className="aspect-[9/16] w-full flex items-center justify-center">
                     {loadingThumbnails ? (
@@ -387,8 +385,7 @@ export default function PostPage() {
               </div>
 
               {/* Cover slider */}
-              <div className="mb-5">
-                <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
+              <div className="mb-4">
                 {/* Filmstrip behind slider */}
                 <div className="relative mx-auto max-w-xs">
                   <div className="flex h-8 overflow-hidden rounded-lg">
@@ -429,7 +426,7 @@ export default function PostPage() {
                 }}
                 placeholder="Add a caption (optional)"
                 rows={2}
-                className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-[0.8rem] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
             </div>
