@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import logo from "@/assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,7 +80,7 @@ export default function SettingsMessages() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: "hsl(var(--background))" }}>
+    <div className="fixed inset-0 flex flex-col pb-16" style={{ backgroundColor: "hsl(var(--background))" }}>
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 border-b bg-background"
@@ -92,9 +93,7 @@ export default function SettingsMessages() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-3 flex-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-lg">
-            🎯
-          </div>
+          <img src={logo} alt="Rejection Bounty" className="h-10 w-10 rounded-full object-cover" />
           <div>
             <p className="font-bold text-foreground">Rejection Bounty</p>
             <p className="text-xs text-muted-foreground">Support</p>
