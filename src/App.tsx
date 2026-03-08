@@ -117,7 +117,7 @@ function AppRoutes() {
       </Routes>
       <BottomNav />
       <UploadIndicator />
-      {showTour && <FeatureTour onComplete={handleTourComplete} />}
+      {showTour && <FeatureTour onComplete={handleTourComplete} username={profile?.username ?? undefined} />}
     </>
   );
 }
