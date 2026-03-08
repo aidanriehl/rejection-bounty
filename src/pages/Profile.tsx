@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import WinnerBanner from "@/components/WinnerBanner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -242,6 +243,9 @@ export default function Profile() {
 
       }
       <div className="mx-auto max-w-lg px-4">
+        {/* Winner Banner */}
+        <WinnerBanner />
+
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button

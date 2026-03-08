@@ -5,7 +5,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import AvatarDisplay from "@/components/AvatarDisplay";
-import WinnerBanner from "@/components/WinnerBanner";
+
 import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
@@ -323,7 +323,7 @@ export default function Feed() {
         className="absolute top-0 inset-x-0 z-20 px-4"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}>
         
-        <WinnerBanner />
+        
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
