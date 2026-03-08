@@ -39,68 +39,6 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
 
-  // Stripe Connect state
-  const [connectStatus, setConnectStatus] = useState<{
-    connected: boolean;
-    onboarding_complete?: boolean;
-    payouts_enabled?: boolean;
-    email?: string;
-  } | null>(null);
-  const [connectLoading, setConnectLoading] = useState(true);
-  const [connectLinking, setConnectLinking] = useState(false);
-
-  // Check connect status on mount & after returning from Stripe
-  useEffect(() => {
-    checkConnectStatus();
-  }, []);
-
-  useEffect(() => {
-    if (searchParams.get("connect") === "complete") {
-      checkConnectStatus();
-    }
-  }, [searchParams]);
-
-  const checkConnectStatus = async () => {
-    setConnectLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("check-connect-status");
-      if (error) throw error;
-      setConnectStatus(data);
-    } catch (e) {
-      console.error("Failed to check connect status:", e);
-      setConnectStatus({ connected: false });
-    } finally {
-      setConnectLoading(false);
-    }
-  };
-
-  const startConnectOnboarding = async () => {
-    setConnectLinking(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-connect-account");
-      if (error) {
-        console.error("Connect invoke error:", error);
-        // Try to extract the actual error message from the response
-        const errorMsg = typeof error === 'object' && 'message' in error ? error.message : String(error);
-        throw new Error(errorMsg);
-      }
-      if (data?.error) {
-        console.error("Connect response error:", data.error);
-        throw new Error(data.error);
-      }
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      } else {
-        throw new Error("No onboarding URL returned");
-      }
-    } catch (e) {
-      console.error("Failed to start connect onboarding:", e);
-      toast({ title: "Error", description: `Failed to start bank linking: ${e instanceof Error ? e.message : 'Please try again.'}`, variant: "destructive" });
-    } finally {
-      setConnectLinking(false);
-    }
-  };
-
   const saveName = async () => {
     if (!user) return;
     const trimmed = nameValue.trim();
