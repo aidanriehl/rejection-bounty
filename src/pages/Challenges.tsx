@@ -482,7 +482,7 @@ export default function Challenges() {
                   {/* Upload */}
                   <button
                     {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
-                    onClick={() => isPremium ? navigate("/post", { state: { challengeTitle: challenge.title, challengeId: challenge.id } }) : triggerSubscribe()}
+                    onClick={() => isPremium ? setChoiceChallenge(challenge) : triggerSubscribe()}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
                       challenge.completed
@@ -593,9 +593,11 @@ export default function Challenges() {
               challengeTitle={cameraChallenge.title}
               onClose={() => setCameraChallenge(null)}
               onRecorded={(file) => {
-                doToggle(cameraChallenge.id);
+                const title = cameraChallenge.title;
+                const id = cameraChallenge.id;
                 setCameraChallenge(null);
-                navigate("/post", { state: { challengeTitle: cameraChallenge.title, recordedFile: file.name } });
+                (window as any).__pendingVideoFile = file;
+                navigate("/post", { state: { challengeTitle: title, challengeId: id, fromLibrary: true } });
               }}
             />
           )}

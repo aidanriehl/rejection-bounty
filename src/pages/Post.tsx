@@ -12,7 +12,7 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-type Step = "select" | "trim" | "post";
+type Step = "trim" | "post";
 
 export default function PostPage() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function PostPage() {
   const challengeId = (location.state as any)?.challengeId || "";
   const { startUpload, status: globalStatus } = useUpload();
 
-  const [step, setStep] = useState<Step>("select");
+  const [step, setStep] = useState<Step>("trim");
   const [caption, setCaption] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -209,10 +209,6 @@ export default function PostPage() {
   const handleBack = () => {
     if (step === "post") {
       setStep("trim");
-    } else if (step === "trim") {
-      setVideoFile(null);
-      setVideoUrl(null);
-      setStep("select");
     } else {
       navigate("/challenges");
     }
@@ -251,46 +247,7 @@ export default function PostPage() {
       />
 
       <AnimatePresence mode="wait">
-        {/* STEP 1: Select Video */}
-        {step === "select" && (
-          <motion.div
-            key="select"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-1 flex-col"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <h1 className="text-lg font-bold text-foreground">New Post</h1>
-              <button
-                onClick={() => navigate("/challenges")}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-              <p className="mb-6 text-sm font-medium text-muted-foreground">{challengeTitle}</p>
-
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="group flex aspect-[9/16] w-2/3 max-w-[240px] flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-muted-foreground/30 bg-muted/20 transition-all hover:border-primary/50 hover:bg-muted/30"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                  <Upload className="h-6 w-6" />
-                </div>
-                <div className="text-center">
-                  <p className="text-base font-semibold text-foreground">Select video</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Max 30s · 100MB</p>
-                </div>
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* STEP 2: Trim Video */}
+        {/* STEP 1: Trim Video */}
         {step === "trim" && videoUrl && (
           <motion.div
             key="trim"
