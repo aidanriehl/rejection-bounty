@@ -107,9 +107,10 @@ function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: 
       
       {post.video_id ?
       <iframe
-        src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false`}
+        src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false&poster=https%3A%2F%2Fcustomer-${customerSubdomain}.cloudflarestream.com%2F${post.video_id}%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D${post.thumbnail_time || 0}s`}
         className="h-full w-full object-cover select-none pointer-events-none"
-        allow="autoplay; fullscreen"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+        allowFullScreen
         style={{ border: "none" }} /> :
 
 
