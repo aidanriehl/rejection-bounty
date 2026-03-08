@@ -330,9 +330,6 @@ export default function SettingsPage() {
                 <Banknote className="h-[18px] w-[18px] text-muted-foreground" />
                 <div>
                   <span className="text-[15px] font-medium text-foreground">Link Bank Account</span>
-                  <p className="text-[13px] text-muted-foreground">
-                    Required to receive weekly prize pool winnings
-                  </p>
                 </div>
               </div>
               <button
@@ -351,7 +348,7 @@ export default function SettingsPage() {
         <div className="mb-5 flex items-center justify-between rounded-xl border bg-card p-4">
           <div>
             <p className="text-[15px] font-semibold text-foreground">Premium Subscription</p>
-            <p className="text-[13px] text-muted-foreground">Unlock all features & enter the weekly drawing</p>
+            
           </div>
           <button className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background">
             Subscribe
