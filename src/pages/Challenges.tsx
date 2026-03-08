@@ -593,9 +593,11 @@ export default function Challenges() {
               challengeTitle={cameraChallenge.title}
               onClose={() => setCameraChallenge(null)}
               onRecorded={(file) => {
-                doToggle(cameraChallenge.id);
+                const title = cameraChallenge.title;
+                const id = cameraChallenge.id;
                 setCameraChallenge(null);
-                navigate("/post", { state: { challengeTitle: cameraChallenge.title, recordedFile: file.name } });
+                (window as any).__pendingVideoFile = file;
+                navigate("/post", { state: { challengeTitle: title, challengeId: id, fromLibrary: true } });
               }}
             />
           )}
