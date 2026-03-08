@@ -75,16 +75,16 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
     setTimeout(() => setShowHeartAnim(false), 300);
   }, [liked, likedPosts, post.id, likeCount]);
 
-  const toggleLike = async () => {
+  const toggleLike = () => {
     const newLiked = new Set(likedPosts);
     if (liked) {
       newLiked.delete(post.id);
       setLikeCount((c) => c - 1);
-      await supabase.from("posts").update({ likes: likeCount - 1 }).eq("id", post.id);
+      supabase.from("posts").update({ likes: likeCount - 1 }).eq("id", post.id);
     } else {
       newLiked.add(post.id);
       setLikeCount((c) => c + 1);
-      await supabase.from("posts").update({ likes: likeCount + 1 }).eq("id", post.id);
+      supabase.from("posts").update({ likes: likeCount + 1 }).eq("id", post.id);
     }
     setLikedPosts(newLiked);
     saveLikedPosts(newLiked);
