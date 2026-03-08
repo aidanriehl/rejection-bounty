@@ -303,7 +303,7 @@ export default function Profile() {
           }
 
           {/* Username */}
-          <h1 className="mt-2 font-extrabold text-foreground text-lg">{profile?.username || "username"}</h1>
+          <h1 className="mt-2 font-extrabold text-foreground text-xl">{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
