@@ -284,14 +284,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       )}
 
       {/* Tooltip */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={step}
           ref={tooltipRef}
-          initial={{ opacity: 0, y: current.tooltipSide === "above" ? -12 : 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.97 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           className="absolute rounded-2xl bg-card shadow-xl px-5 py-4"
           style={{ ...getTooltipStyle(), pointerEvents: "auto" }}
         >
