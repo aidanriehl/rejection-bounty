@@ -131,26 +131,22 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     const el = document.querySelector(current.highlightSelector);
     if (!el) return;
 
-    // Scroll into view, wait, then measure
-    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // No scrolling — page is locked at top position
+    const r = el.getBoundingClientRect();
+    let height = r.height;
 
-    setTimeout(() => {
-      const r = el.getBoundingClientRect();
-      let height = r.height;
+    // Cap challenge list to visible viewport (don't extend below nav)
+    if (current.capToViewport) {
+      const maxBottom = window.innerHeight - NAV_HEIGHT;
+      height = Math.min(height, maxBottom - r.top);
+    }
 
-      // Cap challenge list to visible viewport (don't extend below nav)
-      if (current.capToViewport) {
-        const maxBottom = window.innerHeight - NAV_HEIGHT;
-        height = Math.min(height, maxBottom - r.top);
-      }
-
-      setHighlightRect({
-        top: r.top,
-        left: r.left,
-        width: r.width,
-        height,
-      });
-    }, 400);
+    setHighlightRect({
+      top: r.top,
+      left: r.left,
+      width: r.width,
+      height,
+    });
   }, [current.highlightSelector, current.capToViewport]);
 
   useEffect(() => {
