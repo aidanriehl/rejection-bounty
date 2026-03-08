@@ -163,36 +163,38 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
       {/* Bottom gradient */}
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
-      {/* Bottom info - left aligned */}
+      {/* Bottom info */}
       <div className="absolute bottom-8 left-4 right-4">
-        {/* Row 1: Avatar + Username + Follow button */}
-        <div className="flex items-center gap-3 mb-2.5">
-          <button onClick={handleProfileClick} className="flex-shrink-0">
-            <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
-          </button>
-          <button onClick={handleProfileClick}>
-            <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
-          </button>
-          {!isOwnPost && currentUserId && (
-            <button
-              onClick={handleFollow}
-              className={cn(
-                "px-3 py-1 rounded-md text-xs font-semibold transition-colors",
-                isFollowing
-                  ? "bg-white/20 text-white border border-white/40"
-                  : "bg-white text-black"
-              )}
-            >
-              {isFollowing ? "Following" : "Follow"}
+        {/* Row 1: Avatar + Username + Follow on left, Likes on right */}
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-3">
+            <button onClick={handleProfileClick} className="flex-shrink-0">
+              <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
             </button>
-          )}
+            <button onClick={handleProfileClick}>
+              <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
+            </button>
+            {!isOwnPost && currentUserId && (
+              <button
+                onClick={handleFollow}
+                className={cn(
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-colors",
+                  isFollowing
+                    ? "bg-white/20 text-white border border-white/40"
+                    : "bg-white text-black"
+                )}
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </button>
+            )}
+          </div>
+          {/* Likes on right */}
+          <button onClick={toggleLike} className="flex items-center gap-1.5">
+            <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-white text-white" : "text-white/50")} />
+            <span className="text-xs text-white/50 drop-shadow-md">{likeCount} likes</span>
+          </button>
         </div>
-        {/* Row 2: Likes - smaller and less prominent, tappable heart */}
-        <button onClick={toggleLike} className="flex items-center gap-1.5 mb-2">
-          <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-white text-white" : "text-white/50")} />
-          <span className="text-xs text-white/50 drop-shadow-md">{likeCount} likes</span>
-        </button>
-        {/* Row 3: Caption */}
+        {/* Row 2: Caption */}
         {post.caption && (
           <p className="text-sm text-white/90 drop-shadow-md">{post.caption}</p>
         )}
