@@ -415,6 +415,12 @@ export default function PostPage() {
                 ref={captionRef}
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
+                onFocus={() => {
+                  // Scroll textarea into view when keyboard opens
+                  setTimeout(() => {
+                    captionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }, 300);
+                }}
                 placeholder="Add a caption (optional)"
                 rows={3}
                 className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
