@@ -13,19 +13,19 @@ const STEPS: TourStep[] = [
     title: "Each week we'll assign you 8 challenges",
     description: "Complete 5 of them to beat your week.",
     highlightSelector: '[data-tour="challenge-list"]',
-    arrowPosition: "top",
+    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
   },
   {
     title: "Upload challenge videos for prize entries",
     description: "Free users get 1 entry. Subscribers get 2 per challenge + 3 bonus for completing 5 (the max).",
     highlightSelector: '[data-tour="upload-btn"]',
-    arrowPosition: "top",
+    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
   },
   {
     title: "Submitting videos should feel uncomfortable",
     description: "But that's the point, discomfort is where you grow.",
     highlightSelector: '[data-tour="upload-btn"]',
-    arrowPosition: "top",
+    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
   },
   {
     title: "Number of players",
@@ -180,7 +180,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     );
   }
 
-  // Calculate tooltip position - MUST be outside highlighted area, never overlapping
+  // Calculate tooltip position - MUST be outside highlighted area
   const getTooltipStyle = () => {
     if (!highlightRect) {
       return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
@@ -188,23 +188,19 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
     const padding = 16;
     const tooltipWidth = 320;
-    const tooltipHeight = 160;
-    const gap = 16; // gap between highlight and tooltip
+    const gap = 16;
 
     const leftPos = Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding));
 
-    // Calculate space above and below the highlighted element
-    const spaceAbove = highlightRect.top;
-    const spaceBelow = window.innerHeight - (highlightRect.top + highlightRect.height);
-
-    if (current.arrowPosition === "top" || spaceBelow > spaceAbove) {
-      // Tooltip below - make sure it's OUTSIDE the highlight
+    if (current.arrowPosition === "bottom") {
+      // Tooltip ABOVE the element (arrow at bottom pointing down)
+      // Position from top so it doesn't get cut off
+      const topPos = highlightRect.top - gap - 160; // 160 = approx tooltip height
+      return { top: Math.max(60, topPos), left: leftPos };
+    } else {
+      // Tooltip BELOW the element (arrow at top pointing up)
       const topPos = highlightRect.top + highlightRect.height + gap;
       return { top: topPos, left: leftPos };
-    } else {
-      // Tooltip above - make sure it's OUTSIDE the highlight
-      const bottomPos = window.innerHeight - highlightRect.top + gap;
-      return { bottom: bottomPos, left: leftPos };
     }
   };
 
@@ -215,11 +211,14 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     const tooltipStyle = getTooltipStyle();
     const tooltipLeft = typeof tooltipStyle.left === "number" ? tooltipStyle.left : 0;
     const arrowLeft = highlightRect.left + highlightRect.width / 2 - tooltipLeft - 8;
+    const clampedArrowLeft = Math.max(20, Math.min(arrowLeft, 280));
 
-    if (current.arrowPosition === "top") {
-      return { top: -8, left: Math.max(20, Math.min(arrowLeft, 280)) };
+    if (current.arrowPosition === "bottom") {
+      // Arrow at BOTTOM of tooltip, pointing DOWN
+      return { bottom: -8, left: clampedArrowLeft };
     } else {
-      return { bottom: -8, left: Math.max(20, Math.min(arrowLeft, 280)) };
+      // Arrow at TOP of tooltip, pointing UP
+      return { top: -8, left: clampedArrowLeft };
     }
   };
 
@@ -256,7 +255,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         />
       </svg>
 
-      {/* Highlight border around cutout */}
+      {/* Highlight border around cutout - no glow */}
       {highlightRect && (
         <div
           className="absolute rounded-xl pointer-events-none"
@@ -266,7 +265,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             width: highlightRect.width + 16,
             height: highlightRect.height + 16,
             border: "2px solid hsl(var(--primary))",
-            boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
           }}
         />
       )}
@@ -275,7 +273,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, y: current.arrowPosition === "top" ? -10 : 10 }}
+          initial={{ opacity: 0, y: current.arrowPosition === "bottom" ? 10 : -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
