@@ -360,7 +360,7 @@ export default function PostPage() {
             </div>
 
             {/* Section B: Content */}
-            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[15px]">
+            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[23px]">
               <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
 
               {/* Thumbnail preview */}
