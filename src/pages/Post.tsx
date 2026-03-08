@@ -323,7 +323,7 @@ export default function PostPage() {
             className="flex flex-1 flex-col"
           >
             {/* Section A: Header */}
-            <div className="flex items-center justify-between px-4 py-3 mt-5">
+            <div className="flex items-center justify-between px-4 py-3 mt-2.5">
               <button
                 onClick={handleBack}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
@@ -336,7 +336,7 @@ export default function PostPage() {
             </div>
 
             {/* Section B: Content */}
-            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[30px]">
+            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[15px]">
               <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
 
               {/* Thumbnail preview */}
@@ -361,7 +361,7 @@ export default function PostPage() {
                 <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
                 {/* Filmstrip behind slider */}
                 <div className="relative mx-auto max-w-xs">
-                  <div className="flex h-12 overflow-hidden rounded-lg">
+                  <div className="flex h-8 overflow-hidden rounded-lg">
                     {loadingThumbnails ? (
                       <div className="h-full w-full bg-muted animate-pulse" />
                     ) : (
