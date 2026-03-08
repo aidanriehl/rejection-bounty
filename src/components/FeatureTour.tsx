@@ -81,12 +81,13 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
-  // Lock scroll on #root (the actual scroll container)
+  // Lock scroll on #root and scroll to top
   useEffect(() => {
     const root = document.getElementById("root");
     if (!root) return;
 
     if (!showIntro) {
+      root.scrollTo({ top: 0, behavior: "instant" });
       root.style.overflow = "hidden";
       root.style.touchAction = "none";
     }
@@ -130,26 +131,22 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     const el = document.querySelector(current.highlightSelector);
     if (!el) return;
 
-    // Scroll into view, wait, then measure
-    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // No scrolling — page is locked at top position
+    const r = el.getBoundingClientRect();
+    let height = r.height;
 
-    setTimeout(() => {
-      const r = el.getBoundingClientRect();
-      let height = r.height;
+    // Cap challenge list to visible viewport (don't extend below nav)
+    if (current.capToViewport) {
+      const maxBottom = window.innerHeight - NAV_HEIGHT;
+      height = Math.min(height, maxBottom - r.top);
+    }
 
-      // Cap challenge list to visible viewport (don't extend below nav)
-      if (current.capToViewport) {
-        const maxBottom = window.innerHeight - NAV_HEIGHT;
-        height = Math.min(height, maxBottom - r.top);
-      }
-
-      setHighlightRect({
-        top: r.top,
-        left: r.left,
-        width: r.width,
-        height,
-      });
-    }, 400);
+    setHighlightRect({
+      top: r.top,
+      left: r.left,
+      width: r.width,
+      height,
+    });
   }, [current.highlightSelector, current.capToViewport]);
 
   useEffect(() => {
@@ -315,28 +312,28 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                 let dotStyle: React.CSSProperties = {};
 
                 if (i < step) {
-                  // Completed - metallic gold
+                  // Completed - metallic gold sphere
                   dotStyle = {
-                    background: "linear-gradient(135deg, #D4A017 0%, #F5D060 40%, #B8860B 70%, #F5D060 100%)",
-                    boxShadow: "0 1px 3px rgba(212, 160, 23, 0.4)",
+                    background: "radial-gradient(circle at 35% 30%, #FDE68A 0%, #F5D060 25%, #D4A017 55%, #A67C00 80%, #7A5C00 100%)",
+                    boxShadow: "0 1px 4px rgba(164, 124, 0, 0.5), inset 0 -1px 2px rgba(122, 92, 0, 0.3), inset 0 1px 2px rgba(253, 230, 138, 0.4)",
                   };
                 } else if (i === step) {
-                  // Current - metallic green
+                  // Current - metallic green sphere
                   dotStyle = {
-                    background: "linear-gradient(135deg, #1A8A6A 0%, #3DCCA8 40%, #0D6B4F 70%, #3DCCA8 100%)",
-                    boxShadow: "0 1px 3px rgba(26, 138, 106, 0.5)",
+                    background: "radial-gradient(circle at 35% 30%, #6EE7B7 0%, #3DCCA8 25%, #1A8A6A 55%, #0D6B4F 80%, #064E3B 100%)",
+                    boxShadow: "0 1px 4px rgba(13, 107, 79, 0.5), inset 0 -1px 2px rgba(6, 78, 59, 0.3), inset 0 1px 2px rgba(110, 231, 183, 0.4)",
                   };
                 } else {
                   // Future - muted
                   dotStyle = {
-                    background: "hsl(var(--muted-foreground) / 0.25)",
+                    background: "radial-gradient(circle at 35% 30%, hsl(var(--muted-foreground) / 0.35) 0%, hsl(var(--muted-foreground) / 0.2) 60%, hsl(var(--muted-foreground) / 0.12) 100%)",
                   };
                 }
 
                 return (
                   <div
                     key={i}
-                    className="h-2.5 w-2.5 rounded-full"
+                    className="h-3 w-3 rounded-full"
                     style={dotStyle}
                   />
                 );
