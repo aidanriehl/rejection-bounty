@@ -1047,6 +1047,87 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        {/* Section: Support Inbox */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Inbox className="h-5 w-5 text-primary" />
+              Support Inbox
+              {supportThreads.length > 0 && (
+                <Badge variant="secondary" className="ml-auto">{supportThreads.length}</Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeSupportUser ? (
+              <div>
+                <button
+                  onClick={() => { setActiveSupportUser(null); setSupportMessages([]); }}
+                  className="flex items-center gap-1 text-xs text-primary mb-3"
+                >
+                  <ArrowLeft className="h-3 w-3" /> Back to inbox
+                </button>
+                <p className="text-sm font-bold text-foreground mb-3">
+                  {activeSupportUser.username || "Anonymous User"}
+                </p>
+                <div className="max-h-64 overflow-y-auto space-y-2 mb-3 rounded-lg bg-muted/30 p-3">
+                  {supportMessages.map((msg: any) => (
+                    <div key={msg.id} className={`flex ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                        msg.sender === "admin"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground"
+                      }`}>
+                        {msg.message}
+                      </div>
+                    </div>
+                  ))}
+                  {supportMessages.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-4">No messages</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={supportReply}
+                    onChange={(e) => setSupportReply(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendSupportReply()}
+                    placeholder="Reply..."
+                    className="flex-1"
+                  />
+                  <Button onClick={sendSupportReply} disabled={!supportReply.trim() || sendingSupport} size="sm">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : supportThreads.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No support messages yet</p>
+            ) : (
+              <div className="space-y-2">
+                {supportThreads.map((thread) => (
+                  <button
+                    key={thread.user_id}
+                    onClick={() => openSupportThread(thread)}
+                    className="w-full flex items-center gap-3 rounded-lg bg-muted/50 p-3 text-left transition-colors hover:bg-muted"
+                  >
+                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
+                      {avatarEmoji(thread.avatar)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {thread.username || "Anonymous"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{thread.last_message}</p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      {new Date(thread.last_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Video Preview Dialog */}
