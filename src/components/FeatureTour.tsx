@@ -5,7 +5,7 @@ interface TourStep {
   title: string;
   description: string;
   highlightSelector?: string;
-  arrowPosition?: "top" | "bottom";
+  tooltipPosition: "top" | "bottom"; // where tooltip appears on screen
 }
 
 const STEPS: TourStep[] = [
@@ -13,37 +13,37 @@ const STEPS: TourStep[] = [
     title: "Each week we'll assign you 8 challenges",
     description: "Complete 5 of them to beat your week.",
     highlightSelector: '[data-tour="challenge-list"]',
-    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
+    tooltipPosition: "top", // tooltip at top, challenges at bottom
   },
   {
     title: "Upload challenge videos for prize entries",
     description: "Free users get 1 entry. Subscribers get 2 per challenge + 3 bonus for completing 5 (the max).",
     highlightSelector: '[data-tour="upload-btn"]',
-    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
+    tooltipPosition: "top", // tooltip at top, upload button below
   },
   {
     title: "Submitting videos should feel uncomfortable",
     description: "But that's the point, discomfort is where you grow.",
     highlightSelector: '[data-tour="upload-btn"]',
-    arrowPosition: "bottom", // tooltip ABOVE, arrow points DOWN
+    tooltipPosition: "top",
   },
   {
     title: "Number of players",
     description: "People who pay to play on this app are **60% more likely** to complete their challenges.",
     highlightSelector: '[data-tour="players-card"]',
-    arrowPosition: "bottom",
+    tooltipPosition: "bottom", // tooltip at bottom, card near top
   },
   {
     title: "The prize pool",
     description: "We put **100% of our profits** into the prize pool. Just a fun reason to complete your challenges.",
     highlightSelector: '[data-tour="prize-pool-card"]',
-    arrowPosition: "bottom",
+    tooltipPosition: "bottom",
   },
   {
     title: "Time left to enter the drawing",
     description: "When the countdown ends, a random winner is drawn and a weekly recap is revealed.",
     highlightSelector: '[data-tour="countdown"]',
-    arrowPosition: "bottom",
+    tooltipPosition: "bottom", // tooltip at bottom, countdown at top
   },
 ];
 
@@ -73,7 +73,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
-  // Measure highlighted element - NO scrolling, stay on current view
+  // Measure highlighted element - NO scrolling
   const measure = useCallback(() => {
     if (!current.highlightSelector) {
       setHighlightRect(null);
@@ -83,11 +83,11 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     if (el) {
       const r = el.getBoundingClientRect();
 
-      // For challenge-list, only highlight what's visible (cap height)
+      // For challenge-list, extend to bottom of screen (above nav bar)
       let height = r.height;
       if (current.highlightSelector === '[data-tour="challenge-list"]') {
-        // Only show first ~3 challenges worth of height
-        height = Math.min(r.height, 280);
+        const navBarHeight = 80; // approx bottom nav + safe area
+        height = window.innerHeight - r.top - navBarHeight;
       }
 
       setHighlightRect({
@@ -117,7 +117,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
     const blockInteraction = (e: Event) => {
       const target = e.target as HTMLElement;
-      // Allow clicks on the Next/Got it button
       if (target.closest('[data-tour-button]')) {
         return;
       }
@@ -125,11 +124,9 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       e.stopPropagation();
     };
 
-    // Block scroll
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
 
-    // Block touch/click events
     document.addEventListener("touchstart", blockInteraction, { capture: true, passive: false });
     document.addEventListener("touchmove", blockInteraction, { capture: true, passive: false });
     document.addEventListener("click", blockInteraction, { capture: true });
@@ -180,45 +177,38 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     );
   }
 
-  // Calculate tooltip position - MUST be outside highlighted area
-  const getTooltipStyle = () => {
-    if (!highlightRect) {
-      return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    }
-
+  // Fixed tooltip positions - never overlap with content
+  const getTooltipStyle = (): React.CSSProperties => {
     const padding = 16;
-    const tooltipWidth = 320;
-    const gap = 16;
 
-    const leftPos = Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding));
-
-    if (current.arrowPosition === "bottom") {
-      // Tooltip ABOVE the element (arrow at bottom pointing down)
-      // Position from top so it doesn't get cut off
-      const topPos = highlightRect.top - gap - 160; // 160 = approx tooltip height
-      return { top: Math.max(60, topPos), left: leftPos };
+    if (current.tooltipPosition === "top") {
+      // Tooltip fixed at top of screen (below safe area)
+      return {
+        top: 70, // below safe area
+        left: padding,
+        right: padding,
+      };
     } else {
-      // Tooltip BELOW the element (arrow at top pointing up)
-      const topPos = highlightRect.top + highlightRect.height + gap;
-      return { top: topPos, left: leftPos };
+      // Tooltip fixed at bottom of screen (above nav)
+      return {
+        bottom: 100, // above bottom nav
+        left: padding,
+        right: padding,
+      };
     }
   };
 
-  // Calculate arrow position
-  const getArrowStyle = () => {
-    if (!highlightRect) return {};
+  // Arrow points toward the highlighted element
+  const getArrowStyle = (): React.CSSProperties => {
+    if (!highlightRect) return { display: "none" };
 
-    const tooltipStyle = getTooltipStyle();
-    const tooltipLeft = typeof tooltipStyle.left === "number" ? tooltipStyle.left : 0;
-    const arrowLeft = highlightRect.left + highlightRect.width / 2 - tooltipLeft - 8;
-    const clampedArrowLeft = Math.max(20, Math.min(arrowLeft, 280));
-
-    if (current.arrowPosition === "bottom") {
-      // Arrow at BOTTOM of tooltip, pointing DOWN
-      return { bottom: -8, left: clampedArrowLeft };
+    // Arrow in center, pointing in the right direction
+    if (current.tooltipPosition === "top") {
+      // Arrow at bottom of tooltip, pointing down
+      return { bottom: -8, left: "50%", transform: "translateX(-50%)" };
     } else {
-      // Arrow at TOP of tooltip, pointing UP
-      return { top: -8, left: clampedArrowLeft };
+      // Arrow at top of tooltip, pointing up
+      return { top: -8, left: "50%", transform: "translateX(-50%)" };
     }
   };
 
@@ -226,11 +216,10 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   return (
     <div ref={overlayRef} className="fixed inset-0 z-[100] pointer-events-none">
-      {/* SVG overlay with cutout - light dim, highlighted area stays normal */}
+      {/* SVG overlay with cutout */}
       <svg className="absolute inset-0 w-full h-full">
         <defs>
           <mask id="tour-mask">
-            {/* White = visible (dimmed area), Black = hidden (cutout) */}
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
             {highlightRect && (
               <rect
@@ -244,7 +233,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             )}
           </mask>
         </defs>
-        {/* Light overlay - only 25% opacity, NOT dark */}
         <rect
           x="0"
           y="0"
@@ -255,7 +243,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         />
       </svg>
 
-      {/* Highlight border around cutout - no glow */}
+      {/* Highlight border - no glow */}
       {highlightRect && (
         <div
           className="absolute rounded-xl pointer-events-none"
@@ -269,15 +257,15 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         />
       )}
 
-      {/* Tooltip card */}
+      {/* Tooltip card - fixed position, never overlaps highlight */}
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, y: current.arrowPosition === "bottom" ? 10 : -10 }}
+          initial={{ opacity: 0, y: current.tooltipPosition === "top" ? -20 : 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="absolute w-[320px] rounded-2xl bg-card shadow-xl px-5 py-4 pointer-events-auto"
+          className="absolute rounded-2xl bg-card shadow-xl px-5 py-4 pointer-events-auto mx-4"
           style={getTooltipStyle()}
         >
           {/* Arrow */}
@@ -296,7 +284,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
           {/* Footer */}
           <div className="flex items-center justify-between relative z-10">
-            {/* Progress dots */}
             <div className="flex gap-1.5">
               {STEPS.map((_, i) => (
                 <div
@@ -312,7 +299,6 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
               ))}
             </div>
 
-            {/* Next button */}
             <button
               data-tour-button
               onClick={handleNext}
