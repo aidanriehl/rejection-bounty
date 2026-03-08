@@ -31,7 +31,7 @@ import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
 import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
-import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const queryClient = new QueryClient({});
 
