@@ -54,17 +54,30 @@ function MedalIcon({ tier, size = 28 }: {tier: MedalTier;size?: number;}) {
 
 }
 
+const TIER_EMOJIS: Record<string, string> = {
+  bronze: "🥉",
+  silver: "🥈",
+  gold: "🥇",
+  diamond: "💎",
+  champion: "🏆",
+};
+
 function getMilestone(completed: number) {
+  // Find which tier range we're in
   for (let i = MILESTONES.length - 1; i >= 0; i--) {
     if (completed >= MILESTONES[i]) {
+      const prev = MILESTONES[i];
       const next = MILESTONES[i + 1];
       if (next) {
-        return { current: completed, goal: next, medal: MEDALS[MILESTONES[i]] };
+        // Progress within this tier: e.g. 15 completed, tier starts at 10, next at 50 → 5/40
+        return { current: completed - prev, goal: next - prev, total: completed, medal: MEDALS[prev] };
       }
-      return { current: completed, goal: MILESTONES[i], medal: MEDALS[MILESTONES[i]] };
+      // Max tier reached
+      return { current: completed - prev, goal: 0, total: completed, medal: MEDALS[prev] };
     }
   }
-  return { current: completed, goal: MILESTONES[0], medal: null };
+  // Below first milestone
+  return { current: completed, goal: MILESTONES[0], total: completed, medal: null };
 }
 
 export default function Profile() {
