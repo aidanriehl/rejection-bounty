@@ -530,19 +530,18 @@ export default function Challenges() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
               onClick={() => setChoiceChallenge(null)}
             >
               <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-10"
+                className="w-[85%] max-w-sm rounded-2xl bg-card p-5"
               >
-                <p className="mb-1 text-lg font-bold text-foreground">Add Accountability Video</p>
-                <p className="mb-5 text-sm text-muted-foreground">{choiceChallenge.title}</p>
+                <p className="mb-4 text-lg font-bold text-foreground">Add Accountability Video</p>
 
                 <button
                   onClick={() => {
@@ -554,10 +553,7 @@ export default function Challenges() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <Video className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Take Video</p>
-                    <p className="text-xs text-muted-foreground">Film directly in the app</p>
-                  </div>
+                  <p className="text-sm font-semibold text-foreground">Take Video</p>
                 </button>
 
                 <button
@@ -569,10 +565,7 @@ export default function Challenges() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <FolderOpen className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Photo Library</p>
-                    <p className="text-xs text-muted-foreground">Choose a video from your camera roll</p>
-                  </div>
+                  <p className="text-sm font-semibold text-foreground">Photo Library</p>
                 </button>
 
                 <button
