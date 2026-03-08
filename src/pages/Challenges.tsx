@@ -79,7 +79,7 @@ export default function Challenges() {
   // Fetch challenges from database based on current week
   useEffect(() => {
     const fetchChallenges = async () => {
-      if (!hasFetchedRef.current) setLoadingChallenges(true);
+      if (!sessionStorage.getItem("challenges-fetched")) setLoadingChallenges(true);
 
       // Fetch challenges for this week from database
       const { data: dbChallenges, error } = await supabase
