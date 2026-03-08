@@ -365,7 +365,7 @@ export default function Profile() {
         <div className="grid grid-cols-3 gap-0.5">
             {posts.map((post) => {
             // Use stored thumbnail URL (video_url field), fallback to Cloudflare generated
-            const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+            const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7";
             const thumbnailUrl = post.video_url || (post.video_id ?
             `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
             null);
@@ -400,7 +400,7 @@ export default function Profile() {
       <div className="fixed inset-0 z-50 bg-black">
           {/* Video */}
           <iframe
-          src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
+          src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
           className="absolute inset-0 w-full h-full"
           allow="autoplay; fullscreen"
           style={{ border: "none" }} />

@@ -54,7 +54,7 @@ function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: 
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const lastTapRef = useRef(0);
 
-  const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "f77ppcboel";
+  const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7";
   const thumbnailUrl = post.video_id ?
   `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
   post.video_url || "/placeholder.svg";

@@ -186,7 +186,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             user_id: session.user.id,
             challenge_id: meta.challengeId,
             week_key: weekKey,
-            video_url: videoId ? `https://customer-f77ppcboel.cloudflarestream.com/${videoId}/watch` : null,
+            video_url: videoId ? `https://customer-ekqzy78t2m50j1d7.cloudflarestream.com/${videoId}/watch` : null,
           };
 
           console.log("[Upload] Inserting completion:", JSON.stringify(completionPayload));
