@@ -151,17 +151,15 @@ function OtpScreen({
         )}
       </div>
 
-      <button
+      <DuoButton
         onClick={() => doVerify(otp)}
         disabled={otp.length !== 6 || verifying}
-        className="mb-3 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40">
-        
+        className="mb-3 max-w-sm">
         {verifying ?
         <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
-
         "Verify"
         }
-      </button>
+      </DuoButton>
 
       <p className="mb-2 text-xs text-primary-foreground/40">
         Didn't get the code? Check your spam folder.
