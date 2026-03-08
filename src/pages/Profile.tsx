@@ -454,11 +454,11 @@ export default function Profile() {
             <ChevronLeft className="h-8 w-8" />
           </button>
 
-          {/* Delete button - top right */}
+          {/* Delete button - bottom right */}
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="absolute right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/75 active:text-red-400"
-            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
+            className="absolute right-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/75 active:text-red-400"
+            style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 24px)' }}
           >
             <Trash2 className="h-[18px] w-[18px]" />
           </button>
