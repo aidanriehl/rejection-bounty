@@ -21,15 +21,27 @@ function SplashScreen({ onDone }: {onDone: () => void;}) {
       transition={{ duration: 0.4 }}>
       
       <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
+        initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.2 }}
         className="-mt-16 flex flex-col items-center gap-3">
         
-        <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">
+        <motion.img
+          src={logoImg}
+          alt="Rejection Bounty"
+          className="h-20 w-20"
+          initial={{ rotate: -10, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.3 }}
+        />
+        <motion.h1
+          className="text-3xl font-extrabold tracking-tight text-white"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
+        >
           Rejection Bounty
-        </h1>
+        </motion.h1>
       </motion.div>
     </motion.div>);
 
@@ -126,7 +138,7 @@ function OtpScreen({
       
       <span className="mb-1.5 text-4xl">✉️</span>
       <h2 className="mb-0.5 text-2xl font-bold text-primary-foreground">Enter Your Code</h2>
-      <p className="mb-5 text-sm text-primary-foreground/60">Sent to your email</p>
+      <p className="mb-5 text-sm text-primary-foreground/60">Sent to your email.</p>
 
       {/* OTP input boxes */}
       <div className="mb-3 flex gap-2.5" onPaste={handlePaste}>
