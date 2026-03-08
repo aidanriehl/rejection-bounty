@@ -73,7 +73,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
-  // Measure highlighted element
+  // Measure highlighted element (scroll into view first)
   const measure = useCallback(() => {
     if (!current.highlightSelector) {
       setHighlightRect(null);
@@ -81,13 +81,17 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     }
     const el = document.querySelector(current.highlightSelector);
     if (el) {
-      const r = el.getBoundingClientRect();
-      setHighlightRect({
-        top: r.top,
-        left: r.left,
-        width: r.width,
-        height: r.height,
-      });
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Wait for scroll to finish before measuring
+      setTimeout(() => {
+        const r = el.getBoundingClientRect();
+        setHighlightRect({
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height,
+        });
+      }, 350);
     }
   }, [current.highlightSelector]);
 
