@@ -1,9 +1,18 @@
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { useUpload } from "@/contexts/UploadContext";
 
 export default function UploadIndicator() {
   const { status, progress, retry, clearUpload } = useUpload();
+
+  // Auto-dismiss "done" banner after 3 seconds
+  useEffect(() => {
+    if (status === "done") {
+      const timer = setTimeout(clearUpload, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status, clearUpload]);
 
   if (status === "idle") return null;
 
