@@ -12,7 +12,7 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-type Step = "select" | "trim" | "post";
+type Step = "trim" | "post";
 
 export default function PostPage() {
   const navigate = useNavigate();
