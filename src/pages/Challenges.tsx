@@ -106,14 +106,16 @@ export default function Challenges() {
 
       // Fetch user's completions for this week
       let completedIds: string[] = [];
+      let videoIds: string[] = [];
       if (user) {
         const { data: completions } = await supabase
           .from("challenge_completions")
-          .select("challenge_id")
+          .select("challenge_id, video_url")
           .eq("user_id", user.id)
           .eq("week_key", weekKey);
 
         completedIds = (completions || []).map((c: any) => c.challenge_id);
+        videoIds = (completions || []).filter((c: any) => c.video_url).map((c: any) => c.challenge_id);
       }
 
       // Map DB challenges to Challenge type with completion status
@@ -123,7 +125,7 @@ export default function Challenges() {
         description: ch.description || ch.title,
         emoji: ch.emoji,
         completed: completedIds.includes(ch.id),
-        hasVideo: false,
+        hasVideo: videoIds.includes(ch.id),
       }));
 
       setChallenges(mappedChallenges);
@@ -209,7 +211,7 @@ export default function Challenges() {
         if (!challenge || challenge.completed) return prev;
 
         const next = prev.map((c) =>
-          c.id === challengeId ? { ...c, completed: true } : c
+          c.id === challengeId ? { ...c, completed: true, hasVideo: true } : c
         );
 
         // Trigger celebration
@@ -491,15 +493,20 @@ export default function Challenges() {
                   {/* Upload */}
                   <button
                     {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
-                    onClick={() => isPremium ? setChoiceChallenge(challenge) : triggerSubscribe()}
+                    onClick={() => !challenge.hasVideo && (isPremium ? setChoiceChallenge(challenge) : triggerSubscribe())}
+                    disabled={challenge.hasVideo}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                      challenge.completed
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      challenge.hasVideo
+                        ? "bg-primary/20 text-primary/50 cursor-default"
+                        : challenge.completed
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
                     )}
                   >
-                    {isPremium ? (
+                    {challenge.hasVideo ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : isPremium ? (
                       <Upload className="h-3.5 w-3.5" />
                     ) : (
                       <Crown className="h-3.5 w-3.5" />
