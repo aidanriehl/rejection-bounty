@@ -213,6 +213,21 @@ export default function Profile() {
     }
   }, []);
 
+  const handleDeletePost = async () => {
+    if (!selectedPost || !user) return;
+    setDeleting(true);
+    const { error } = await supabase.from("posts").delete().eq("id", selectedPost.id).eq("user_id", user.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+      return;
+    }
+    setPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    setShowDeleteConfirm(false);
+    setSelectedPost(null);
+    toast({ title: "Video deleted" });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
