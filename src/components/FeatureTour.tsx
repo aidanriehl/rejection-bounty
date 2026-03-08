@@ -218,21 +218,47 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
   const isLastStep = step === STEPS.length - 1;
 
   return (
-    <div ref={overlayRef} className="fixed inset-0 z-[100]">
-      {/* Semi-transparent overlay - NOT pure black */}
-      <div className="absolute inset-0 bg-black/70" />
+    <div ref={overlayRef} className="fixed inset-0 z-[100] pointer-events-none">
+      {/* SVG overlay with cutout - light dim, highlighted area stays normal */}
+      <svg className="absolute inset-0 w-full h-full">
+        <defs>
+          <mask id="tour-mask">
+            {/* White = visible (dimmed area), Black = hidden (cutout) */}
+            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {highlightRect && (
+              <rect
+                x={highlightRect.left - 8}
+                y={highlightRect.top - 8}
+                width={highlightRect.width + 16}
+                height={highlightRect.height + 16}
+                rx="12"
+                fill="black"
+              />
+            )}
+          </mask>
+        </defs>
+        {/* Light overlay - only 25% opacity, NOT dark */}
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill="rgba(0, 0, 0, 0.25)"
+          mask="url(#tour-mask)"
+        />
+      </svg>
 
-      {/* Highlight cutout */}
+      {/* Highlight border around cutout */}
       {highlightRect && (
         <div
-          className="absolute rounded-xl"
+          className="absolute rounded-xl pointer-events-none"
           style={{
             top: highlightRect.top - 8,
             left: highlightRect.left - 8,
             width: highlightRect.width + 16,
             height: highlightRect.height + 16,
-            boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7)",
-            border: "3px solid rgba(255, 255, 255, 0.3)",
+            border: "2px solid hsl(var(--primary))",
+            boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
           }}
         />
       )}
@@ -245,7 +271,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="absolute w-[320px] rounded-2xl bg-card shadow-xl px-5 py-4"
+          className="absolute w-[320px] rounded-2xl bg-card shadow-xl px-5 py-4 pointer-events-auto"
           style={getTooltipStyle()}
         >
           {/* Arrow */}

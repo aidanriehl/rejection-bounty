@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
-import { Heart, Loader2, MessageCircle, X, Send } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -47,7 +47,7 @@ interface FeedPostData {
   } | null;
 }
 
-function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: (postId: string) => void;}) {
+function ReelCard({ post }: {post: FeedPostData;}) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(() => getLikedPosts());
   const liked = likedPosts.has(post.id);
   const [likeCount, setLikeCount] = useState(post.likes);
@@ -150,13 +150,6 @@ function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: 
           
           <span className="text-xs font-semibold text-white drop-shadow-md">{likeCount}</span>
         </button>
-        <button
-          onClick={(e) => {e.stopPropagation();onOpenComments(post.id);}}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90">
-          
-          <MessageCircle className="h-7 w-7 text-white drop-shadow-md" />
-          <span className="text-xs font-semibold text-white drop-shadow-md">0</span>
-        </button>
       </div>
 
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
@@ -171,7 +164,7 @@ function ReelCard({ post, onOpenComments }: {post: FeedPostData;onOpenComments: 
 
 }
 
-function FeedPane({ posts, emptyMessage, loading, onOpenComments }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;onOpenComments: (postId: string) => void;}) {
+function FeedPane({ posts, emptyMessage, loading }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;}) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -189,82 +182,9 @@ function FeedPane({ posts, emptyMessage, loading, onOpenComments }: {posts: Feed
   return (
     <div data-scroll-container className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
       {posts.map((post) =>
-      <ReelCard key={post.id} post={post} onOpenComments={onOpenComments} />
+      <ReelCard key={post.id} post={post} />
       )}
     </div>);
-
-}
-
-// Instagram-style comments sheet
-function CommentsSheet({ postId, onClose }: {postId: string;onClose: () => void;}) {
-  const [comment, setComment] = useState("");
-  const [sending, setSending] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Focus input when sheet opens
-    setTimeout(() => inputRef.current?.focus(), 100);
-  }, []);
-
-  const handleSend = async () => {
-    if (!comment.trim() || sending) return;
-    setSending(true);
-    // TODO: Save comment to database when comments table exists
-    console.log("Comment on post", postId, ":", comment);
-    setComment("");
-    setSending(false);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/50"
-      onClick={onClose}>
-      
-      <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-0 left-0 right-0 bg-background rounded-t-2xl max-h-[70vh] flex flex-col"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <span className="text-base font-semibold text-foreground">Comments</span>
-          <button onClick={onClose} className="p-1">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
-
-        {/* Comments list */}
-        <div data-scroll-container className="flex-1 overflow-y-auto px-4 py-4 min-h-[200px]">
-          <p className="text-sm text-muted-foreground text-center py-8">No comments yet. Be the first!</p>
-        </div>
-
-        {/* Input - Instagram style */}
-        <div className="px-4 py-3 border-t flex items-center gap-3 bg-background">
-          <input
-            ref={inputRef}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Add a comment..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
-          
-          <button
-            onClick={handleSend}
-            disabled={!comment.trim() || sending}
-            className="text-primary font-semibold text-sm disabled:opacity-40">
-            
-            Post
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>);
 
 }
 
@@ -273,7 +193,6 @@ export default function Feed() {
   const [posts, setPosts] = useState<FeedPostData[]>([]);
   const [friendIds, setFriendIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [commentsPostId, setCommentsPostId] = useState<string | null>(null);
   const { user } = useAuth();
   const dragX = useMotionValue(0);
 
@@ -398,19 +317,11 @@ export default function Feed() {
             <FeedPane
             posts={panePosts}
             emptyMessage="No videos uploaded yet"
-            loading={loading}
-            onOpenComments={setCommentsPostId} />
+            loading={loading} />
           
           </div>
         )}
       </motion.div>
-
-      {/* Comments sheet */}
-      <AnimatePresence>
-        {commentsPostId &&
-        <CommentsSheet postId={commentsPostId} onClose={() => setCommentsPostId(null)} />
-        }
-      </AnimatePresence>
     </div>);
 
 }
