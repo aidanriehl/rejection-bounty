@@ -505,7 +505,7 @@ export default function Profile() {
               <div className="mx-10 w-full max-w-[260px] rounded-2xl bg-card p-4 text-center shadow-xl -mt-16">
                 <Trash2 className="mx-auto mb-2 h-6 w-6 text-destructive" />
                 <h3 className="text-sm font-bold text-foreground mb-0.5">Delete this video?</h3>
-                <p className="text-xs text-muted-foreground mb-4">This can't be undone.</p>
+                <p className="text-xs text-muted-foreground mb-4">This action can't be undone.</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
