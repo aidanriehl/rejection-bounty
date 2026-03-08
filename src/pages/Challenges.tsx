@@ -482,7 +482,7 @@ export default function Challenges() {
                   {/* Upload */}
                   <button
                     {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
-                    onClick={() => isPremium ? navigate("/post", { state: { challengeTitle: challenge.title, challengeId: challenge.id } }) : triggerSubscribe()}
+                    onClick={() => isPremium ? setChoiceChallenge(challenge) : triggerSubscribe()}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
                       challenge.completed
