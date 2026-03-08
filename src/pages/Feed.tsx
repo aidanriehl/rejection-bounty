@@ -189,7 +189,7 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
             )}
           </div>
           {/* Likes on right */}
-          <button onClick={toggleLike} className="flex items-center gap-1.5">
+          <button onClick={toggleLike} className="flex items-center gap-1.5 mr-1">
             <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-white text-white" : "text-white/50")} />
             <span className="text-xs text-white/50 drop-shadow-md">{likeCount} likes</span>
           </button>
