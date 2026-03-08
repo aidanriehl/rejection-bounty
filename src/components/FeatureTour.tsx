@@ -164,7 +164,10 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
-    else onComplete();
+    else {
+      playSuccessDing();
+      onComplete();
+    }
   };
 
   // --- Intro screen ---

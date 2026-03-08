@@ -307,46 +307,82 @@ export function playEpicWin() {
     });
   } catch {}
 }
-/** Slot machine reel tick — deep mechanical clunk */
+/** Short cheerful success ding — for completing the tour */
+export function playSuccessDing() {
+  try {
+    const a = ctx();
+    const t = a.currentTime;
+
+    // Two-note rising chime (G5 → C6)
+    [784, 1047].forEach((freq, i) => {
+      const o = a.createOscillator();
+      const g = a.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(freq, t + i * 0.12);
+      o.connect(g);
+      g.connect(a.destination);
+      g.gain.setValueAtTime(0, t + i * 0.12);
+      g.gain.linearRampToValueAtTime(0.18, t + i * 0.12 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.005, t + i * 0.12 + 0.4);
+      o.start(t + i * 0.12);
+      o.stop(t + i * 0.12 + 0.4);
+    });
+
+    // Sparkle overlay
+    const o2 = a.createOscillator();
+    const g2 = a.createGain();
+    o2.type = "triangle";
+    o2.frequency.setValueAtTime(2093, t + 0.24);
+    o2.connect(g2);
+    g2.connect(a.destination);
+    g2.gain.setValueAtTime(0, t + 0.24);
+    g2.gain.linearRampToValueAtTime(0.08, t + 0.25);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+    o2.start(t + 0.24);
+    o2.stop(t + 0.5);
+  } catch {}
+}
+
+/** Slot machine reel tick — light playful click */
 export function playReelTick() {
   try {
     const a = ctx();
     const t = a.currentTime;
 
-    // Low-pitched knock body
+    // Higher-pitched, lighter knock
     const osc = a.createOscillator();
     const oscGain = a.createGain();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(180, t);
-    osc.frequency.exponentialRampToValueAtTime(60, t + 0.04);
-    oscGain.gain.setValueAtTime(0.25, t);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(300, t + 0.025);
+    oscGain.gain.setValueAtTime(0.15, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
     osc.connect(oscGain);
     oscGain.connect(a.destination);
     osc.start(t);
-    osc.stop(t + 0.04);
+    osc.stop(t + 0.03);
 
-    // Short noise transient — low-pass filtered for weight
-    const bufSize = a.sampleRate * 0.012;
+    // Short bright noise tap
+    const bufSize = a.sampleRate * 0.008;
     const buf = a.createBuffer(1, bufSize, a.sampleRate);
     const data = buf.getChannelData(0);
     for (let j = 0; j < bufSize; j++) {
-      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 10);
+      data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufSize, 12);
     }
     const src = a.createBufferSource();
     src.buffer = buf;
-    const lp = a.createBiquadFilter();
-    lp.type = "lowpass";
-    lp.frequency.value = 800;
-    lp.Q.value = 1;
+    const bp = a.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 3000;
+    bp.Q.value = 2;
     const g = a.createGain();
-    g.gain.setValueAtTime(0.15, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
-    src.connect(lp);
-    lp.connect(g);
+    g.gain.setValueAtTime(0.1, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
+    src.connect(bp);
+    bp.connect(g);
     g.connect(a.destination);
     src.start(t);
-    src.stop(t + 0.025);
+    src.stop(t + 0.015);
   } catch {}
 }
 
