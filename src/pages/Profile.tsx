@@ -490,7 +490,10 @@ export default function Profile() {
               <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
-            <p className="text-xs text-white/50 drop-shadow-md mb-2">{selectedPost.likes} likes</p>
+            <p className="text-xs text-white/50 drop-shadow-md mb-1.5">{selectedPost.likes} likes</p>
+            {selectedPost.challenge_title && (
+              <p className="text-xs font-semibold text-white/70 drop-shadow-md mb-1">{selectedPost.challenge_title}</p>
+            )}
             {selectedPost.caption && (
               <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
             )}
