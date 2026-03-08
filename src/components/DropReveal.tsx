@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { playBigWin, playPop } from "@/lib/sounds";
-import logoImg from "@/assets/logo.png";
+import logoImg from "@/assets/logo-white.png";
 
 interface DropRevealProps {
   onRevealComplete: () => void;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import logoImg from "@/assets/logo.png";
+import logoImg from "@/assets/logo-white.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import DuoButton from "@/components/DuoButton";
