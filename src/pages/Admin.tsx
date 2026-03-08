@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send } from "lucide-react";
 import { mockChallenges } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
@@ -111,6 +111,21 @@ export default function Admin() {
   const [showMessageThread, setShowMessageThread] = useState(false);
   const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
   const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
+
+  // Support inbox
+  interface SupportThread {
+    user_id: string;
+    username: string | null;
+    avatar: string;
+    last_message: string;
+    last_time: string;
+    unread: number;
+  }
+  const [supportThreads, setSupportThreads] = useState<SupportThread[]>([]);
+  const [activeSupportUser, setActiveSupportUser] = useState<{ user_id: string; username: string | null } | null>(null);
+  const [supportMessages, setSupportMessages] = useState<any[]>([]);
+  const [supportReply, setSupportReply] = useState("");
+  const [sendingSupport, setSendingSupport] = useState(false);
 
   // Challenge management
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
@@ -249,6 +264,45 @@ export default function Admin() {
         username: profMap[v.user_id]?.username ?? "Unknown",
         avatar: profMap[v.user_id]?.avatar ?? "dragon",
       })));
+    }
+
+    // Fetch support threads
+    const { data: allMsgs } = await supabase
+      .from("user_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (allMsgs) {
+      const threadMap: Record<string, { msgs: any[] }> = {};
+      allMsgs.forEach((m: any) => {
+        if (!threadMap[m.user_id]) threadMap[m.user_id] = { msgs: [] };
+        threadMap[m.user_id].msgs.push(m);
+      });
+
+      const userIds = Object.keys(threadMap);
+      const { data: threadProfiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar")
+        .in("id", userIds);
+
+      const profLookup: Record<string, any> = {};
+      threadProfiles?.forEach((p: any) => { profLookup[p.id] = p; });
+
+      const threads: SupportThread[] = userIds.map((uid) => {
+        const msgs = threadMap[uid].msgs;
+        const lastMsg = msgs[0];
+        return {
+          user_id: uid,
+          username: profLookup[uid]?.username ?? null,
+          avatar: profLookup[uid]?.avatar ?? "dragon",
+          last_message: lastMsg.message,
+          last_time: lastMsg.created_at,
+          unread: 0,
+        };
+      });
+
+      threads.sort((a, b) => new Date(b.last_time).getTime() - new Date(a.last_time).getTime());
+      setSupportThreads(threads);
     }
 
     setLoadingData(false);
@@ -435,6 +489,36 @@ export default function Admin() {
     a === "dragon" ? "🐉" : a === "fox" ? "🦊" : a === "owl" ? "🦉" : a === "cat" ? "🐱" : "🌳";
 
   const currentWinnerName = tickets.find(t => t.user_id === drawing?.winner_user_id)?.username ?? "Winner";
+
+  // Support inbox helpers
+  const openSupportThread = async (thread: SupportThread) => {
+    setActiveSupportUser({ user_id: thread.user_id, username: thread.username });
+    const { data } = await supabase
+      .from("user_messages")
+      .select("*")
+      .eq("user_id", thread.user_id)
+      .order("created_at", { ascending: true });
+    setSupportMessages(data ?? []);
+  };
+
+  const sendSupportReply = async () => {
+    if (!supportReply.trim() || sendingSupport || !activeSupportUser) return;
+    setSendingSupport(true);
+    await supabase.from("user_messages").insert({
+      user_id: activeSupportUser.user_id,
+      sender: "admin",
+      message: supportReply.trim(),
+    } as any);
+    setSupportReply("");
+    setSendingSupport(false);
+    // Refresh
+    const { data } = await supabase
+      .from("user_messages")
+      .select("*")
+      .eq("user_id", activeSupportUser.user_id)
+      .order("created_at", { ascending: true });
+    setSupportMessages(data ?? []);
+  };
 
   return (
     <div className="min-h-screen pb-24 pt-6">
@@ -960,6 +1044,87 @@ export default function Admin() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">No winner selected yet this week</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section: Support Inbox */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Inbox className="h-5 w-5 text-primary" />
+              Support Inbox
+              {supportThreads.length > 0 && (
+                <Badge variant="secondary" className="ml-auto">{supportThreads.length}</Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeSupportUser ? (
+              <div>
+                <button
+                  onClick={() => { setActiveSupportUser(null); setSupportMessages([]); }}
+                  className="flex items-center gap-1 text-xs text-primary mb-3"
+                >
+                  <ArrowLeft className="h-3 w-3" /> Back to inbox
+                </button>
+                <p className="text-sm font-bold text-foreground mb-3">
+                  {activeSupportUser.username || "Anonymous User"}
+                </p>
+                <div className="max-h-64 overflow-y-auto space-y-2 mb-3 rounded-lg bg-muted/30 p-3">
+                  {supportMessages.map((msg: any) => (
+                    <div key={msg.id} className={`flex ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                        msg.sender === "admin"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground"
+                      }`}>
+                        {msg.message}
+                      </div>
+                    </div>
+                  ))}
+                  {supportMessages.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-4">No messages</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={supportReply}
+                    onChange={(e) => setSupportReply(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendSupportReply()}
+                    placeholder="Reply..."
+                    className="flex-1"
+                  />
+                  <Button onClick={sendSupportReply} disabled={!supportReply.trim() || sendingSupport} size="sm">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : supportThreads.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No support messages yet</p>
+            ) : (
+              <div className="space-y-2">
+                {supportThreads.map((thread) => (
+                  <button
+                    key={thread.user_id}
+                    onClick={() => openSupportThread(thread)}
+                    className="w-full flex items-center gap-3 rounded-lg bg-muted/50 p-3 text-left transition-colors hover:bg-muted"
+                  >
+                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-lg">
+                      {avatarEmoji(thread.avatar)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {thread.username || "Anonymous"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{thread.last_message}</p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      {new Date(thread.last_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </button>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
