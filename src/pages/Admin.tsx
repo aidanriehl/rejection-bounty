@@ -266,6 +266,45 @@ export default function Admin() {
       })));
     }
 
+    // Fetch support threads
+    const { data: allMsgs } = await supabase
+      .from("user_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (allMsgs) {
+      const threadMap: Record<string, { msgs: any[] }> = {};
+      allMsgs.forEach((m: any) => {
+        if (!threadMap[m.user_id]) threadMap[m.user_id] = { msgs: [] };
+        threadMap[m.user_id].msgs.push(m);
+      });
+
+      const userIds = Object.keys(threadMap);
+      const { data: threadProfiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar")
+        .in("id", userIds);
+
+      const profLookup: Record<string, any> = {};
+      threadProfiles?.forEach((p: any) => { profLookup[p.id] = p; });
+
+      const threads: SupportThread[] = userIds.map((uid) => {
+        const msgs = threadMap[uid].msgs;
+        const lastMsg = msgs[0];
+        return {
+          user_id: uid,
+          username: profLookup[uid]?.username ?? null,
+          avatar: profLookup[uid]?.avatar ?? "dragon",
+          last_message: lastMsg.message,
+          last_time: lastMsg.created_at,
+          unread: 0,
+        };
+      });
+
+      threads.sort((a, b) => new Date(b.last_time).getTime() - new Date(a.last_time).getTime());
+      setSupportThreads(threads);
+    }
+
     setLoadingData(false);
   };
 
