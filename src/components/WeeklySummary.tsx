@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Check, ChevronUp } from "lucide-react";
+import { ChevronRight, Check, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -42,8 +42,20 @@ const potAmount = 287;
 const playerCount = 52;
 const winnerName = "brave_sarah";
 
+const mockWinningVideo = {
+  videoId: null as string | null,
+  challengeTitle: "Ask a stranger for a high-five",
+  challengeEmoji: "🖐️",
+  prizeAmount: 287,
+  username: "brave_sarah",
+  avatar: "dragon" as AvatarType,
+  avatarStage: 3 as AvatarStage,
+};
+
+type FlowPhase = "drawing" | "winning-video" | "recap";
+
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
-  const [showDrawing, setShowDrawing] = useState(true);
+  const [phase, setPhase] = useState<FlowPhase>("drawing");
   const [dismissed, setDismissed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -65,37 +77,116 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
 
   return (
     <>
-      {/* Page 1: Drawing animation */}
+      {/* Phase 1: Drawing animation (slot machine) */}
       <AnimatePresence>
-        {showDrawing && (
+        {phase === "drawing" && (
           <DrawingReveal
             potAmount={potAmount}
             playerCount={playerCount}
             winnerName={winnerName}
-            onContinue={() => setShowDrawing(false)}
+            onContinue={() => setPhase("winning-video")}
           />
         )}
       </AnimatePresence>
 
-      {/* Page 2: Recap */}
+      {/* Phase 2: Winning Video Page */}
       <AnimatePresence>
-      {!dismissed && !showDrawing && (
+        {phase === "winning-video" && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex flex-col bg-black"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex-1 flex flex-col items-center justify-center px-6">
+              {/* Winner badge */}
+              <motion.div
+                className="mb-6 flex items-center gap-2 rounded-full bg-yellow-500/20 px-4 py-2"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Trophy className="h-4 w-4 text-yellow-400" />
+                <span className="text-sm font-bold text-yellow-400">This Week's Winner</span>
+              </motion.div>
+
+              {/* Video */}
+              <motion.div
+                className="w-full max-w-[280px] aspect-[9/16] rounded-2xl overflow-hidden bg-white/10 border-2 border-white/20 shadow-2xl"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, type: "spring", damping: 20 }}
+              >
+                {mockWinningVideo.videoId ? (
+                  <iframe
+                    src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7"}.cloudflarestream.com/${mockWinningVideo.videoId}/iframe?autoplay=true&loop=true&muted=true&controls=false`}
+                    className="w-full h-full"
+                    allow="autoplay"
+                    style={{ border: "none" }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                    <span className="text-6xl">{mockWinningVideo.challengeEmoji}</span>
+                    <span className="text-sm text-white/50">Winning Video</span>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Winner info */}
+              <motion.div
+                className="mt-5 flex flex-col items-center gap-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <AvatarDisplay avatar={mockWinningVideo.avatar} stage={mockWinningVideo.avatarStage} size="sm" />
+                  <span className="text-lg font-bold text-white">@{mockWinningVideo.username}</span>
+                </div>
+                <p className="text-sm text-white/60">{mockWinningVideo.challengeEmoji} {mockWinningVideo.challengeTitle}</p>
+                <div className="mt-1 rounded-full bg-primary/20 px-4 py-1.5">
+                  <span className="text-sm font-bold text-primary">Won ${mockWinningVideo.prizeAmount}</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Continue button */}
+            <motion.div
+              className="px-6 flex justify-center"
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <button
+                onClick={() => setPhase("recap")}
+                className="w-full max-w-xs rounded-full bg-white py-3.5 text-sm font-bold text-black shadow-lg active:scale-95 transition-transform"
+              >
+                Continue
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Phase 3: Recap */}
+      <AnimatePresence>
+      {!dismissed && phase === "recap" && (
         <motion.div
           className="fixed inset-0 z-[60] flex flex-col"
           style={{ backgroundColor: "hsl(var(--background))" }}
-          initial={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: -300 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Scrollable content */}
           <div
             ref={scrollRef}
             data-scroll-container
             className="flex-1 overflow-y-auto overscroll-contain"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-          {/* Header */}
           <div className="px-4 pb-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}>
             <motion.h1
               className="text-3xl font-extrabold text-foreground"
@@ -107,8 +198,6 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.h1>
           </div>
 
-
-          {/* Challenge Take Rates */}
           <div className="px-4 mt-4">
             <motion.div
               className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
@@ -172,7 +261,6 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.div>
           </div>
 
-          {/* Top Videos Gallery */}
           <div className="px-4 mt-4 mb-6">
             <motion.div
               className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
@@ -193,14 +281,12 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                     transition={{ delay: 0.9 + i * 0.1, type: "spring" }}
                     onClick={() => handleWatchAll()}
                   >
-                    {/* 9:16 tall thumbnail */}
                     <div
                       className="aspect-[9/16] relative flex items-center justify-center"
                       style={{ backgroundColor: 'hsl(var(--muted))' }}
                     >
                       <span className="text-4xl">{video.emoji}</span>
                     </div>
-                    {/* User info */}
                     <div className="p-2.5 flex items-center gap-2">
                       <AvatarDisplay avatar={video.avatar} stage={video.avatarStage} size="sm" />
                       <div className="min-w-0">
@@ -212,7 +298,6 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
                 ))}
               </div>
 
-              {/* Watch all videos button */}
               <div className="px-3 pb-3">
                 <button
                   onClick={handleWatchAll}
@@ -224,11 +309,9 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.div>
           </div>
 
-          {/* Spacer for button */}
           <div className="h-32" />
           </div>
 
-          {/* Continue button - fixed at bottom */}
           <div className="absolute bottom-0 left-0 right-0 pt-8 flex flex-col items-center"
             style={{
               paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)',
