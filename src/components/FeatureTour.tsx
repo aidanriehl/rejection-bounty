@@ -74,7 +74,7 @@ const ARROW_SIZE = 10;
 const HIGHLIGHT_PAD = 8;
 const NAV_HEIGHT = 72;
 
-export default function FeatureTour({ onComplete }: {onComplete: () => void;}) {
+export default function FeatureTour({ onComplete, username }: {onComplete: () => void; username?: string;}) {
   const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<Rect | null>(null);
