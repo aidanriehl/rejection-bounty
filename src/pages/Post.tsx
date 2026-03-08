@@ -356,7 +356,13 @@ export default function PostPage() {
                 Back
               </button>
               <h1 className="text-lg font-bold text-foreground">New Post</h1>
-              <div className="w-16" /> {/* Spacer for centering */}
+              <button
+                onClick={handlePost}
+                disabled={!videoFile || globalStatus === "uploading"}
+                className="flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Post
+              </button>
             </div>
 
             {/* Section B: Content */}
