@@ -63,21 +63,19 @@ const TIER_EMOJIS: Record<string, string> = {
 };
 
 function getMilestone(completed: number) {
-  // Find which tier range we're in
   for (let i = MILESTONES.length - 1; i >= 0; i--) {
     if (completed >= MILESTONES[i]) {
       const prev = MILESTONES[i];
       const next = MILESTONES[i + 1];
       if (next) {
-        // Progress within this tier: e.g. 15 completed, tier starts at 10, next at 50 → 5/40
-        return { current: completed - prev, goal: next - prev, total: completed, medal: MEDALS[prev] };
+        // Progress within tier: reset bar from prev to next
+        return { progressCurrent: completed - prev, progressGoal: next - prev, total: completed, nextGoal: next, medal: MEDALS[prev] };
       }
-      // Max tier reached
-      return { current: completed - prev, goal: 0, total: completed, medal: MEDALS[prev] };
+      // Max tier
+      return { progressCurrent: 1, progressGoal: 1, total: completed, nextGoal: prev, medal: MEDALS[prev] };
     }
   }
-  // Below first milestone
-  return { current: completed, goal: MILESTONES[0], total: completed, medal: null };
+  return { progressCurrent: completed, progressGoal: MILESTONES[0], total: completed, nextGoal: MILESTONES[0], medal: null };
 }
 
 export default function Profile() {
