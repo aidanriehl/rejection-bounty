@@ -322,30 +322,29 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Stat cards - 1 column stacked */}
-        <div className="mb-5 mx-auto flex flex-col gap-2.5" style={{ maxWidth: '92%' }}>
+        {/* Stat cards - 2 columns side by side, wider */}
+        <div className="mb-5 grid grid-cols-2 gap-2" style={{ margin: '0 -4px' }}>
           {/* Week Streak card */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-2">
-              <span className="text-lg leading-none">🔥</span>
-              <span className="text-base font-bold text-foreground">{streak} Week Streak</span>
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-base leading-none">🔥</span>
+              <span className="text-sm font-bold text-foreground">{streak} Week Streak</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Longest: {bestStreak} | Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">Longest: {bestStreak} | Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</p>
           </div>
 
           {/* Challenges Completed card */}
-          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-4 py-3 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
-            <div className="flex items-center gap-2">
-              <span className="text-lg leading-none">🎯</span>
-              <span className="text-base font-bold text-foreground">{ms.current}/{ms.goal} Challenges Completed</span>
-              {ms.medal && <MedalIcon tier={ms.medal.tier} size={16} />}
+          <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-base leading-none">🎯</span>
+              <span className="text-sm font-bold text-foreground">{ms.current}/{ms.goal} Done</span>
+              {ms.medal && <MedalIcon tier={ms.medal.tier} size={14} />}
             </div>
             {/* Progress bar */}
-            <div className="mt-2.5 h-3 w-full bg-muted overflow-hidden rounded-full">
+            <div className="mt-2 h-2 w-full bg-muted overflow-hidden rounded-full">
               <div
                 className="h-full rounded-full bg-primary transition-all duration-300"
                 style={{ width: `${progressPct}%` }} />
-              
             </div>
           </div>
         </div>
