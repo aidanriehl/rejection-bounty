@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import logoImg from "@/assets/logo.png";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import DuoButton from "@/components/DuoButton";
 import { supabase } from "@/integrations/supabase/client";
 
 const SPLASH_DURATION = 2200;
@@ -150,17 +151,15 @@ function OtpScreen({
         )}
       </div>
 
-      <button
+      <DuoButton
         onClick={() => doVerify(otp)}
         disabled={otp.length !== 6 || verifying}
-        className="mb-3 flex h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-40">
-        
+        className="mb-3 max-w-sm">
         {verifying ?
         <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
-
         "Verify"
         }
-      </button>
+      </DuoButton>
 
       <p className="mb-2 text-xs text-primary-foreground/40">
         Didn't get the code? Check your spam folder.
@@ -255,18 +254,12 @@ export default function Onboarding() {
                 </p>
 
                 <div className="w-full max-w-sm space-y-3 -mt-2">
-                  <button
-                onClick={() => {setIsJoining(true);setMode("form");}}
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md">
-                
+                  <DuoButton onClick={() => {setIsJoining(true);setMode("form");}}>
                     Join Now
-                  </button>
-                  <button
-                onClick={() => {setIsJoining(false);setMode("form");}}
-                className="flex h-14 w-full items-center justify-center rounded-2xl border-2 border-primary-foreground/20 text-base font-semibold text-primary-foreground">
-                
+                  </DuoButton>
+                  <DuoButton variant="outline" onClick={() => {setIsJoining(false);setMode("form");}}>
                     Log In
-                  </button>
+                  </DuoButton>
                 </div>
               </motion.div> :
           !sent ?
@@ -294,17 +287,12 @@ export default function Onboarding() {
                 autoFocus
                 className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50" />
               
-                  <button
-                onClick={handleSendOtp}
-                disabled={loading}
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-50">
-                
+                  <DuoButton onClick={handleSendOtp} disabled={loading}>
                     {loading ?
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
-
-                "Continue"
-                }
-                  </button>
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
+                    "Continue"
+                    }
+                  </DuoButton>
                   <p className="text-xs text-primary-foreground/40 pt-[6px]">
                     We'll send a 6-digit code to your email. No password needed.
                   </p>
