@@ -236,8 +236,9 @@ export default function Profile() {
 
   }
 
-  const ms = getMilestone(totalCompleted);
-  const progressPct = Math.min(ms.current / ms.goal * 100, 100);
+  // TODO: TEMP DEMO - remove this override
+  const ms = getMilestone(10);
+  const progressPct = 100;
 
   // Calculate weeks since signup for percentage
   const weeksSinceSignup = (() => {
