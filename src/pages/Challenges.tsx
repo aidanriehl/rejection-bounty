@@ -548,19 +548,19 @@ export default function Challenges() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-[85%] max-w-sm rounded-2xl bg-card p-5"
+                className="w-[85%] max-w-sm rounded-2xl bg-card p-4"
               >
-                <p className="mb-4 text-lg font-bold text-foreground">Add Accountability Video</p>
+                <p className="mb-3 text-lg font-bold text-foreground">Add Challenge Video</p>
 
                 <button
                   onClick={() => {
                     setCameraChallenge(choiceChallenge);
                     setChoiceChallenge(null);
                   }}
-                  className="mb-3 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/50"
+                  className="mb-2 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-3 text-left transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <Video className="h-5 w-5 text-primary" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                    <Video className="h-4 w-4 text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-foreground">Take Video</p>
                 </button>
@@ -569,10 +569,10 @@ export default function Challenges() {
                   onClick={() => {
                     libraryFileRef.current?.click();
                   }}
-                  className="mb-3 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-4 text-left transition-colors hover:bg-muted/50"
+                  className="mb-2 flex w-full items-center gap-3 rounded-xl border bg-muted/30 px-4 py-3 text-left transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <FolderOpen className="h-5 w-5 text-primary" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                    <FolderOpen className="h-4 w-4 text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-foreground">Photo Library</p>
                 </button>
