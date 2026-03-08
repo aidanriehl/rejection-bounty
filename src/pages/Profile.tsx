@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2 } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
@@ -92,6 +92,8 @@ export default function Profile() {
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [selectedPost, setSelectedPost] = useState<UserPost | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [friendsCount, setFriendsCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
@@ -210,6 +212,21 @@ export default function Profile() {
       longPressTimer.current = null;
     }
   }, []);
+
+  const handleDeletePost = async () => {
+    if (!selectedPost || !user) return;
+    setDeleting(true);
+    const { error } = await supabase.from("posts").delete().eq("id", selectedPost.id).eq("user_id", user.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+      return;
+    }
+    setPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    setShowDeleteConfirm(false);
+    setSelectedPost(null);
+    toast({ title: "Video deleted" });
+  };
 
   if (loading) {
     return (
@@ -407,47 +424,79 @@ export default function Profile() {
       </div>
 
       {/* Video player modal - matches Feed UI */}
-      {selectedPost && selectedPost.video_id &&
-      <div className="fixed inset-0 z-50 bg-black">
+      {selectedPost && selectedPost.video_id && (
+        <div className="fixed inset-0 z-50 bg-black">
           {/* Video */}
           <iframe
-          src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
-          className="absolute inset-0 w-full h-full"
-          allow="autoplay; fullscreen"
-          style={{ border: "none" }} />
-
+            src={`https://customer-${import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7"}.cloudflarestream.com/${selectedPost.video_id}/iframe?autoplay=true&loop=true&muted=false&controls=false`}
+            className="absolute inset-0 w-full h-full"
+            allow="autoplay; fullscreen"
+            style={{ border: "none" }}
+          />
 
           {/* Back button - top left */}
           <button
-          onClick={() => setSelectedPost(null)}
-          className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
-          style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}>
-
+            onClick={() => setSelectedPost(null)}
+            className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
+            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
+          >
             <ChevronLeft className="h-8 w-8" />
+          </button>
+
+          {/* Delete button - top right */}
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center text-white/70 active:text-red-400"
+            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
+          >
+            <Trash2 className="h-5 w-5" />
           </button>
 
           {/* Bottom gradient */}
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
-          {/* Bottom info - left aligned, matches Feed UI */}
+          {/* Bottom info */}
           <div
-          className="absolute left-4 right-4"
-          style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}>
-
-            {/* Row 1: Avatar + Username */}
+            className="absolute left-4 right-4"
+            style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}
+          >
             <div className="flex items-center gap-3 mb-2.5">
               <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
-            {/* Row 2: Likes - smaller and less prominent */}
             <p className="text-xs text-white/50 drop-shadow-md mb-2">{selectedPost.likes} likes</p>
-            {/* Row 3: Caption */}
-            {selectedPost.caption &&
-          <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
-          }
+            {selectedPost.caption && (
+              <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
+            )}
           </div>
+
+          {/* Delete confirmation overlay */}
+          {showDeleteConfirm && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60">
+              <div className="mx-8 w-full max-w-xs rounded-2xl bg-card p-5 text-center shadow-xl">
+                <Trash2 className="mx-auto mb-3 h-8 w-8 text-destructive" />
+                <h3 className="text-base font-bold text-foreground mb-1">Delete this video?</h3>
+                <p className="text-sm text-muted-foreground mb-5">This can't be undone.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="flex-1 rounded-xl bg-muted py-2.5 text-sm font-semibold text-foreground"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeletePost}
+                    disabled={deleting}
+                    className="flex-1 rounded-xl bg-destructive py-2.5 text-sm font-semibold text-destructive-foreground disabled:opacity-50"
+                  >
+                    {deleting ? "Deleting…" : "Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      }
+      )}
     </div>);
 
 }
