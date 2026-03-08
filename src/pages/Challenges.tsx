@@ -211,7 +211,7 @@ export default function Challenges() {
         if (!challenge || challenge.completed) return prev;
 
         const next = prev.map((c) =>
-          c.id === challengeId ? { ...c, completed: true } : c
+          c.id === challengeId ? { ...c, completed: true, hasVideo: true } : c
         );
 
         // Trigger celebration
