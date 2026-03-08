@@ -101,6 +101,7 @@ function AppRoutes() {
         <Route path="/settings/messages" element={<SettingsMessages />} />
         <Route path="/post" element={<PostPage />} />
         <Route path="/friends" element={<FriendsPage />} />
+        <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/onboarding" element={<Navigate to="/" replace />} />
         <Route path="/setup" element={<Navigate to="/" replace />} />
