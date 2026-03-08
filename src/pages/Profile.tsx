@@ -54,17 +54,28 @@ function MedalIcon({ tier, size = 28 }: {tier: MedalTier;size?: number;}) {
 
 }
 
+const TIER_EMOJIS: Record<string, string> = {
+  bronze: "🥉",
+  silver: "🥈",
+  gold: "🥇",
+  diamond: "💎",
+  champion: "🏆",
+};
+
 function getMilestone(completed: number) {
   for (let i = MILESTONES.length - 1; i >= 0; i--) {
     if (completed >= MILESTONES[i]) {
+      const prev = MILESTONES[i];
       const next = MILESTONES[i + 1];
       if (next) {
-        return { current: completed, goal: next, medal: MEDALS[MILESTONES[i]] };
+        // Progress within tier: reset bar from prev to next
+        return { progressCurrent: completed - prev, progressGoal: next - prev, total: completed, nextGoal: next, medal: MEDALS[prev] };
       }
-      return { current: completed, goal: MILESTONES[i], medal: MEDALS[MILESTONES[i]] };
+      // Max tier
+      return { progressCurrent: 1, progressGoal: 1, total: completed, nextGoal: prev, medal: MEDALS[prev] };
     }
   }
-  return { current: completed, goal: MILESTONES[0], medal: null };
+  return { progressCurrent: completed, progressGoal: MILESTONES[0], total: completed, nextGoal: MILESTONES[0], medal: null };
 }
 
 export default function Profile() {
@@ -236,9 +247,8 @@ export default function Profile() {
 
   }
 
-  // TODO: TEMP DEMO - remove this override
-  const ms = getMilestone(10);
-  const progressPct = 100;
+  const ms = getMilestone(totalCompleted);
+  const progressPct = ms.progressGoal > 0 ? Math.min((ms.progressCurrent / ms.progressGoal) * 100, 100) : 100;
 
   // Calculate weeks since signup for percentage
   const weeksSinceSignup = (() => {
@@ -361,8 +371,8 @@ export default function Profile() {
           {/* Challenges Completed card */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-1.5 whitespace-nowrap">
-              <span className="text-base leading-none">✅</span>
-              <span className="text-sm font-bold text-foreground max-[374px]:text-xs">{ms.current}/{ms.goal} Challenges</span>
+              <span className="text-base leading-none">{ms.medal ? TIER_EMOJIS[ms.medal.tier] : "✅"}</span>
+              <span className="text-sm font-bold text-foreground max-[374px]:text-xs">{ms.total}/{ms.nextGoal} Challenges</span>
               {ms.medal && <MedalIcon tier={ms.medal.tier} size={14} />}
             </div>
             {/* Progress bar */}
