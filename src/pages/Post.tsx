@@ -298,29 +298,17 @@ export default function PostPage() {
 
                 {/* Trim controls with play button - same width as video */}
                 {duration > 0 && (
-                  <div className="mt-1 shrink-0 flex items-center gap-2" style={{ width: '100%', maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
-                    <button
-                      onClick={togglePlayPause}
-                      className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-amber-400"
-                    >
-                      {isPlaying ? (
-                        <Pause className="h-5 w-5 text-amber-900" fill="currentColor" />
-                      ) : (
-                        <Play className="h-5 w-5 text-amber-900" fill="currentColor" />
-                      )}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <VideoTrimmer
-                        videoUrl={videoUrl}
-                        duration={duration}
-                        trimStart={trimStart}
-                        trimEnd={trimEnd}
-                        onTrimChange={handleTrimChange}
-                        onScrub={handleScrub}
-                        currentTime={currentTime}
-                        isPlaying={isPlaying}
-                      />
-                    </div>
+                  <div className="mt-1 shrink-0 w-full" style={{ maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
+                    <VideoTrimmer
+                      videoUrl={videoUrl}
+                      duration={duration}
+                      trimStart={trimStart}
+                      trimEnd={trimEnd}
+                      onTrimChange={handleTrimChange}
+                      onScrub={handleScrub}
+                      currentTime={currentTime}
+                      isPlaying={isPlaying}
+                    />
                   </div>
                 )}
               </div>
