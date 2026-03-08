@@ -93,9 +93,7 @@ export default function SettingsMessages() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-3 flex-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-lg">
-            🎯
-          </div>
+          <img src={logo} alt="Rejection Bounty" className="h-10 w-10 rounded-full object-cover" />
           <div>
             <p className="font-bold text-foreground">Rejection Bounty</p>
             <p className="text-xs text-muted-foreground">Support</p>
