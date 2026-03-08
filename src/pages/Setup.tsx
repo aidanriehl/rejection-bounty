@@ -133,7 +133,10 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         .single();
 
       if (error) {
+        console.error("Setup upsert error:", JSON.stringify(error));
         const msg = error.message.includes("unique")
+          ? "That username is taken"
+          : error.message.includes("duplicate")
           ? "That username is taken"
           : "Something went wrong";
         toast({ title: msg, variant: "destructive" });
