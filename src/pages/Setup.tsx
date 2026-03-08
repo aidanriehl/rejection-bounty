@@ -141,6 +141,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         return;
       }
 
+      localStorage.setItem("show-tour", "true");
       onComplete(data as Profile);
       navigate("/challenges");
     } catch (err) {

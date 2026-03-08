@@ -39,6 +39,14 @@ function AppRoutes() {
   const { user, profile, loading, setProfile } = useAuth();
   const [showTour, setShowTour] = useState(false);
 
+  // Auto-show tour for new users after setup
+  useEffect(() => {
+    if (profile?.username && localStorage.getItem("show-tour") === "true") {
+      localStorage.removeItem("show-tour");
+      setShowTour(true);
+    }
+  }, [profile?.username]);
+
   // Listen for replay-tour event from Profile page info button
   useEffect(() => {
     const handleReplayTour = () => setShowTour(true);
