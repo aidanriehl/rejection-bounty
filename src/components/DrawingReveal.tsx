@@ -634,7 +634,7 @@ export default function DrawingReveal({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               onClick={onContinue}
-              className="mt-3 w-full max-w-xs rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
+              className="mt-3 rounded-full bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-md active:scale-95 transition-transform"
             >
               See Last Week's Recap
             </motion.button>
