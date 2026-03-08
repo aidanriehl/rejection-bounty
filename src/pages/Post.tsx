@@ -355,7 +355,7 @@ export default function PostPage() {
                 <ChevronLeft className="h-5 w-5" />
                 Back
               </button>
-              <h1 className="text-lg font-bold text-foreground">Choose cover</h1>
+              <h1 className="text-lg font-bold text-foreground">Choose Cover</h1>
               <button
                 onClick={handlePost}
                 disabled={!videoFile || globalStatus === "uploading"}
