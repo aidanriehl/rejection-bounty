@@ -303,23 +303,18 @@ function VideoTrimmer({
         </div>
       </div>
 
-      {/* Time labels and cover button */}
-      <div className="mt-1 flex items-center justify-between px-2">
-        <span className="text-[10px] text-muted-foreground">{formatTime(trimStart)}</span>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-medium text-foreground">{formatTime(trimEnd - trimStart)}</span>
-          {onSetCover && (
-            <button
-              onClick={onSetCover}
-              className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary active:bg-primary/20"
-            >
-              <Image className="h-3 w-3" />
-              Set Cover
-            </button>
-          )}
+      {/* Cover button only (timestamps removed) */}
+      {onSetCover && (
+        <div className="mt-1 flex justify-center px-2">
+          <button
+            onClick={onSetCover}
+            className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary active:bg-primary/20"
+          >
+            <Image className="h-3 w-3" />
+            Set Cover
+          </button>
         </div>
-        <span className="text-[10px] text-muted-foreground">{formatTime(trimEnd)}</span>
-      </div>
+      )}
     </div>
   );
 }
