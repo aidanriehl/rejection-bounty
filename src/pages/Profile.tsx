@@ -245,8 +245,7 @@ export default function Profile() {
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button
-            data-tour="why-rejected"
-            onClick={() => setShowWhyModal(true)}
+                        onClick={() => setShowWhyModal(true)}
             className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70">
             
             <HelpCircle className="h-3.5 w-3.5" />
@@ -254,12 +253,8 @@ export default function Profile() {
           </button>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => {
-                navigate("/challenges");
-                setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
-              }}
+              onClick={() => navigate("/challenges")}
               className="flex h-11 w-11 items-center justify-center rounded-full text-foreground">
-              
               <Info className="h-5 w-5" />
             </button>
             <button

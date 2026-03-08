@@ -351,7 +351,6 @@ export default function Feed() {
 
   return (
     <div
-      data-tour="feed"
       className="fixed inset-0 overflow-hidden bg-black"
       style={{ paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" }}>
       

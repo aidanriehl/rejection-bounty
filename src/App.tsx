@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
@@ -24,7 +24,6 @@ import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
 import FriendsPage from "@/pages/Friends";
-import FeatureTour from "@/components/FeatureTour";
 import AuthCallback from "@/pages/AuthCallback";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
@@ -36,34 +35,6 @@ const queryClient = new QueryClient({});
 
 function AppRoutes() {
   const { user, profile, loading, setProfile } = useAuth();
-  const [showTour, setShowTour] = useState(false);
-
-  // React to profile changes — tour_pending is set in Setup before profile updates
-  useEffect(() => {
-    if (profile?.username && localStorage.getItem("tour_pending") === "true") {
-      setShowTour(true);
-    }
-  }, [profile]);
-
-  // Listen for replay-tour and dismiss-tour custom events
-  useEffect(() => {
-    const replayHandler = () => setShowTour(true);
-    const dismissHandler = () => {
-      localStorage.removeItem("tour_pending");
-      setShowTour(false);
-    };
-    window.addEventListener("replay-tour", replayHandler);
-    window.addEventListener("dismiss-tour", dismissHandler);
-    return () => {
-      window.removeEventListener("replay-tour", replayHandler);
-      window.removeEventListener("dismiss-tour", dismissHandler);
-    };
-  }, []);
-
-  const handleTourComplete = () => {
-    localStorage.removeItem("tour_pending");
-    setShowTour(false);
-  };
 
   if (loading) {
     return (
@@ -123,7 +94,6 @@ function AppRoutes() {
       </Routes>
       <BottomNav />
       <UploadIndicator />
-      {showTour && <FeatureTour onComplete={handleTourComplete} />}
     </>
   );
 }

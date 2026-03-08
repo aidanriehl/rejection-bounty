@@ -140,7 +140,6 @@ export default function Setup({ userId, onComplete }: SetupProps) {
         return;
       }
 
-      localStorage.setItem("tour_pending", "true");
       onComplete(data as Profile);
       navigate("/challenges");
     } catch (err) {

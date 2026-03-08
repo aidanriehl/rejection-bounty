@@ -40,7 +40,7 @@ export default function Challenges() {
   const { user, profile, setProfile } = useAuth();
   const weekKey = getCurrentWeekKey();
   const [dropRevealed] = useState(true);
-  const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(`${weekKey}-summary`) === "true" || localStorage.getItem("tour_pending") === "true");
+  const [summaryDone, setSummaryDone] = useState(() => localStorage.getItem(`${weekKey}-summary`) === "true");
 
   // Persist summary dismissal
   const dismissSummary = () => {
@@ -333,7 +333,7 @@ export default function Challenges() {
           </div>
 
           {/* Countdown */}
-          <div data-tour="countdown" className="mb-6 text-center">
+          <div className="mb-6 text-center">
             <p className="text-lg font-extrabold text-foreground">Time Left Until Next Drawing</p>
             <p className="text-sm text-muted-foreground mb-3 -mt-0.5">Deadline Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-2">
@@ -346,10 +346,10 @@ export default function Challenges() {
           </div>
 
           {/* Premium Cards */}
-          <div data-tour="prize-pool" className="flex justify-center gap-4 mb-8 max-w-xs mx-auto">
+          <div className="flex justify-center gap-4 mb-8 max-w-xs mx-auto">
             {/* Subscribers */}
             {isPremium ? (
-                <div data-tour="subscribers-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
+                <div className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
                 <p className="text-2xl font-bold tracking-tight">#{subscribers.toLocaleString()}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <Users className="h-3.5 w-3.5 text-muted-foreground" />
@@ -372,7 +372,7 @@ export default function Challenges() {
 
             {/* Prize Pool */}
             {isPremium ? (
-              <div data-tour="prize-pool-card" className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
+              <div className="flex-1 rounded-xl border-2 border-foreground bg-card px-4 py-3.5 text-foreground relative overflow-hidden shadow-[3px_3px_0px_0px_hsl(var(--foreground))]">
                 <p className="text-2xl font-bold tracking-tight">${prizePool.toLocaleString()}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
@@ -420,7 +420,7 @@ export default function Challenges() {
           </div>
 
           {/* Challenge List */}
-          <div data-tour="challenge-list">
+          <div>
             <p className="mb-2 pl-1 text-sm font-bold text-foreground">
               Complete 5 of 8 challenges
             </p>
@@ -479,7 +479,6 @@ export default function Challenges() {
 
                   {/* Upload */}
                   <button
-                    {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
                     onClick={() => isPremium ? navigate("/post", { state: { challengeTitle: challenge.title, challengeId: challenge.id } }) : triggerSubscribe()}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
