@@ -65,8 +65,7 @@ export default function Challenges() {
   const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [loadingChallenges, setLoadingChallenges] = useState(true);
-  const hasFetchedRef = useRef(false);
+  const [loadingChallenges, setLoadingChallenges] = useState(() => !sessionStorage.getItem("challenges-fetched"));
 
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
