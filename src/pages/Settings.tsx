@@ -330,9 +330,6 @@ export default function SettingsPage() {
                 <Banknote className="h-[18px] w-[18px] text-muted-foreground" />
                 <div>
                   <span className="text-[15px] font-medium text-foreground">Link Bank Account</span>
-                  <p className="text-[13px] text-muted-foreground">
-                    Required to receive weekly prize pool winnings
-                  </p>
                 </div>
               </div>
               <button
