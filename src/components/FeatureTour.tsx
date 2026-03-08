@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { playSuccessDing } from "@/lib/sounds";
 
 interface TourStep {
   title: string;
