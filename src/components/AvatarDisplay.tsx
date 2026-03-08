@@ -83,7 +83,7 @@ export default function AvatarDisplay({
           "flex items-center justify-center rounded-full overflow-hidden bg-muted",
           sizeClasses[size],
           ringClasses[size],
-          "ring-border",
+          "ring-primary/40",
           className
         )}
       >
