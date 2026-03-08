@@ -81,12 +81,13 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
-  // Lock scroll on #root (the actual scroll container)
+  // Lock scroll on #root and scroll to top
   useEffect(() => {
     const root = document.getElementById("root");
     if (!root) return;
 
     if (!showIntro) {
+      root.scrollTo({ top: 0, behavior: "instant" });
       root.style.overflow = "hidden";
       root.style.touchAction = "none";
     }
