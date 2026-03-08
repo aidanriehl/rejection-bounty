@@ -152,8 +152,8 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   useEffect(() => {
     if (showIntro) return;
-    const t = setTimeout(measure, 100);
-    return () => clearTimeout(t);
+    // Measure immediately — no delay
+    measure();
   }, [step, showIntro, measure]);
 
   useEffect(() => {
