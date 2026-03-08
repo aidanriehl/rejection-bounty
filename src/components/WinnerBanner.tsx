@@ -85,7 +85,7 @@ export default function WinnerBanner() {
 
         <div className="flex items-center gap-2 z-10">
           <span className="text-sm font-extrabold text-white uppercase tracking-wide">
-            Congratulations {username} 🥳
+            Congratulations Winner 🥳
           </span>
         </div>
 
