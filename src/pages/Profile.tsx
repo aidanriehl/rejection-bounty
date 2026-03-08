@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2, Heart, MessageCircle } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
@@ -398,7 +398,7 @@ export default function Profile() {
         }
       </div>
 
-      {/* Video player modal - Instagram Reels style */}
+      {/* Video player modal - matches Feed UI */}
       {selectedPost && selectedPost.video_id &&
       <div className="fixed inset-0 z-50 bg-black">
           {/* Video */}
@@ -407,45 +407,36 @@ export default function Profile() {
           className="absolute inset-0 w-full h-full"
           allow="autoplay; fullscreen"
           style={{ border: "none" }} />
-        
+
 
           {/* Back button - top left */}
           <button
           onClick={() => setSelectedPost(null)}
           className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center text-white"
           style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}>
-          
+
             <ChevronLeft className="h-8 w-8" />
           </button>
 
-          {/* Right side actions - account for nav bar */}
-          <div
-          className="absolute right-4 flex flex-col items-center gap-5"
-          style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 144px)' }}>
-          
-            <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
-            <button className="flex flex-col items-center gap-1">
-              <Heart className="h-7 w-7 text-white drop-shadow-md" />
-              <span className="text-xs font-semibold text-white drop-shadow-md">{selectedPost.likes}</span>
-            </button>
-            <button className="flex flex-col items-center gap-1">
-              <MessageCircle className="h-7 w-7 text-white drop-shadow-md" />
-              <span className="text-xs font-semibold text-white drop-shadow-md">0</span>
-            </button>
-          </div>
-
           {/* Bottom gradient */}
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
-          {/* Bottom info - account for nav bar */}
+          {/* Bottom info - left aligned, matches Feed UI */}
           <div
-          className="absolute left-5 right-20"
+          className="absolute left-4 right-4"
           style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 32px)' }}>
-          
-            <div className="flex items-center gap-2.5 mb-1.5">
+
+            {/* Row 1: Avatar + Username */}
+            <div className="flex items-center gap-3 mb-2.5">
+              <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
-            <p className="text-sm text-white/90 drop-shadow-md min-h-[1.25rem]">{selectedPost.caption || ""}</p>
+            {/* Row 2: Likes - smaller and less prominent */}
+            <p className="text-xs text-white/50 drop-shadow-md mb-2">{selectedPost.likes} likes</p>
+            {/* Row 3: Caption */}
+            {selectedPost.caption && (
+              <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
+            )}
           </div>
         </div>
       }
