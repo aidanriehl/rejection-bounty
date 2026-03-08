@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload, ChevronLeft, Check } from "lucide-react";
+import { X, Upload, ChevronLeft, Check, Play, Pause } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useUpload } from "@/contexts/UploadContext";
@@ -275,10 +275,10 @@ export default function PostPage() {
             </div>
 
             {/* Section B: Video + Trimmer */}
-            <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0">
+            <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0 pb-2">
               <div className="w-full max-w-[280px] flex flex-col min-h-0 flex-1">
-                {/* Video preview - fills available space */}
-                <div className="relative overflow-hidden rounded-2xl bg-black flex-1 min-h-0" style={{ maxHeight: '90%' }}>
+                {/* Video preview - cap at 85% of remaining space so trimmer always shows */}
+                <div className="relative overflow-hidden rounded-2xl bg-black min-h-0" style={{ flex: '1 1 0', maxHeight: 'calc(100% - 70px)' }}>
                   <video
                     ref={videoRef}
                     src={videoUrl}
@@ -293,19 +293,31 @@ export default function PostPage() {
                   />
                 </div>
 
-                {/* Trim controls — directly under video */}
+                {/* Trim controls with play button */}
                 {duration > 0 && (
-                  <div className="mt-1 shrink-0">
-                    <VideoTrimmer
-                      videoUrl={videoUrl}
-                      duration={duration}
-                      trimStart={trimStart}
-                      trimEnd={trimEnd}
-                      onTrimChange={handleTrimChange}
-                      onScrub={handleScrub}
-                      currentTime={currentTime}
-                      isPlaying={isPlaying}
-                    />
+                  <div className="mt-1 shrink-0 flex items-center gap-2">
+                    <button
+                      onClick={togglePlayPause}
+                      className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50"
+                    >
+                      {isPlaying ? (
+                        <Pause className="h-5 w-5 text-foreground" fill="currentColor" />
+                      ) : (
+                        <Play className="h-5 w-5 text-foreground" fill="currentColor" />
+                      )}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <VideoTrimmer
+                        videoUrl={videoUrl}
+                        duration={duration}
+                        trimStart={trimStart}
+                        trimEnd={trimEnd}
+                        onTrimChange={handleTrimChange}
+                        onScrub={handleScrub}
+                        currentTime={currentTime}
+                        isPlaying={isPlaying}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
