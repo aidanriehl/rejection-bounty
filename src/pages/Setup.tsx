@@ -156,12 +156,11 @@ export default function Setup({ userId, onComplete }: SetupProps) {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col"
+      className="fixed inset-0 flex flex-col items-center justify-center"
       style={{ backgroundColor: "hsl(var(--primary))" }}
     >
       <div
-        className="flex-1 flex flex-col items-center px-6 transition-all duration-200"
-        style={{ paddingTop: keyboardVisible ? "calc(env(safe-area-inset-top) + 48px)" : "calc(env(safe-area-inset-top) + 80px)" }}
+        className="flex flex-col items-center px-6 transition-all duration-200 mb-[95px]"
       >
         <motion.form
           initial={{ opacity: 0, y: 16 }}
