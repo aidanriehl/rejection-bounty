@@ -299,7 +299,7 @@ export default function PostPage() {
 
                 {/* Trim controls with play button - same width as video */}
                 {duration > 0 && (
-                  <div className="mt-1 shrink-0 w-full" style={{ maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
+                  <div className="mt-[10px] shrink-0 w-full" style={{ maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
                     <VideoTrimmer
                       videoUrl={videoUrl}
                       duration={duration}
