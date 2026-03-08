@@ -254,10 +254,10 @@ export default function PostPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="flex flex-1 flex-col"
+            className="flex flex-1 flex-col overflow-hidden"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3">
+            {/* Section A: Header */}
+            <div className="flex items-center justify-between px-4 py-3 mt-5">
               <button
                 onClick={handleBack}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
@@ -274,30 +274,28 @@ export default function PostPage() {
               </button>
             </div>
 
-            {/* Video + Trimmer - pushed up, not centered */}
-            <div className="flex-1 flex flex-col items-center pt-2 px-4">
-              <div className="w-full max-w-[280px]">
-                {/* Video preview */}
-                <div className="relative overflow-hidden rounded-2xl bg-black">
-                  <div className="aspect-[9/16] w-full">
-                    <video
-                      ref={videoRef}
-                      src={videoUrl}
-                      className="h-full w-full object-cover"
-                      onLoadedData={handleVideoLoaded}
-                      playsInline
-                      autoPlay
-                      muted
-                      loop
-                      preload="auto"
-                      controls={false}
-                    />
-                  </div>
+            {/* Section B: Video + Trimmer */}
+            <div className="flex-1 flex flex-col items-center px-4 mt-[15px] min-h-0">
+              <div className="w-full max-w-[280px] flex flex-col min-h-0 flex-1">
+                {/* Video preview - fills available space */}
+                <div className="relative overflow-hidden rounded-2xl bg-black flex-1 min-h-0">
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className="h-full w-full object-cover"
+                    onLoadedData={handleVideoLoaded}
+                    playsInline
+                    autoPlay
+                    muted
+                    loop
+                    preload="auto"
+                    controls={false}
+                  />
                 </div>
 
                 {/* Trim controls — directly under video */}
                 {duration > 0 && (
-                  <div className="mt-2">
+                  <div className="mt-2 shrink-0">
                     <VideoTrimmer
                       videoUrl={videoUrl}
                       duration={duration}
