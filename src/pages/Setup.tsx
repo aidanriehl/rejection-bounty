@@ -6,6 +6,7 @@ import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { compressImage } from "@/lib/imageUtils";
 import DuoButton from "@/components/DuoButton";
+import ImageCropper from "@/components/ImageCropper";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
@@ -29,6 +30,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
   const [saving, setSaving] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,8 +76,23 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
+    // Open cropper instead of immediately setting
+    setCropSrc(URL.createObjectURL(file));
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" });
     setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(URL.createObjectURL(croppedBlob));
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+  };
+
+  const handleCropCancel = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const clearPhoto = () => {
@@ -247,6 +264,14 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           </DuoButton>
         </motion.form>
       </div>
+      {/* Image Cropper Modal */}
+      {cropSrc && (
+        <ImageCropper
+          imageSrc={cropSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   );
 }
