@@ -276,11 +276,11 @@ export default function PostPage() {
 
             {/* Section B: Video + Trimmer */}
             <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0 pb-2">
-              <div className="w-full max-w-[280px] flex flex-col min-h-0 flex-1">
-                {/* Video preview - use calc to guarantee trimmer space: 100vh minus header(~60px) safe-area(~50px) trimmer(~70px) bottom-nav(~70px) gaps */}
+              <div className="w-full flex flex-col min-h-0 flex-1 items-center">
+                {/* Video preview - fixed 9:16 aspect ratio, sized to fit */}
                 <div
-                  className="relative overflow-hidden rounded-2xl bg-black min-h-0"
-                  style={{ flex: '1 1 0', maxHeight: 'calc(100vh - 260px)' }}
+                  className="relative overflow-hidden rounded-2xl bg-black"
+                  style={{ aspectRatio: '9/16', maxHeight: 'calc(100vh - 260px)', width: 'auto' }}
                 >
                   <video
                     ref={videoRef}
@@ -296,17 +296,17 @@ export default function PostPage() {
                   />
                 </div>
 
-                {/* Trim controls with play button */}
+                {/* Trim controls with play button - same width as video */}
                 {duration > 0 && (
-                  <div className="mt-1 shrink-0 flex items-center gap-2">
+                  <div className="mt-1 shrink-0 flex items-center gap-2" style={{ width: '100%', maxWidth: 'calc((100vh - 260px) * 9 / 16)' }}>
                     <button
                       onClick={togglePlayPause}
-                      className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50"
+                      className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-amber-400"
                     >
                       {isPlaying ? (
-                        <Pause className="h-5 w-5 text-foreground" fill="currentColor" />
+                        <Pause className="h-5 w-5 text-amber-900" fill="currentColor" />
                       ) : (
-                        <Play className="h-5 w-5 text-foreground" fill="currentColor" />
+                        <Play className="h-5 w-5 text-amber-900" fill="currentColor" />
                       )}
                     </button>
                     <div className="flex-1 min-w-0">
