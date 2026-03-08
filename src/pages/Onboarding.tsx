@@ -124,9 +124,9 @@ function OtpScreen({
       transition={{ duration: 0.25 }}
       className="flex flex-col items-center mt-0 mb-[180px]">
       
-      <span className="mb-2 text-4xl">✉️</span>
+      <span className="mb-1.5 text-4xl">✉️</span>
       <h2 className="mb-0.5 text-2xl font-bold text-primary-foreground">Enter Your Code</h2>
-      <p className="mb-3 text-sm text-primary-foreground/60">Sent to your email</p>
+      <p className="mb-5 text-sm text-primary-foreground/60">Sent to your email</p>
 
       {/* OTP input boxes */}
       <div className="mb-3 flex gap-2.5" onPaste={handlePaste}>
