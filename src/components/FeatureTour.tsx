@@ -5,7 +5,9 @@ interface TourStep {
   title: string;
   description: string;
   highlightSelector?: string;
-  tooltipSide: "above" | "below"; // tooltip appears above or below the highlighted element
+  tooltipSide: "above" | "below";
+  /** For challenge-list: cap highlight height to visible area */
+  capToViewport?: boolean;
 }
 
 const STEPS: TourStep[] = [
@@ -14,6 +16,7 @@ const STEPS: TourStep[] = [
     description: "Complete 5 of them to beat your week.",
     highlightSelector: '[data-tour="challenge-list"]',
     tooltipSide: "above",
+    capToViewport: true,
   },
   {
     title: "Upload challenge videos for prize entries",
@@ -64,9 +67,11 @@ function renderDescription(text: string) {
   });
 }
 
-const GAP = 12; // gap between highlight and tooltip
-const PADDING = 16; // horizontal padding from screen edges
+const GAP = 12;
+const EDGE_PAD = 16;
 const ARROW_SIZE = 10;
+const HIGHLIGHT_PAD = 8;
+const NAV_HEIGHT = 72;
 
 export default function FeatureTour({ onComplete }: { onComplete: () => void }) {
   const [showIntro, setShowIntro] = useState(true);
@@ -76,36 +81,81 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
+  // Lock scroll on #root (the actual scroll container)
+  useEffect(() => {
+    const root = document.getElementById("root");
+    if (!root) return;
+
+    if (!showIntro) {
+      root.style.overflow = "hidden";
+      root.style.touchAction = "none";
+    }
+
+    return () => {
+      root.style.overflow = "";
+      root.style.touchAction = "";
+    };
+  }, [showIntro]);
+
+  // Block all interactions except tour buttons
+  useEffect(() => {
+    if (showIntro) return;
+
+    const block = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-tour-button]")) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    document.addEventListener("touchstart", block, { capture: true, passive: false });
+    document.addEventListener("touchmove", block, { capture: true, passive: false });
+    document.addEventListener("click", block, { capture: true });
+    document.addEventListener("pointerdown", block, { capture: true });
+
+    return () => {
+      document.removeEventListener("touchstart", block, { capture: true });
+      document.removeEventListener("touchmove", block, { capture: true });
+      document.removeEventListener("click", block, { capture: true });
+      document.removeEventListener("pointerdown", block, { capture: true });
+    };
+  }, [showIntro]);
+
   const measure = useCallback(() => {
     if (!current.highlightSelector) {
       setHighlightRect(null);
       return;
     }
+
     const el = document.querySelector(current.highlightSelector);
-    if (el) {
-      // Scroll element into view first, then measure after settling
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => {
-        const r = el.getBoundingClientRect();
-        let height = r.height;
-        if (current.highlightSelector === '[data-tour="challenge-list"]') {
-          const navBarHeight = 80;
-          height = window.innerHeight - r.top - navBarHeight;
-        }
-        setHighlightRect({
-          top: r.top,
-          left: r.left,
-          width: r.width,
-          height,
-        });
-      }, 350);
-    }
-  }, [current.highlightSelector]);
+    if (!el) return;
+
+    // Scroll into view, wait, then measure
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    setTimeout(() => {
+      const r = el.getBoundingClientRect();
+      let height = r.height;
+
+      // Cap challenge list to visible viewport (don't extend below nav)
+      if (current.capToViewport) {
+        const maxBottom = window.innerHeight - NAV_HEIGHT;
+        height = Math.min(height, maxBottom - r.top);
+      }
+
+      setHighlightRect({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height,
+      });
+    }, 400);
+  }, [current.highlightSelector, current.capToViewport]);
 
   useEffect(() => {
     if (showIntro) return;
-    const timeout = setTimeout(measure, 50);
-    return () => clearTimeout(timeout);
+    const t = setTimeout(measure, 100);
+    return () => clearTimeout(t);
   }, [step, showIntro, measure]);
 
   useEffect(() => {
@@ -114,34 +164,12 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     return () => window.removeEventListener("resize", measure);
   }, [measure, showIntro]);
 
-  // Block interactions
-  useEffect(() => {
-    if (showIntro) return;
-    const blockInteraction = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('[data-tour-button]')) return;
-      e.preventDefault();
-      e.stopPropagation();
-    };
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    document.addEventListener("touchstart", blockInteraction, { capture: true, passive: false });
-    document.addEventListener("touchmove", blockInteraction, { capture: true, passive: false });
-    document.addEventListener("click", blockInteraction, { capture: true });
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.removeEventListener("touchstart", blockInteraction, { capture: true });
-      document.removeEventListener("touchmove", blockInteraction, { capture: true });
-      document.removeEventListener("click", blockInteraction, { capture: true });
-    };
-  }, [showIntro]);
-
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
     else onComplete();
   };
 
+  // --- Intro screen ---
   if (showIntro) {
     return (
       <motion.div
@@ -166,80 +194,67 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     );
   }
 
-  // Calculate tooltip position dynamically based on highlight rect
+  // --- Tooltip positioning ---
   const getTooltipStyle = (): React.CSSProperties => {
     if (!highlightRect) {
-      // No highlight - center on screen
-      return { top: "50%", left: PADDING, right: PADDING, transform: "translateY(-50%)" };
+      return { top: "50%", left: EDGE_PAD, right: EDGE_PAD, transform: "translateY(-50%)" };
     }
 
-    const highlightTop = highlightRect.top - 8; // account for border padding
-    const highlightBottom = highlightRect.top + highlightRect.height + 8;
+    const hTop = highlightRect.top - HIGHLIGHT_PAD;
+    const hBottom = highlightRect.top + highlightRect.height + HIGHLIGHT_PAD;
 
     if (current.tooltipSide === "below") {
-      // Tooltip below the highlighted element
       return {
-        top: highlightBottom + GAP + ARROW_SIZE,
-        left: PADDING,
-        right: PADDING,
-      };
-    } else {
-      // Tooltip above the highlighted element - position from bottom
-      // We need to calculate: the tooltip's bottom edge should be at highlightTop - GAP - ARROW_SIZE
-      return {
-        bottom: window.innerHeight - highlightTop + GAP + ARROW_SIZE,
-        left: PADDING,
-        right: PADDING,
+        top: hBottom + GAP + ARROW_SIZE,
+        left: EDGE_PAD,
+        right: EDGE_PAD,
       };
     }
+    // above
+    return {
+      bottom: window.innerHeight - hTop + GAP + ARROW_SIZE,
+      left: EDGE_PAD,
+      right: EDGE_PAD,
+    };
   };
 
-  // Arrow style - points toward the highlighted element
+  // --- Arrow positioning ---
   const getArrowStyle = (): React.CSSProperties => {
     if (!highlightRect) return { display: "none" };
 
-    // Horizontal position: center of the highlight, clamped to tooltip bounds
-    const highlightCenterX = highlightRect.left + highlightRect.width / 2;
-    // Clamp between PADDING+20 and screen-PADDING-20
-    const clampedX = Math.max(PADDING + 24, Math.min(window.innerWidth - PADDING - 24, highlightCenterX));
+    const centerX = highlightRect.left + highlightRect.width / 2;
+    const clamped = Math.max(EDGE_PAD + 24, Math.min(window.innerWidth - EDGE_PAD - 24, centerX));
+
+    const base: React.CSSProperties = {
+      position: "absolute",
+      left: clamped - EDGE_PAD,
+      transform: "translateX(-50%) rotate(45deg)",
+      width: ARROW_SIZE * 2,
+      height: ARROW_SIZE * 2,
+    };
 
     if (current.tooltipSide === "below") {
-      // Arrow at top of tooltip, pointing up toward highlight
-      return {
-        top: -ARROW_SIZE,
-        left: clampedX - PADDING, // relative to tooltip's left edge
-        transform: "translateX(-50%) rotate(45deg)",
-        width: ARROW_SIZE * 2,
-        height: ARROW_SIZE * 2,
-      };
-    } else {
-      // Arrow at bottom of tooltip, pointing down toward highlight
-      return {
-        bottom: -ARROW_SIZE,
-        left: clampedX - PADDING,
-        transform: "translateX(-50%) rotate(45deg)",
-        width: ARROW_SIZE * 2,
-        height: ARROW_SIZE * 2,
-      };
+      return { ...base, top: -ARROW_SIZE };
     }
+    return { ...base, bottom: -ARROW_SIZE };
   };
 
   const isLastStep = step === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none">
-      {/* SVG overlay with cutout */}
-      <svg className="absolute inset-0 w-full h-full">
+    <div className="fixed inset-0 z-[100]" style={{ pointerEvents: "none" }}>
+      {/* Dimming overlay with cutout */}
+      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "auto" }}>
         <defs>
           <mask id="tour-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
             {highlightRect && (
               <rect
-                x={highlightRect.left - 8}
-                y={highlightRect.top - 8}
-                width={highlightRect.width + 16}
-                height={highlightRect.height + 16}
-                rx="12"
+                x={highlightRect.left - HIGHLIGHT_PAD}
+                y={highlightRect.top - HIGHLIGHT_PAD}
+                width={highlightRect.width + HIGHLIGHT_PAD * 2}
+                height={highlightRect.height + HIGHLIGHT_PAD * 2}
+                rx="14"
                 fill="black"
               />
             )}
@@ -247,7 +262,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         </defs>
         <rect
           x="0" y="0" width="100%" height="100%"
-          fill="rgba(0, 0, 0, 0.25)"
+          fill="rgba(0, 0, 0, 0.3)"
           mask="url(#tour-mask)"
         />
       </svg>
@@ -255,32 +270,33 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
       {/* Highlight border */}
       {highlightRect && (
         <div
-          className="absolute rounded-xl pointer-events-none"
+          className="absolute rounded-xl"
           style={{
-            top: highlightRect.top - 8,
-            left: highlightRect.left - 8,
-            width: highlightRect.width + 16,
-            height: highlightRect.height + 16,
+            pointerEvents: "none",
+            top: highlightRect.top - HIGHLIGHT_PAD,
+            left: highlightRect.left - HIGHLIGHT_PAD,
+            width: highlightRect.width + HIGHLIGHT_PAD * 2,
+            height: highlightRect.height + HIGHLIGHT_PAD * 2,
             border: "2px solid hsl(var(--primary))",
           }}
         />
       )}
 
-      {/* Tooltip card - positioned relative to highlight */}
+      {/* Tooltip */}
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
           ref={tooltipRef}
-          initial={{ opacity: 0, y: current.tooltipSide === "above" ? -16 : 16 }}
+          initial={{ opacity: 0, y: current.tooltipSide === "above" ? -12 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="absolute rounded-2xl bg-card shadow-xl px-5 py-4 pointer-events-auto"
-          style={getTooltipStyle()}
+          className="absolute rounded-2xl bg-card shadow-xl px-5 py-4"
+          style={{ ...getTooltipStyle(), pointerEvents: "auto" }}
         >
-          {/* Arrow */}
+          {/* Arrow nub */}
           <div
-            className="absolute bg-card rotate-45"
+            className="absolute bg-card"
             style={getArrowStyle()}
           />
 
@@ -292,21 +308,39 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
             {renderDescription(current.description)}
           </p>
 
-          {/* Footer */}
+          {/* Footer: dots + button */}
           <div className="flex items-center justify-between relative z-10">
             <div className="flex gap-1.5">
-              {STEPS.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    i < step
-                      ? "bg-amber-400"
-                      : i === step
-                      ? "bg-primary"
-                      : "bg-muted-foreground/30"
-                  }`}
-                />
-              ))}
+              {STEPS.map((_, i) => {
+                let dotStyle: React.CSSProperties = {};
+
+                if (i < step) {
+                  // Completed - metallic gold
+                  dotStyle = {
+                    background: "linear-gradient(135deg, #D4A017 0%, #F5D060 40%, #B8860B 70%, #F5D060 100%)",
+                    boxShadow: "0 1px 3px rgba(212, 160, 23, 0.4)",
+                  };
+                } else if (i === step) {
+                  // Current - metallic green
+                  dotStyle = {
+                    background: "linear-gradient(135deg, #1A8A6A 0%, #3DCCA8 40%, #0D6B4F 70%, #3DCCA8 100%)",
+                    boxShadow: "0 1px 3px rgba(26, 138, 106, 0.5)",
+                  };
+                } else {
+                  // Future - muted
+                  dotStyle = {
+                    background: "hsl(var(--muted-foreground) / 0.25)",
+                  };
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={dotStyle}
+                  />
+                );
+              })}
             </div>
             <button
               data-tour-button
