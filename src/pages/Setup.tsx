@@ -6,6 +6,7 @@ import { Camera, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { compressImage } from "@/lib/imageUtils";
 import DuoButton from "@/components/DuoButton";
+import ImageCropper from "@/components/ImageCropper";
 import type { Profile } from "@/hooks/useAuth";
 
 const AVATAR_EMOJIS = [
