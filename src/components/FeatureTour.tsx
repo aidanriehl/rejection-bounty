@@ -176,7 +176,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     );
   }
 
-  // Calculate tooltip position
+  // Calculate tooltip position - stays within viewport
   const getTooltipStyle = () => {
     if (!highlightRect) {
       return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
@@ -184,19 +184,33 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
     const padding = 16;
     const tooltipWidth = 320;
+    const tooltipHeight = 160;
+    const safeAreaBottom = 120; // space for bottom nav + safe area
+
+    const leftPos = Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding));
 
     if (current.arrowPosition === "top") {
       // Tooltip below the highlighted element
-      return {
-        top: highlightRect.top + highlightRect.height + 20,
-        left: Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding)),
-      };
+      let topPos = highlightRect.top + highlightRect.height + 20;
+
+      // If tooltip would go off screen, clamp it
+      const maxTop = window.innerHeight - tooltipHeight - safeAreaBottom;
+      if (topPos > maxTop) {
+        topPos = maxTop;
+      }
+
+      return { top: topPos, left: leftPos };
     } else {
       // Tooltip above the highlighted element
-      return {
-        bottom: window.innerHeight - highlightRect.top + 20,
-        left: Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding)),
-      };
+      let bottomPos = window.innerHeight - highlightRect.top + 20;
+
+      // Make sure tooltip doesn't go above screen
+      const maxBottom = window.innerHeight - tooltipHeight - 50;
+      if (bottomPos > maxBottom) {
+        bottomPos = maxBottom;
+      }
+
+      return { bottom: bottomPos, left: leftPos };
     }
   };
 
