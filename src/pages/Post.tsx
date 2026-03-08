@@ -324,8 +324,8 @@ export default function PostPage() {
             exit={{ opacity: 0, x: -20 }}
             className="flex flex-1 flex-col"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3">
+            {/* Section A: Header */}
+            <div className="flex items-center justify-between px-4 py-3 mt-5">
               <button
                 onClick={handleBack}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
@@ -337,8 +337,8 @@ export default function PostPage() {
               <div className="w-16" /> {/* Spacer for centering */}
             </div>
 
-            {/* Scrollable content */}
-            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6">
+            {/* Section B: Content */}
+            <div data-scroll-container className="flex-1 overflow-y-auto px-4 pb-6 mt-[30px]">
               <p className="mb-4 text-sm font-medium text-muted-foreground text-center">{challengeTitle}</p>
 
               {/* Thumbnail preview */}
