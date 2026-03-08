@@ -274,7 +274,7 @@ export default function Profile() {
         </div>
 
         {/* Centered Avatar */}
-        <div className="mb-3 mt-6 flex flex-col items-center">
+        <div className="mb-3 mt-1 flex flex-col items-center">
           <div
             className="relative shrink-0 cursor-pointer select-none"
             onPointerDown={handleLongPressStart}
