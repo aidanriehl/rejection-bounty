@@ -136,29 +136,22 @@ function ReelCard({ post }: {post: FeedPostData;}) {
         }
       </AnimatePresence>
 
-      <div className="absolute right-4 bottom-36 flex flex-col items-center gap-5">
-        <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
-        <button
-          onClick={(e) => {e.stopPropagation();toggleLike();}}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90">
-          
-          <Heart
-            className={cn(
-              "h-7 w-7 transition-colors drop-shadow-md",
-              liked ? "fill-rose-500 text-rose-500" : "text-white"
-            )} />
-          
-          <span className="text-xs font-semibold text-white drop-shadow-md">{likeCount}</span>
-        </button>
-      </div>
+      {/* Bottom gradient */}
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-
-      <div className="absolute bottom-8 left-5 right-20">
-        <div className="flex items-center gap-2.5 mb-1.5">
+      {/* Bottom info - left aligned */}
+      <div className="absolute bottom-8 left-4 right-4">
+        {/* Row 1: Avatar + Username */}
+        <div className="flex items-center gap-2.5 mb-1">
+          <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
           <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
         </div>
-        <p className="text-sm text-white/90 drop-shadow-md min-h-[1.25rem]">{post.caption || ""}</p>
+        {/* Row 2: Likes - smaller and less prominent */}
+        <p className="text-xs text-white/60 drop-shadow-md mb-1.5">{likeCount} likes</p>
+        {/* Row 3: Caption */}
+        {post.caption && (
+          <p className="text-sm text-white/90 drop-shadow-md">{post.caption}</p>
+        )}
       </div>
     </div>);
 
