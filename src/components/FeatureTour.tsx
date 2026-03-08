@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { playSuccessDing } from "@/lib/sounds";
 
 interface TourStep {
   title: string;
@@ -163,7 +164,10 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
-    else onComplete();
+    else {
+      playSuccessDing();
+      onComplete();
+    }
   };
 
   // --- Intro screen ---
