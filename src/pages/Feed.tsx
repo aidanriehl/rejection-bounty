@@ -323,7 +323,7 @@ export default function Feed() {
         className="absolute top-0 inset-x-0 z-20 px-4"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}>
         
-        <WinnerBanner />
+        
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
