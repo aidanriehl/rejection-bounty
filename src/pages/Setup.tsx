@@ -76,8 +76,23 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
+    // Open cropper instead of immediately setting
+    setCropSrc(URL.createObjectURL(file));
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" });
     setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(URL.createObjectURL(croppedBlob));
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+  };
+
+  const handleCropCancel = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const clearPhoto = () => {
