@@ -183,10 +183,10 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
         <div className="text-center px-8">
           <span className="text-4xl mb-4 block">✨</span>
           <h1 className="text-2xl font-bold text-primary mb-2">Quick App Demo</h1>
-          <p className="text-muted-foreground mb-8">understand how the app works</p>
+          <p className="text-muted-foreground mb-6">understand how the app works</p>
           <button
             onClick={() => setShowIntro(false)}
-            className="px-12 py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-lg"
+            className="px-12 py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-lg -mt-2"
           >
             Start
           </button>
