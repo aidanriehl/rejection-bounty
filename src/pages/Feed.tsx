@@ -203,7 +203,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
 
 }
 
-function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;currentUserId?: string;friendIds: string[];}) {
+function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds, onNavigateProfile }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;currentUserId?: string;friendIds: string[];onNavigateProfile: (userId: string) => void;}) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -221,7 +221,7 @@ function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds }: {p
   return (
     <div data-scroll-container className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
       {posts.map((post) =>
-      <ReelCard key={post.id} post={post} currentUserId={currentUserId} initialFollowing={friendIds.includes(post.user_id)} />
+      <ReelCard key={post.id} post={post} currentUserId={currentUserId} initialFollowing={friendIds.includes(post.user_id)} onNavigateProfile={onNavigateProfile} />
       )}
     </div>);
 
