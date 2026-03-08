@@ -262,10 +262,10 @@ export default function Onboarding() {
                 </p>
 
                 <div className="w-full max-w-sm space-y-3 -mt-2">
-                  <DuoButton onClick={() => {setIsJoining(true);setMode("form");}}>
+                  <DuoButton subtle onClick={() => {setIsJoining(true);setMode("form");}}>
                     Join Now
                   </DuoButton>
-                  <DuoButton variant="outline" onClick={() => {setIsJoining(false);setMode("form");}}>
+                  <DuoButton subtle variant="outline" onClick={() => {setIsJoining(false);setMode("form");}}>
                     Log In
                   </DuoButton>
                 </div>
