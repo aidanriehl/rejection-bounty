@@ -498,15 +498,13 @@ export default function Challenges() {
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
                       challenge.hasVideo
-                        ? "bg-primary/20 text-primary/50 cursor-default"
+                        ? "bg-muted-foreground/20 text-muted-foreground/50 cursor-default"
                         : challenge.completed
                           ? "bg-primary/10 text-primary"
                           : "bg-muted text-muted-foreground"
                     )}
                   >
-                    {challenge.hasVideo ? (
-                      <Check className="h-3.5 w-3.5" />
-                    ) : isPremium ? (
+                    {isPremium ? (
                       <Upload className="h-3.5 w-3.5" />
                     ) : (
                       <Crown className="h-3.5 w-3.5" />
