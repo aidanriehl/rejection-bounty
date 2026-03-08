@@ -159,14 +159,27 @@ export default function Profile() {
       setLoadingPosts(true);
       const { data, error } = await supabase.
       from("posts").
-      select("id, video_id, video_url, thumbnail_time, caption, likes, created_at").
+      select("id, video_id, video_url, thumbnail_time, caption, likes, created_at, challenge_id").
       eq("user_id", user.id).
       order("created_at", { ascending: false });
 
       if (error) {
         console.error("Failed to fetch posts:", error);
       }
-      setPosts(data as UserPost[] ?? []);
+
+      // Fetch challenge titles
+      const postsData = (data ?? []) as UserPost[];
+      const challengeIds = [...new Set(postsData.map(p => p.challenge_id).filter(Boolean))];
+      let challengeMap: Record<string, string> = {};
+      if (challengeIds.length > 0) {
+        const { data: challenges } = await supabase
+          .from("challenges")
+          .select("id, title")
+          .in("id", challengeIds);
+        challengeMap = Object.fromEntries((challenges || []).map((c: any) => [c.id, c.title]));
+      }
+
+      setPosts(postsData.map(p => ({ ...p, challenge_title: challengeMap[p.challenge_id] || undefined })));
       setLoadingPosts(false);
     };
 
