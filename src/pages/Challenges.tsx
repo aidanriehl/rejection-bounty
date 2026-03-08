@@ -127,6 +127,7 @@ export default function Challenges() {
 
       setChallenges(mappedChallenges);
       setLoadingChallenges(false);
+      hasFetchedRef.current = true;
     };
 
     fetchChallenges();
