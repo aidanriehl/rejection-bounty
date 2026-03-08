@@ -42,7 +42,6 @@ function AppRoutes() {
   // Auto-show tour for new users after setup
   useEffect(() => {
     if (profile?.username && localStorage.getItem("show-tour") === "true") {
-      localStorage.removeItem("show-tour");
       setShowTour(true);
     }
   }, [profile?.username]);
@@ -55,6 +54,7 @@ function AppRoutes() {
   }, []);
 
   const handleTourComplete = () => {
+    localStorage.removeItem("show-tour");
     setShowTour(false);
   };
 
