@@ -233,7 +233,12 @@ export default function Feed() {
   const [friendIds, setFriendIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const dragX = useMotionValue(0);
+
+  const handleNavigateProfile = useCallback((userId: string) => {
+    navigate(`/profile/${userId}`);
+  }, [navigate]);
 
   const fetchData = async () => {
     setLoading(true);
