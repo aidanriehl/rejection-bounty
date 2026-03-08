@@ -248,7 +248,7 @@ export default function Profile() {
   }
 
   const ms = getMilestone(totalCompleted);
-  const progressPct = ms.goal > 0 ? Math.min((ms.current / ms.goal) * 100, 100) : 100;
+  const progressPct = ms.progressGoal > 0 ? Math.min((ms.progressCurrent / ms.progressGoal) * 100, 100) : 100;
 
   // Calculate weeks since signup for percentage
   const weeksSinceSignup = (() => {
