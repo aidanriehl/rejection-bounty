@@ -330,7 +330,10 @@ export default function Profile() {
               <span className="text-base leading-none">🔥</span>
               <span className="text-sm font-bold text-foreground">{streak} Week Streak</span>
             </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">Longest: {bestStreak} | Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</p>
+            <div className="mt-1 flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground">Longest: {bestStreak}</span>
+              <span className="text-[10px] text-muted-foreground">Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</span>
+            </div>
           </div>
 
           {/* Challenges Completed card */}
