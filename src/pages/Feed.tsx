@@ -48,7 +48,7 @@ interface FeedPostData {
   } | null;
 }
 
-function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData; currentUserId?: string; initialFollowing: boolean;}) {
+function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: {post: FeedPostData; currentUserId?: string; initialFollowing: boolean; onNavigateProfile: (userId: string) => void;}) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(() => getLikedPosts());
   const liked = likedPosts.has(post.id);
   const [likeCount, setLikeCount] = useState(post.likes);
