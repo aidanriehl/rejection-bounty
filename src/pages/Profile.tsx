@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2 } from "lucide-react";
+import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
