@@ -31,16 +31,6 @@ function SplashScreen({ onDone }: {onDone: () => void;}) {
           Rejection Bounty
         </h1>
 
-        {/* Single subtle shimmer sweep */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "linear-gradient(90deg, transparent 0%, hsla(0,0%,100%,0.2) 45%, hsla(0,0%,100%,0.3) 50%, hsla(0,0%,100%,0.2) 55%, transparent 100%)",
-          }}
-          initial={{ x: "-200%" }}
-          animate={{ x: "300%" }}
-          transition={{ duration: 1.4, delay: 0.8, ease: "easeInOut" }}
-        />
       </motion.div>
     </motion.div>);
 
