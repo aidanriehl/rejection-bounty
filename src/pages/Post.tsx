@@ -277,8 +277,11 @@ export default function PostPage() {
             {/* Section B: Video + Trimmer */}
             <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0 pb-2">
               <div className="w-full max-w-[280px] flex flex-col min-h-0 flex-1">
-                {/* Video preview - cap at 85% of remaining space so trimmer always shows */}
-                <div className="relative overflow-hidden rounded-2xl bg-black min-h-0" style={{ flex: '1 1 0', maxHeight: 'calc(100% - 70px)' }}>
+                {/* Video preview - use calc to guarantee trimmer space: 100vh minus header(~60px) safe-area(~50px) trimmer(~70px) bottom-nav(~70px) gaps */}
+                <div
+                  className="relative overflow-hidden rounded-2xl bg-black min-h-0"
+                  style={{ flex: '1 1 0', maxHeight: 'calc(100vh - 260px)' }}
+                >
                   <video
                     ref={videoRef}
                     src={videoUrl}
