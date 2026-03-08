@@ -15,11 +15,13 @@ import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 interface UserPost {
   id: string;
   video_id: string | null;
-  video_url: string | null; // thumbnail URL
+  video_url: string | null;
   thumbnail_time: number;
   caption: string;
   likes: number;
   created_at: string;
+  challenge_id: string;
+  challenge_title?: string;
 }
 
 const MILESTONES = [10, 25, 50, 100, 200, 500] as const;
@@ -157,14 +159,27 @@ export default function Profile() {
       setLoadingPosts(true);
       const { data, error } = await supabase.
       from("posts").
-      select("id, video_id, video_url, thumbnail_time, caption, likes, created_at").
+      select("id, video_id, video_url, thumbnail_time, caption, likes, created_at, challenge_id").
       eq("user_id", user.id).
       order("created_at", { ascending: false });
 
       if (error) {
         console.error("Failed to fetch posts:", error);
       }
-      setPosts(data as UserPost[] ?? []);
+
+      // Fetch challenge titles
+      const postsData = (data ?? []) as UserPost[];
+      const challengeIds = [...new Set(postsData.map(p => p.challenge_id).filter(Boolean))];
+      let challengeMap: Record<string, string> = {};
+      if (challengeIds.length > 0) {
+        const { data: challenges } = await supabase
+          .from("challenges")
+          .select("id, title")
+          .in("id", challengeIds);
+        challengeMap = Object.fromEntries((challenges || []).map((c: any) => [c.id, c.title]));
+      }
+
+      setPosts(postsData.map(p => ({ ...p, challenge_title: challengeMap[p.challenge_id] || undefined })));
       setLoadingPosts(false);
     };
 
@@ -454,11 +469,11 @@ export default function Profile() {
             <ChevronLeft className="h-8 w-8" />
           </button>
 
-          {/* Delete button - bottom right */}
+          {/* Delete button - top right, aligned with back button */}
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="absolute right-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/75 active:text-red-400"
-            style={{ bottom: 'calc(3rem + env(safe-area-inset-bottom) + 24px)' }}
+            className="absolute right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/75 active:text-red-400"
+            style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
           >
             <Trash2 className="h-[18px] w-[18px]" />
           </button>
@@ -475,7 +490,10 @@ export default function Profile() {
               <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
             </div>
-            <p className="text-xs text-white/50 drop-shadow-md mb-2">{selectedPost.likes} likes</p>
+            <p className="text-xs text-white/50 drop-shadow-md mb-1.5">{selectedPost.likes} likes</p>
+            {selectedPost.challenge_title && (
+              <p className="text-xs font-semibold text-white/70 drop-shadow-md mb-1">{selectedPost.challenge_title}</p>
+            )}
             {selectedPost.caption && (
               <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
             )}
