@@ -187,7 +187,7 @@ export default function WinnerMessageThread({
               className="h-16 w-16 rounded-full object-cover"
             />
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-              {isAdmin ? "Start a conversation with the winner" : "You won! We'll be in touch."}
+              {isAdmin ? "Start a conversation with the winner" : "For payout, please send your PayPal, Venmo, or Zelle info 🎁"}
             </p>
           </div>
         )}
