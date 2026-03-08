@@ -493,15 +493,20 @@ export default function Challenges() {
                   {/* Upload */}
                   <button
                     {...(i === 0 ? { "data-tour": "upload-btn" } : {})}
-                    onClick={() => isPremium ? setChoiceChallenge(challenge) : triggerSubscribe()}
+                    onClick={() => !challenge.hasVideo && (isPremium ? setChoiceChallenge(challenge) : triggerSubscribe())}
+                    disabled={challenge.hasVideo}
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                      challenge.completed
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      challenge.hasVideo
+                        ? "bg-primary/20 text-primary/50 cursor-default"
+                        : challenge.completed
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
                     )}
                   >
-                    {isPremium ? (
+                    {challenge.hasVideo ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : isPremium ? (
                       <Upload className="h-3.5 w-3.5" />
                     ) : (
                       <Crown className="h-3.5 w-3.5" />
