@@ -130,9 +130,9 @@ function WinningVideoPlayer({ videoId, emoji }: { videoId: string | null; emoji:
 
   if (!videoId) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-white/5 rounded-2xl">
+      <div className="w-full h-full flex flex-col items-center justify-center gap-3 rounded-2xl" style={{ backgroundColor: "hsl(var(--muted))" }}>
         <span className="text-6xl">{emoji}</span>
-        <span className="text-sm text-white/50">Winning Video</span>
+        <span className="text-sm text-muted-foreground">Winning Video</span>
       </div>
     );
   }
