@@ -250,7 +250,7 @@ export default function Onboarding() {
                   Rejection Bounty
                 </h1>
                 <p className="-mt-1 mb-6 text-base text-primary-foreground/60">
-                  100 rejections will change your life
+                  100 rejections to change your life
                 </p>
 
                 <div className="w-full max-w-sm space-y-3 -mt-2">
