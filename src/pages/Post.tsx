@@ -257,7 +257,7 @@ export default function PostPage() {
             className="flex flex-1 flex-col overflow-hidden"
           >
             {/* Section A: Header */}
-            <div className="flex items-center justify-between px-4 py-3 mt-5">
+            <div className="flex items-center justify-between px-4 py-3 mt-3">
               <button
                 onClick={handleBack}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground"
