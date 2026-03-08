@@ -79,8 +79,34 @@ export default function SettingsMessages() {
     return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   };
 
+  // Track keyboard height using visualViewport
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResize = () => {
+      const kbHeight = window.innerHeight - vv.height;
+      setKeyboardHeight(kbHeight > 50 ? kbHeight : 0);
+    };
+
+    vv.addEventListener("resize", handleResize);
+    vv.addEventListener("scroll", handleResize);
+    return () => {
+      vv.removeEventListener("resize", handleResize);
+      vv.removeEventListener("scroll", handleResize);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 flex flex-col pb-16" style={{ backgroundColor: "hsl(var(--background))" }}>
+    <div
+      className="fixed inset-0 flex flex-col"
+      style={{
+        backgroundColor: "hsl(var(--background))",
+        height: keyboardHeight > 0 ? `calc(100% - ${keyboardHeight}px)` : '100%',
+      }}
+    >
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 border-b bg-background"
@@ -104,7 +130,7 @@ export default function SettingsMessages() {
       {/* Messages */}
       <div
         ref={scrollRef}
-        data-scroll-container className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+        data-scroll-container className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
       >
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -124,17 +150,17 @@ export default function SettingsMessages() {
             const isMyMessage = msg.sender === "user";
             return (
               <div key={msg.id} className={`flex ${isMyMessage ? "justify-end" : "justify-start"}`}>
-                <div className="max-w-[80%]">
+                <div className="max-w-[70%]">
                   <div
-                    className={`rounded-2xl px-4 py-2.5 ${
+                    className={`inline-block rounded-2xl px-3 py-2 ${
                       isMyMessage
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-foreground"
                     }`}
                   >
-                    <p className="text-sm">{msg.message}</p>
+                    <p className="text-sm break-words">{msg.message}</p>
                   </div>
-                  <p className="text-[10px] mt-1 mx-1 text-muted-foreground">
+                  <p className={`text-[10px] mt-0.5 mx-1 text-muted-foreground ${isMyMessage ? "text-right" : "text-left"}`}>
                     {formatTime(msg.created_at)}
                   </p>
                 </div>
@@ -147,7 +173,9 @@ export default function SettingsMessages() {
       {/* Input */}
       <div
         className="px-4 pt-3 border-t flex items-center gap-3 bg-background"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
+        style={{
+          paddingBottom: keyboardHeight > 0 ? 12 : "calc(env(safe-area-inset-bottom) + 64px)",
+        }}
       >
         <input
           value={newMessage}
