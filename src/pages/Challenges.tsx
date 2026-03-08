@@ -93,12 +93,14 @@ export default function Challenges() {
         console.error("Failed to fetch challenges:", error);
         setChallenges([]);
         setLoadingChallenges(false);
+        sessionStorage.setItem("challenges-fetched", "true");
         return;
       }
 
       if (!dbChallenges || dbChallenges.length === 0) {
         setChallenges([]);
         setLoadingChallenges(false);
+        sessionStorage.setItem("challenges-fetched", "true");
         return;
       }
 
