@@ -98,7 +98,7 @@ export function fireEpicConfetti() {
   }, 300);
 
   // Multi-source cannons for 2 seconds — sides + bottom
-  const end = Date.now() + 2000;
+  const end = Date.now() + 1500;
   const frame = () => {
     // Side cannons
     confetti({ particleCount: 8, angle: 60, spread: 90, origin: { x: 0, y: 0.4 }, colors, startVelocity: 40, ticks: 90 });
