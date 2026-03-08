@@ -106,14 +106,16 @@ export default function Challenges() {
 
       // Fetch user's completions for this week
       let completedIds: string[] = [];
+      let videoIds: string[] = [];
       if (user) {
         const { data: completions } = await supabase
           .from("challenge_completions")
-          .select("challenge_id")
+          .select("challenge_id, video_url")
           .eq("user_id", user.id)
           .eq("week_key", weekKey);
 
         completedIds = (completions || []).map((c: any) => c.challenge_id);
+        videoIds = (completions || []).filter((c: any) => c.video_url).map((c: any) => c.challenge_id);
       }
 
       // Map DB challenges to Challenge type with completion status
@@ -123,7 +125,7 @@ export default function Challenges() {
         description: ch.description || ch.title,
         emoji: ch.emoji,
         completed: completedIds.includes(ch.id),
-        hasVideo: false,
+        hasVideo: videoIds.includes(ch.id),
       }));
 
       setChallenges(mappedChallenges);
