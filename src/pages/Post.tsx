@@ -103,46 +103,62 @@ export default function PostPage() {
       if (cleanup) return;
       setThumbnailFrames(frames);
       setLoadingThumbnails(false);
-      video.remove();
+      try { video.remove(); } catch {}
     };
 
-    video.addEventListener("loadeddata", () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 120;
+    canvas.height = 160;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      finish();
+      return;
+    }
+
+    const captureFrame = () => {
+      if (cleanup) return;
+      if (frameIndex >= frameCount) {
         finish();
         return;
       }
-      canvas.width = 120;
-      canvas.height = 160;
+      const time = trimStart + (frameIndex / Math.max(1, frameCount - 1)) * trimDuration;
+      video.currentTime = Math.min(time, video.duration - 0.1);
+    };
 
-      const captureFrame = () => {
-        if (cleanup) return;
-        if (frameIndex >= frameCount) {
-          finish();
-          return;
-        }
-
-        const time = trimStart + (frameIndex / Math.max(1, frameCount - 1)) * trimDuration;
-        video.currentTime = time;
-      };
-
-      video.addEventListener("seeked", () => {
-        if (cleanup) return;
+    const onSeeked = () => {
+      if (cleanup) return;
+      try {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         frames.push(canvas.toDataURL("image/jpeg", 0.7));
-        frameIndex++;
-        captureFrame();
-      });
-
+      } catch {
+        // Skip frame on error
+      }
+      frameIndex++;
       captureFrame();
-    });
+    };
+
+    video.addEventListener("seeked", onSeeked);
+
+    // Use canplay to ensure video is ready for seeking
+    const startCapture = () => {
+      if (cleanup) return;
+      captureFrame();
+    };
+
+    if (video.readyState >= 2) {
+      startCapture();
+    } else {
+      video.addEventListener("canplay", startCapture, { once: true });
+    }
 
     video.addEventListener("error", finish);
+    video.load();
 
     return () => {
       cleanup = true;
-      video.remove();
+      video.removeEventListener("seeked", onSeeked);
+      try { video.remove(); } catch {}
     };
   }, [step, videoUrl, duration, trimStart, trimEnd, thumbnailFrames.length]);
 
