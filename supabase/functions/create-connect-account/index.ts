@@ -47,7 +47,6 @@ serve(async (req) => {
       stripeAccountId = existing.stripe_account_id;
     } else {
       console.log("Creating new Express connect account for:", user.email);
-      // Create new Express connected account
       const account = await stripe.accounts.create({
         type: "express",
         email: user.email,
@@ -58,7 +57,6 @@ serve(async (req) => {
       stripeAccountId = account.id;
       console.log("Created connect account:", stripeAccountId);
 
-      // Store in DB using service role to bypass RLS for initial insert
       const { error: upsertError } = await supabaseClient.from("stripe_connect_accounts").upsert({
         user_id: user.id,
         stripe_account_id: stripeAccountId,
@@ -72,12 +70,38 @@ serve(async (req) => {
     // Create account link for onboarding
     const origin = req.headers.get("origin") || "https://rejection-bounty.lovable.app";
     console.log("Creating account link with origin:", origin);
-    const accountLink = await stripe.accountLinks.create({
-      account: stripeAccountId,
-      refresh_url: `${origin}/settings?connect=refresh`,
-      return_url: `${origin}/settings?connect=complete`,
-      type: "account_onboarding",
-    });
+
+    let accountLink;
+    try {
+      accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: `${origin}/settings?connect=refresh`,
+        return_url: `${origin}/settings?connect=complete`,
+        type: "account_onboarding",
+      });
+    } catch (linkError) {
+      // If existing account has incompatible capabilities, recreate it
+      console.log("Account link failed, recreating account:", linkError);
+      const newAccount = await stripe.accounts.create({
+        type: "express",
+        email: user.email,
+        capabilities: {
+          card_payments: { requested: true },
+        },
+      });
+      stripeAccountId = newAccount.id;
+      await supabaseClient.from("stripe_connect_accounts").upsert({
+        user_id: user.id,
+        stripe_account_id: stripeAccountId,
+        email: user.email,
+      });
+      accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: `${origin}/settings?connect=refresh`,
+        return_url: `${origin}/settings?connect=complete`,
+        type: "account_onboarding",
+      });
+    }
 
     console.log("Account link created successfully");
     return new Response(JSON.stringify({ url: accountLink.url }), {
