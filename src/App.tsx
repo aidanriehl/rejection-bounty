@@ -24,6 +24,7 @@ import Onboarding from "@/pages/Onboarding";
 import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
 import FriendsPage from "@/pages/Friends";
+import PublicProfile from "@/pages/PublicProfile";
 import AuthCallback from "@/pages/AuthCallback";
 import FeatureTour from "@/components/FeatureTour";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
