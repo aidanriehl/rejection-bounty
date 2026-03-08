@@ -89,8 +89,8 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     e.preventDefault();
     const trimmed = username.trim().toLowerCase();
 
-    if (trimmed.length < 3) {
-      toast({ title: "Username must be at least 3 characters", variant: "destructive" });
+    if (trimmed.length < 2) {
+      toast({ title: "Username must be at least 2 characters", variant: "destructive" });
       return;
     }
     if (!/^[a-z0-9_]+$/.test(trimmed)) {
