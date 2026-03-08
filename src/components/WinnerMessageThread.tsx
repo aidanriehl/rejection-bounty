@@ -163,9 +163,11 @@ export default function WinnerMessageThread({
             <p className="font-bold" style={{ color: GOLD.text }}>
               {isAdmin ? (winnerName || "Winner") : "Rejection Bounty"}
             </p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-              {isAdmin ? weekKey : daysLeft > 0 ? `${daysLeft} days to claim prize` : "Congratulations!"}
-            </p>
+            {isAdmin && (
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                {weekKey}
+              </p>
+            )}
           </div>
         </div>
       </div>
