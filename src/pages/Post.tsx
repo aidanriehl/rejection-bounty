@@ -107,8 +107,8 @@ export default function PostPage() {
     };
 
     const canvas = document.createElement("canvas");
-    canvas.width = 120;
-    canvas.height = 160;
+    canvas.width = 360;
+    canvas.height = 480;
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
@@ -355,7 +355,7 @@ export default function PostPage() {
                 <ChevronLeft className="h-5 w-5" />
                 Back
               </button>
-              <h1 className="text-lg font-bold text-foreground">Choose cover</h1>
+              <h1 className="text-lg font-bold text-foreground">Choose Cover</h1>
               <button
                 onClick={handlePost}
                 disabled={!videoFile || globalStatus === "uploading"}
