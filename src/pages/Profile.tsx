@@ -22,7 +22,7 @@ interface UserPost {
   created_at: string;
 }
 
-const MILESTONES = [10, 50, 100, 150, 200] as const;
+const MILESTONES = [25, 50, 100, 200, 500] as const;
 
 export type MedalTier = "bronze" | "silver" | "gold" | "diamond" | "champion";
 
@@ -35,11 +35,11 @@ const MEDAL_COLORS: Record<MedalTier, {fill: string;stroke: string;ribbon: strin
 };
 
 const MEDALS: Record<number, {tier: MedalTier;label: string;}> = {
-  10: { tier: "bronze", label: "Bronze" },
+  25: { tier: "bronze", label: "Bronze" },
   50: { tier: "silver", label: "Silver" },
   100: { tier: "gold", label: "Gold" },
-  150: { tier: "diamond", label: "Diamond" },
-  200: { tier: "champion", label: "Champion" }
+  200: { tier: "diamond", label: "Diamond" },
+  500: { tier: "champion", label: "Champion" }
 };
 
 function MedalIcon({ tier, size = 28 }: {tier: MedalTier;size?: number;}) {
