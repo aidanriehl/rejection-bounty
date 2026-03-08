@@ -89,7 +89,7 @@ export default function SettingsPage() {
         throw new Error(data.error);
       }
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, "_blank");
       } else {
         throw new Error("No onboarding URL returned");
       }
