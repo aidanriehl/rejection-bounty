@@ -187,8 +187,11 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
             </button>
           )}
         </div>
-        {/* Row 2: Likes - smaller and less prominent */}
-        <p className="text-xs text-white/50 drop-shadow-md mb-2">{likeCount} likes</p>
+        {/* Row 2: Likes - smaller and less prominent, tappable heart */}
+        <button onClick={toggleLike} className="flex items-center gap-1.5 mb-2">
+          <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-white text-white" : "text-white/50")} />
+          <span className="text-xs text-white/50 drop-shadow-md">{likeCount} likes</span>
+        </button>
         {/* Row 3: Caption */}
         {post.caption && (
           <p className="text-sm text-white/90 drop-shadow-md">{post.caption}</p>
