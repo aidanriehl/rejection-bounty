@@ -343,8 +343,8 @@ export default function Profile() {
           {/* Challenges Completed card */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-1.5 whitespace-nowrap">
-              <span className="leading-none" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)' }}>✅</span>
-              <span className="font-bold text-foreground" style={{ fontSize: 'clamp(0.65rem, 2.8vw, 0.875rem)' }}>{ms.current}/{ms.goal} Challenges</span>
+              <span className="text-base leading-none">✅</span>
+              <span className="font-bold text-foreground" style={{ fontSize: 'clamp(0.8rem, 3.5vw, 0.875rem)' }}>{ms.current}/{ms.goal} Challenges</span>
               {ms.medal && <MedalIcon tier={ms.medal.tier} size={14} />}
             </div>
             {/* Progress bar */}
