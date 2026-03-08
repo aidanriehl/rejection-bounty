@@ -21,27 +21,26 @@ function SplashScreen({ onDone }: {onDone: () => void;}) {
       transition={{ duration: 0.4 }}>
       
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.2 }}
-        className="-mt-16 flex flex-col items-center gap-3">
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="-mt-16 flex flex-col items-center gap-3 relative overflow-hidden">
         
-        <motion.img
-          src={logoImg}
-          alt="Rejection Bounty"
-          className="h-20 w-20"
-          initial={{ rotate: -10, opacity: 0 }}
-          animate={{ rotate: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.3 }}
-        />
-        <motion.h1
-          className="text-3xl font-extrabold tracking-tight text-white"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
-        >
+        <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">
           Rejection Bounty
-        </motion.h1>
+        </h1>
+
+        {/* Single subtle shimmer sweep */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(90deg, transparent 0%, hsla(0,0%,100%,0.2) 45%, hsla(0,0%,100%,0.3) 50%, hsla(0,0%,100%,0.2) 55%, transparent 100%)",
+          }}
+          initial={{ x: "-200%" }}
+          animate={{ x: "300%" }}
+          transition={{ duration: 1.4, delay: 0.8, ease: "easeInOut" }}
+        />
       </motion.div>
     </motion.div>);
 

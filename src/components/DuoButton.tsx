@@ -53,11 +53,14 @@ function haptic() {
 interface DuoButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: "primary" | "outline";
+  /** Use reduced 3D depth (e.g. on welcome/splash screens) */
+  subtle?: boolean;
 }
 
 export default function DuoButton({
   children,
   variant = "primary",
+  subtle = false,
   className,
   onClick,
   disabled,
@@ -71,6 +74,7 @@ export default function DuoButton({
   };
 
   const isPrimary = variant === "primary";
+  const depth = subtle ? 2 : 4;
 
   return (
     <button
@@ -80,15 +84,15 @@ export default function DuoButton({
         // Base
         "relative flex w-full items-center justify-center rounded-2xl text-base font-bold transition-all select-none",
         // 3D depth — bottom shadow via box-shadow + transform
-        "translate-y-0 active:translate-y-[3px]",
+        subtle ? "translate-y-0 active:translate-y-[2px]" : "translate-y-0 active:translate-y-[3px]",
         // Sizing
         "h-14",
         // Variants
         isPrimary
-          ? "bg-primary-foreground text-primary shadow-[0_4px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]"
-          : "border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_4px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]",
+          ? `bg-primary-foreground text-primary shadow-[0_${depth}px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]`
+          : `border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_${depth}px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]`,
         // Disabled
-        "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_0_hsl(0_0%_85%)]",
+        `disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_${depth}px_0_0_hsl(0_0%_85%)]`,
         className,
       )}
       {...props}
