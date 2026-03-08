@@ -274,8 +274,8 @@ export default function PostPage() {
               </button>
             </div>
 
-            {/* Video + Trimmer centered vertically in available space */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4">
+            {/* Video + Trimmer - pushed up, not centered */}
+            <div className="flex-1 flex flex-col items-center pt-2 px-4">
               <div className="w-full max-w-[280px]">
                 {/* Video preview */}
                 <div className="relative overflow-hidden rounded-2xl bg-black">

@@ -214,7 +214,7 @@ function VideoTrimmer({
 
       <div
         ref={containerRef}
-        className="relative h-16 select-none"
+        className="relative h-12 select-none"
         style={{ touchAction: dragging ? "none" : "pan-y" }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
