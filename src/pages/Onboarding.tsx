@@ -122,7 +122,7 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="flex flex-col items-center -mt-64">
+      className="flex flex-col items-center mt-0 mb-[220px]">
       
       <span className="mb-2 text-4xl">✉️</span>
       <h2 className="mb-4 text-2xl font-bold text-primary-foreground">Enter Your Code</h2>
