@@ -312,21 +312,21 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                 let dotStyle: React.CSSProperties = {};
 
                 if (i < step) {
-                  // Completed - metallic gold
+                  // Completed - metallic gold sphere
                   dotStyle = {
-                    background: "linear-gradient(135deg, #D4A017 0%, #F5D060 40%, #B8860B 70%, #F5D060 100%)",
-                    boxShadow: "0 1px 3px rgba(212, 160, 23, 0.4)",
+                    background: "radial-gradient(circle at 35% 30%, #FDE68A 0%, #F5D060 25%, #D4A017 55%, #A67C00 80%, #7A5C00 100%)",
+                    boxShadow: "0 1px 4px rgba(164, 124, 0, 0.5), inset 0 -1px 2px rgba(122, 92, 0, 0.3), inset 0 1px 2px rgba(253, 230, 138, 0.4)",
                   };
                 } else if (i === step) {
-                  // Current - metallic green
+                  // Current - metallic green sphere
                   dotStyle = {
-                    background: "linear-gradient(135deg, #1A8A6A 0%, #3DCCA8 40%, #0D6B4F 70%, #3DCCA8 100%)",
-                    boxShadow: "0 1px 3px rgba(26, 138, 106, 0.5)",
+                    background: "radial-gradient(circle at 35% 30%, #6EE7B7 0%, #3DCCA8 25%, #1A8A6A 55%, #0D6B4F 80%, #064E3B 100%)",
+                    boxShadow: "0 1px 4px rgba(13, 107, 79, 0.5), inset 0 -1px 2px rgba(6, 78, 59, 0.3), inset 0 1px 2px rgba(110, 231, 183, 0.4)",
                   };
                 } else {
                   // Future - muted
                   dotStyle = {
-                    background: "hsl(var(--muted-foreground) / 0.25)",
+                    background: "radial-gradient(circle at 35% 30%, hsl(var(--muted-foreground) / 0.35) 0%, hsl(var(--muted-foreground) / 0.2) 60%, hsl(var(--muted-foreground) / 0.12) 100%)",
                   };
                 }
 
