@@ -73,7 +73,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
 
   const current = STEPS[step];
 
-  // Measure highlighted element (scroll into view first)
+  // Measure highlighted element - NO scrolling, stay on current view
   const measure = useCallback(() => {
     if (!current.highlightSelector) {
       setHighlightRect(null);
@@ -81,17 +81,21 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     }
     const el = document.querySelector(current.highlightSelector);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Wait for scroll to finish before measuring
-      setTimeout(() => {
-        const r = el.getBoundingClientRect();
-        setHighlightRect({
-          top: r.top,
-          left: r.left,
-          width: r.width,
-          height: r.height,
-        });
-      }, 350);
+      const r = el.getBoundingClientRect();
+
+      // For challenge-list, only highlight what's visible (cap height)
+      let height = r.height;
+      if (current.highlightSelector === '[data-tour="challenge-list"]') {
+        // Only show first ~3 challenges worth of height
+        height = Math.min(r.height, 280);
+      }
+
+      setHighlightRect({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: height,
+      });
     }
   }, [current.highlightSelector]);
 
@@ -176,7 +180,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     );
   }
 
-  // Calculate tooltip position - stays within viewport
+  // Calculate tooltip position - MUST be outside highlighted area, never overlapping
   const getTooltipStyle = () => {
     if (!highlightRect) {
       return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
@@ -185,31 +189,21 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
     const padding = 16;
     const tooltipWidth = 320;
     const tooltipHeight = 160;
-    const safeAreaBottom = 120; // space for bottom nav + safe area
+    const gap = 16; // gap between highlight and tooltip
 
     const leftPos = Math.max(padding, Math.min(highlightRect.left + highlightRect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - padding));
 
-    if (current.arrowPosition === "top") {
-      // Tooltip below the highlighted element
-      let topPos = highlightRect.top + highlightRect.height + 20;
+    // Calculate space above and below the highlighted element
+    const spaceAbove = highlightRect.top;
+    const spaceBelow = window.innerHeight - (highlightRect.top + highlightRect.height);
 
-      // If tooltip would go off screen, clamp it
-      const maxTop = window.innerHeight - tooltipHeight - safeAreaBottom;
-      if (topPos > maxTop) {
-        topPos = maxTop;
-      }
-
+    if (current.arrowPosition === "top" || spaceBelow > spaceAbove) {
+      // Tooltip below - make sure it's OUTSIDE the highlight
+      const topPos = highlightRect.top + highlightRect.height + gap;
       return { top: topPos, left: leftPos };
     } else {
-      // Tooltip above the highlighted element
-      let bottomPos = window.innerHeight - highlightRect.top + 20;
-
-      // Make sure tooltip doesn't go above screen
-      const maxBottom = window.innerHeight - tooltipHeight - 50;
-      if (bottomPos > maxBottom) {
-        bottomPos = maxBottom;
-      }
-
+      // Tooltip above - make sure it's OUTSIDE the highlight
+      const bottomPos = window.innerHeight - highlightRect.top + gap;
       return { bottom: bottomPos, left: leftPos };
     }
   };
