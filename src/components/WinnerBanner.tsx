@@ -66,18 +66,6 @@ export default function WinnerBanner() {
 
     check();
 
-      // Count messages
-      const { count } = await supabase
-        .from("winner_messages")
-        .select("*", { count: "exact", head: true })
-        .eq("week_key", drawing.week_key)
-        .eq("winner_user_id", user.id);
-
-      setMessageCount(count ?? 0);
-    };
-
-    check();
-
     // Listen for new messages
     const channel = supabase
       .channel("winner-banner-messages")
