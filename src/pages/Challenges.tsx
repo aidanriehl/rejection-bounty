@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Trophy, Upload, Users, RotateCcw, Video, FolderOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockChallenges, getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
+import { getCompletedCount, getTimeUntilSunday, getCurrentWeekKey, type Challenge } from "@/lib/mock-data";
 import { fireConfetti, fireBigConfetti, fireEpicConfetti } from "@/lib/confetti";
 import { playPop, playBigWin, playEpicWin, playCascade, playBrickLand } from "@/lib/sounds";
 import { useAuth } from "@/hooks/useAuth";
@@ -76,22 +76,13 @@ export default function Challenges() {
 
       if (error) {
         console.error("Failed to fetch challenges:", error);
-        // Fallback to mock challenges if DB fails
-        setChallenges(mockChallenges);
+        setChallenges([]);
         setLoadingChallenges(false);
         return;
       }
 
-      // If no challenges in DB for this week, use mock challenges
       if (!dbChallenges || dbChallenges.length === 0) {
-        console.log("No challenges in DB for week", weekKey, "- using mock challenges");
-        const saved = localStorage.getItem(`${weekKey}-completed`);
-        if (saved) {
-          const completedIds: string[] = JSON.parse(saved);
-          setChallenges(mockChallenges.map(c => ({ ...c, completed: completedIds.includes(c.id) })));
-        } else {
-          setChallenges(mockChallenges);
-        }
+        setChallenges([]);
         setLoadingChallenges(false);
         return;
       }

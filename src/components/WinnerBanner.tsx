@@ -36,13 +36,7 @@ export default function WinnerBanner() {
         .order("created_at", { ascending: false })
         .limit(1);
 
-      if (!drawings || drawings.length === 0) {
-        // QA PREVIEW: Force-show banner for testing
-        setWeekKey("2026-W10");
-        setDaysLeft(5);
-        setVisible(true);
-        return;
-      }
+      if (!drawings || drawings.length === 0) return;
 
       const drawing = drawings[0];
       const createdAt = new Date(drawing.created_at);

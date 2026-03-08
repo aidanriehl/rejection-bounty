@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send } from "lucide-react";
-import { mockChallenges } from "@/lib/mock-data";
+import { getCurrentWeekKey } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
 import { Input } from "@/components/ui/input";
@@ -219,16 +219,8 @@ export default function Admin() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (dbChallenges && dbChallenges.length > 0) {
+    if (dbChallenges) {
       setChallenges(dbChallenges as ChallengeItem[]);
-    } else {
-      setChallenges(mockChallenges.map(c => ({
-        id: c.id,
-        title: c.title,
-        emoji: c.emoji,
-        week_key: weekKey,
-        is_active: true,
-      })));
     }
 
     // Get featured videos
@@ -481,7 +473,7 @@ export default function Admin() {
     completions.filter((c) => c.user_id === userId);
 
   const getChallengeInfo = (challengeId: string) => {
-    const ch = mockChallenges.find((c) => c.id === challengeId);
+    const ch = challenges.find((c) => c.id === challengeId);
     return ch ? { emoji: ch.emoji, title: ch.title } : { emoji: "🎯", title: `Challenge ${challengeId}` };
   };
 
