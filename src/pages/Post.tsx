@@ -278,7 +278,7 @@ export default function PostPage() {
             <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0">
               <div className="w-full max-w-[280px] flex flex-col min-h-0 flex-1">
                 {/* Video preview - fills available space */}
-                <div className="relative overflow-hidden rounded-2xl bg-black flex-1 min-h-0">
+                <div className="relative overflow-hidden rounded-2xl bg-black flex-1 min-h-0" style={{ maxHeight: '90%' }}>
                   <video
                     ref={videoRef}
                     src={videoUrl}
