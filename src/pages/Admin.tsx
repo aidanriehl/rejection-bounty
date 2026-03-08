@@ -219,16 +219,8 @@ export default function Admin() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (dbChallenges && dbChallenges.length > 0) {
+    if (dbChallenges) {
       setChallenges(dbChallenges as ChallengeItem[]);
-    } else {
-      setChallenges(mockChallenges.map(c => ({
-        id: c.id,
-        title: c.title,
-        emoji: c.emoji,
-        week_key: weekKey,
-        is_active: true,
-      })));
     }
 
     // Get featured videos
