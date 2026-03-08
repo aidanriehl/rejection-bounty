@@ -15,11 +15,13 @@ import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 interface UserPost {
   id: string;
   video_id: string | null;
-  video_url: string | null; // thumbnail URL
+  video_url: string | null;
   thumbnail_time: number;
   caption: string;
   likes: number;
   created_at: string;
+  challenge_id: string;
+  challenge_title?: string;
 }
 
 const MILESTONES = [10, 25, 50, 100, 200, 500] as const;
