@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,7 @@ interface FeedPostData {
   } | null;
 }
 
-function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData; currentUserId?: string; initialFollowing: boolean;}) {
+function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: {post: FeedPostData; currentUserId?: string; initialFollowing: boolean; onNavigateProfile: (userId: string) => void;}) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(() => getLikedPosts());
   const liked = likedPosts.has(post.id);
   const [likeCount, setLikeCount] = useState(post.likes);
@@ -119,8 +120,7 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
 
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Navigate to user profile when public profiles are implemented
-    console.log("Navigate to profile:", post.user_id);
+    onNavigateProfile(post.user_id);
   };
 
   return (
@@ -178,9 +178,9 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
               <button
                 onClick={handleFollow}
                 className={cn(
-                  "px-3 py-1 rounded-md text-xs font-semibold transition-colors",
+                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors",
                   isFollowing
-                    ? "bg-white/20 text-white border border-white/40"
+                    ? "bg-white/20 text-white border border-white/30"
                     : "bg-white text-black"
                 )}
               >
@@ -203,7 +203,7 @@ function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData
 
 }
 
-function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;currentUserId?: string;friendIds: string[];}) {
+function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds, onNavigateProfile }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;currentUserId?: string;friendIds: string[];onNavigateProfile: (userId: string) => void;}) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -221,7 +221,7 @@ function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds }: {p
   return (
     <div data-scroll-container className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
       {posts.map((post) =>
-      <ReelCard key={post.id} post={post} currentUserId={currentUserId} initialFollowing={friendIds.includes(post.user_id)} />
+      <ReelCard key={post.id} post={post} currentUserId={currentUserId} initialFollowing={friendIds.includes(post.user_id)} onNavigateProfile={onNavigateProfile} />
       )}
     </div>);
 
@@ -233,7 +233,12 @@ export default function Feed() {
   const [friendIds, setFriendIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const dragX = useMotionValue(0);
+
+  const handleNavigateProfile = useCallback((userId: string) => {
+    navigate(`/profile/${userId}`);
+  }, [navigate]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -358,7 +363,8 @@ export default function Feed() {
             emptyMessage="No videos uploaded yet"
             loading={loading}
             currentUserId={user?.id}
-            friendIds={friendIds} />
+            friendIds={friendIds}
+            onNavigateProfile={handleNavigateProfile} />
           
           </div>
         )}
