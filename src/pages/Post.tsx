@@ -425,7 +425,7 @@ export default function PostPage() {
                 }}
                 placeholder="Add a caption (optional)"
                 rows={2}
-                className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-[0.8rem] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
             </div>
