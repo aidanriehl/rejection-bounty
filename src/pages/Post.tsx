@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Upload, ChevronLeft, Check } from "lucide-react";
+import { X, Upload, ChevronLeft, Check, Play, Pause } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useUpload } from "@/contexts/UploadContext";
