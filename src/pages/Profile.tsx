@@ -253,7 +253,10 @@ export default function Profile() {
           </button>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => navigate("/challenges")}
+              onClick={() => {
+                navigate("/challenges");
+                setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
+              }}
               className="flex h-11 w-11 items-center justify-center rounded-full text-foreground">
               <Info className="h-5 w-5" />
             </button>

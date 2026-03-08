@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
@@ -25,6 +25,7 @@ import Setup from "@/pages/Setup";
 import Admin from "@/pages/Admin";
 import FriendsPage from "@/pages/Friends";
 import AuthCallback from "@/pages/AuthCallback";
+import FeatureTour from "@/components/FeatureTour";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
@@ -35,6 +36,18 @@ const queryClient = new QueryClient({});
 
 function AppRoutes() {
   const { user, profile, loading, setProfile } = useAuth();
+  const [showTour, setShowTour] = useState(false);
+
+  // Listen for replay-tour event from Profile page info button
+  useEffect(() => {
+    const handleReplayTour = () => setShowTour(true);
+    window.addEventListener("replay-tour", handleReplayTour);
+    return () => window.removeEventListener("replay-tour", handleReplayTour);
+  }, []);
+
+  const handleTourComplete = () => {
+    setShowTour(false);
+  };
 
   if (loading) {
     return (
@@ -94,6 +107,7 @@ function AppRoutes() {
       </Routes>
       <BottomNav />
       <UploadIndicator />
+      {showTour && <FeatureTour onComplete={handleTourComplete} />}
     </>
   );
 }
