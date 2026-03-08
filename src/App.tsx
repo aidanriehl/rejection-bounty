@@ -54,6 +54,7 @@ function AppRoutes() {
   }, []);
 
   const handleTourComplete = () => {
+    localStorage.removeItem("show-tour");
     setShowTour(false);
   };
 
