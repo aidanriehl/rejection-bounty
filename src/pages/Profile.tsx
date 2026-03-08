@@ -357,7 +357,7 @@ export default function Profile() {
         </div>
 
         {/* Grid icon + divider */}
-        <div className="mb-0.5 flex justify-center border-b border-border pb-2">
+        <div className="mb-0.5 mt-3 flex justify-center border-b border-border pb-2">
           <Grid3X3 className="h-5 w-5 text-foreground" />
         </div>
       </div>
