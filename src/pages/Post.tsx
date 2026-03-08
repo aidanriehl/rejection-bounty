@@ -107,8 +107,8 @@ export default function PostPage() {
     };
 
     const canvas = document.createElement("canvas");
-    canvas.width = 120;
-    canvas.height = 160;
+    canvas.width = 360;
+    canvas.height = 480;
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
