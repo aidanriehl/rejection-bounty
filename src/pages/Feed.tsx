@@ -120,8 +120,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
 
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Navigate to user profile when public profiles are implemented
-    console.log("Navigate to profile:", post.user_id);
+    onNavigateProfile(post.user_id);
   };
 
   return (
