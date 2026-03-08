@@ -85,10 +85,10 @@ export default function DuoButton({
         "h-14",
         // Variants
         isPrimary
-          ? "bg-primary-foreground text-primary shadow-[0_4px_0_0_rgba(0,0,0,0.15)] active:shadow-[0_1px_0_0_rgba(0,0,0,0.15)]"
-          : "border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_4px_0_0_rgba(255,255,255,0.08)] active:shadow-[0_1px_0_0_rgba(255,255,255,0.08)]",
+          ? "bg-primary-foreground text-primary shadow-[0_4px_0_0_hsl(0_0%_85%)] active:shadow-[0_1px_0_0_hsl(0_0%_85%)]"
+          : "border-2 border-primary-foreground/25 text-primary-foreground shadow-[0_4px_0_0_hsl(160_30%_35%)] active:shadow-[0_1px_0_0_hsl(160_30%_35%)]",
         // Disabled
-        "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_0_rgba(0,0,0,0.15)]",
+        "disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_0_hsl(0_0%_85%)]",
         className,
       )}
       {...props}
