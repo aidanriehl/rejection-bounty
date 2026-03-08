@@ -31,7 +31,7 @@ import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { UploadProvider } from "@/contexts/UploadContext";
 import UploadIndicator from "@/components/UploadIndicator";
 import { useNativeSessionSync } from "@/hooks/useNativeSessionSync";
-import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const queryClient = new QueryClient({});
 
@@ -60,8 +60,8 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: "hsl(var(--background))" }}>
-        <img src={logo} alt="Logo" className="h-16 w-16 animate-pulse" />
+      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: "hsl(var(--primary))" }}>
+        <img src={logoWhite} alt="Logo" className="h-16 w-16 animate-pulse" />
       </div>
     );
   }
