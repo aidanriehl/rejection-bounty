@@ -331,12 +331,12 @@ export default function Profile() {
           {/* Week Streak card */}
           <div className="rounded-2xl border-2 border-foreground/10 bg-card px-3 py-2.5 shadow-[2px_2px_0px_0px_hsl(var(--foreground)/0.06)]">
             <div className="flex items-center gap-1.5">
-              <span className="text-base leading-none">🔥</span>
-              <span className="text-sm font-bold text-foreground">{streak} Week Streak</span>
+              <span className="text-lg leading-none">🔥</span>
+              <span className="text-[15px] font-bold text-foreground">{streak} Week Streak</span>
             </div>
             <div className="mt-1 flex items-center justify-between">
-              <span className="text-[10px] text-muted-foreground">Longest: {bestStreak}</span>
-              <span className="text-[10px] text-muted-foreground">Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</span>
+              <span className="text-[11px] text-muted-foreground">Longest: {bestStreak}</span>
+              <span className="text-[11px] text-muted-foreground">Win Rate: {weeksSinceSignup > 0 ? Math.round(weeksCompleted / weeksSinceSignup * 100) : 0}%</span>
             </div>
           </div>
 
