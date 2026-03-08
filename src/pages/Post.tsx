@@ -209,10 +209,6 @@ export default function PostPage() {
   const handleBack = () => {
     if (step === "post") {
       setStep("trim");
-    } else if (step === "trim") {
-      setVideoFile(null);
-      setVideoUrl(null);
-      setStep("select");
     } else {
       navigate("/challenges");
     }
