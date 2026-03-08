@@ -77,7 +77,7 @@ export default function WinnerBanner() {
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(90deg, transparent 0%, hsla(0,0%,100%,0.15) 50%, transparent 100%)",
+            background: "linear-gradient(90deg, transparent 0%, hsla(0,0%,100%,0.35) 45%, hsla(0,0%,100%,0.45) 50%, hsla(0,0%,100%,0.35) 55%, transparent 100%)",
           }}
           animate={{ x: ["-200%", "300%"] }}
           transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}

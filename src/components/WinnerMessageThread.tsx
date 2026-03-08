@@ -26,8 +26,8 @@ const GOLD = {
   primary: "hsl(43 96% 56%)",      // #F5B800 - main gold
   dark: "hsl(38 90% 40%)",          // darker gold
   light: "hsl(45 100% 70%)",        // lighter gold
-  bg: "hsl(40 30% 8%)",             // dark bg with warm tint
-  bgLight: "hsl(40 20% 12%)",       // slightly lighter
+  bg: "hsl(35 50% 12%)",            // warm dark gold-brown bg
+  bgLight: "hsl(38 40% 18%)",       // warm lighter gold-brown
   text: "hsl(43 100% 90%)",         // light gold text
 };
 
