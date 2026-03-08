@@ -295,7 +295,7 @@ export default function PostPage() {
 
                 {/* Trim controls — directly under video */}
                 {duration > 0 && (
-                  <div className="mt-2 shrink-0">
+                  <div className="mt-1 shrink-0">
                     <VideoTrimmer
                       videoUrl={videoUrl}
                       duration={duration}
