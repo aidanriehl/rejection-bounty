@@ -288,7 +288,7 @@ export default function Profile() {
               stage={avatarStage}
               size="lg"
               photoUrl={photoUrl}
-              className="!h-[92px] !w-[92px] !text-[2.5rem]" />
+              className="!h-[101px] !w-[101px] !text-[2.75rem]" />
 
             {!photoUrl &&
             <div className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-primary border-[2.5px] border-background shadow-sm">
@@ -303,7 +303,7 @@ export default function Profile() {
           }
 
           {/* Username */}
-          <h1 className="mt-2 font-extrabold text-foreground text-lg">{profile?.username || "username"}</h1>
+          <h1 className="mt-2 font-extrabold text-foreground text-xl">{profile?.username || "username"}</h1>
         </div>
 
         {/* Stats row */}
