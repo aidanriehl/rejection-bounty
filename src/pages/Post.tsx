@@ -275,7 +275,7 @@ export default function PostPage() {
             </div>
 
             {/* Section B: Video + Trimmer */}
-            <div className="flex-1 flex flex-col items-center px-4 mt-[7px] min-h-0 pb-2">
+            <div className="flex-1 flex flex-col items-center px-4 mt-[27px] min-h-0 pb-2">
               <div className="w-full flex flex-col min-h-0 flex-1 items-center">
                 {/* Video preview - fixed 9:16 aspect ratio, sized to fit */}
                 <div
