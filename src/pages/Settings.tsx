@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, Bell, FileText, Trash2, Banknote, CheckCircle, Loader2, Moon, Scale, MessageCircle } from "lucide-react";
+import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, Bell, FileText, Trash2, Loader2, Moon, Scale, MessageCircle } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
@@ -38,68 +38,6 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
-
-  // Stripe Connect state
-  const [connectStatus, setConnectStatus] = useState<{
-    connected: boolean;
-    onboarding_complete?: boolean;
-    payouts_enabled?: boolean;
-    email?: string;
-  } | null>(null);
-  const [connectLoading, setConnectLoading] = useState(true);
-  const [connectLinking, setConnectLinking] = useState(false);
-
-  // Check connect status on mount & after returning from Stripe
-  useEffect(() => {
-    checkConnectStatus();
-  }, []);
-
-  useEffect(() => {
-    if (searchParams.get("connect") === "complete") {
-      checkConnectStatus();
-    }
-  }, [searchParams]);
-
-  const checkConnectStatus = async () => {
-    setConnectLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("check-connect-status");
-      if (error) throw error;
-      setConnectStatus(data);
-    } catch (e) {
-      console.error("Failed to check connect status:", e);
-      setConnectStatus({ connected: false });
-    } finally {
-      setConnectLoading(false);
-    }
-  };
-
-  const startConnectOnboarding = async () => {
-    setConnectLinking(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-connect-account");
-      if (error) {
-        console.error("Connect invoke error:", error);
-        // Try to extract the actual error message from the response
-        const errorMsg = typeof error === 'object' && 'message' in error ? error.message : String(error);
-        throw new Error(errorMsg);
-      }
-      if (data?.error) {
-        console.error("Connect response error:", data.error);
-        throw new Error(data.error);
-      }
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      } else {
-        throw new Error("No onboarding URL returned");
-      }
-    } catch (e) {
-      console.error("Failed to start connect onboarding:", e);
-      toast({ title: "Error", description: `Failed to start bank linking: ${e instanceof Error ? e.message : 'Please try again.'}`, variant: "destructive" });
-    } finally {
-      setConnectLinking(false);
-    }
-  };
 
   const saveName = async () => {
     if (!user) return;
@@ -279,68 +217,6 @@ export default function SettingsPage() {
               onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
             />
           </div>
-        </div>
-
-        {/* Payouts Section */}
-        <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payouts</p>
-        <div className="mb-5 overflow-hidden rounded-xl border bg-card">
-          {connectLoading ? (
-            <div className="flex items-center gap-3 px-4 py-4">
-              <Loader2 className="h-[18px] w-[18px] animate-spin text-muted-foreground" />
-              <span className="text-[15px] text-muted-foreground">Checking payout status…</span>
-            </div>
-          ) : connectStatus?.onboarding_complete && connectStatus?.payouts_enabled ? (
-            <div className="flex items-center justify-between px-4 py-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-[18px] w-[18px] text-green-500" />
-                <div>
-                  <span className="text-[15px] font-medium text-foreground">Bank Account Linked</span>
-                  <p className="text-[13px] text-muted-foreground">
-                    You're eligible for weekly prize payouts
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={startConnectOnboarding}
-                className="text-xs font-semibold text-primary"
-              >
-                Update
-              </button>
-            </div>
-          ) : connectStatus?.connected && !connectStatus?.onboarding_complete ? (
-            <div className="flex items-center justify-between px-4 py-4">
-              <div className="flex items-center gap-3">
-                <Banknote className="h-[18px] w-[18px] text-yellow-500" />
-                <div>
-                  <span className="text-[15px] font-medium text-foreground">Onboarding Incomplete</span>
-                  <p className="text-[13px] text-muted-foreground">Finish linking your bank account</p>
-                </div>
-              </div>
-              <button
-                onClick={startConnectOnboarding}
-                disabled={connectLinking}
-                className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background disabled:opacity-50"
-              >
-                {connectLinking ? "Loading…" : "Continue"}
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between px-4 py-4">
-              <div className="flex items-center gap-3">
-                <Banknote className="h-[18px] w-[18px] text-muted-foreground" />
-                <div>
-                  <span className="text-[15px] font-medium text-foreground">Link Bank Account</span>
-                </div>
-              </div>
-              <button
-                onClick={startConnectOnboarding}
-                disabled={connectLinking}
-                className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background disabled:opacity-50"
-              >
-                {connectLinking ? "Loading…" : "Link"}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Subscription */}
