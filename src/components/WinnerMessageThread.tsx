@@ -26,8 +26,8 @@ const GOLD = {
   primary: "hsl(43 96% 56%)",      // #F5B800 - main gold
   dark: "hsl(38 90% 40%)",          // darker gold
   light: "hsl(45 100% 70%)",        // lighter gold
-  bg: "hsl(40 30% 8%)",             // dark bg with warm tint
-  bgLight: "hsl(40 20% 12%)",       // slightly lighter
+  bg: "hsl(35 50% 12%)",            // warm dark gold-brown bg
+  bgLight: "hsl(38 40% 18%)",       // warm lighter gold-brown
   text: "hsl(43 100% 90%)",         // light gold text
 };
 
@@ -163,9 +163,11 @@ export default function WinnerMessageThread({
             <p className="font-bold" style={{ color: GOLD.text }}>
               {isAdmin ? (winnerName || "Winner") : "Rejection Bounty"}
             </p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-              {isAdmin ? weekKey : daysLeft > 0 ? `${daysLeft} days to claim prize` : "Congratulations!"}
-            </p>
+            {isAdmin && (
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                {weekKey}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -185,7 +187,7 @@ export default function WinnerMessageThread({
               className="h-16 w-16 rounded-full object-cover"
             />
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-              {isAdmin ? "Start a conversation with the winner" : "You won! We'll be in touch."}
+              {isAdmin ? "Start a conversation with the winner" : "For payout, please send your PayPal, Venmo, or Zelle info 🎁"}
             </p>
           </div>
         )}
