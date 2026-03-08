@@ -125,11 +125,7 @@ function OtpScreen({
       className="flex flex-col items-center -mt-64">
       
       <span className="mb-2 text-4xl">✉️</span>
-      <h2 className="mb-1 text-2xl font-bold text-primary-foreground">Enter your code</h2>
-      <p className="mb-1 text-sm text-primary-foreground/60">
-        We sent a 6-digit code to
-      </p>
-      <p className="mb-4 text-sm font-medium text-primary-foreground/80">{email}</p>
+      <h2 className="mb-4 text-2xl font-bold text-primary-foreground">Enter Your Code</h2>
 
       {/* OTP input boxes */}
       <div className="mb-3 flex gap-2.5" onPaste={handlePaste}>
