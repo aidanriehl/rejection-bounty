@@ -67,7 +67,7 @@ export default function UploadIndicator() {
               Retry
             </button>
           )}
-          {(status === "done" || status === "error") && (
+          {status === "error" && (
             <button onClick={clearUpload} className="shrink-0 text-muted-foreground">
               <X className="h-4 w-4" />
             </button>
