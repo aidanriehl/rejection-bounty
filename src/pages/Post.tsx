@@ -279,8 +279,9 @@ export default function PostPage() {
               <div className="w-full flex flex-col min-h-0 flex-1 items-center">
                 {/* Video preview - fixed 9:16 aspect ratio, sized to fit */}
                 <div
-                  className="relative overflow-hidden rounded-2xl bg-black"
+                  className="relative overflow-hidden rounded-2xl bg-black cursor-pointer"
                   style={{ aspectRatio: '9/16', maxHeight: 'calc(100vh - 260px)', width: 'auto' }}
+                  onClick={togglePlayPause}
                 >
                   <video
                     ref={videoRef}
