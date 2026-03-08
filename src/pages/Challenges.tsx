@@ -65,8 +65,7 @@ export default function Challenges() {
   const [showcaseDone, setShowcaseDone] = useState(() => localStorage.getItem(`${weekKey}-showcase`) === "true");
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [loadingChallenges, setLoadingChallenges] = useState(true);
-  const hasFetchedRef = useRef(false);
+  const [loadingChallenges, setLoadingChallenges] = useState(() => !sessionStorage.getItem("challenges-fetched"));
 
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
@@ -80,7 +79,7 @@ export default function Challenges() {
   // Fetch challenges from database based on current week
   useEffect(() => {
     const fetchChallenges = async () => {
-      if (!hasFetchedRef.current) setLoadingChallenges(true);
+      if (!sessionStorage.getItem("challenges-fetched")) setLoadingChallenges(true);
 
       // Fetch challenges for this week from database
       const { data: dbChallenges, error } = await supabase
@@ -94,12 +93,14 @@ export default function Challenges() {
         console.error("Failed to fetch challenges:", error);
         setChallenges([]);
         setLoadingChallenges(false);
+        sessionStorage.setItem("challenges-fetched", "true");
         return;
       }
 
       if (!dbChallenges || dbChallenges.length === 0) {
         setChallenges([]);
         setLoadingChallenges(false);
+        sessionStorage.setItem("challenges-fetched", "true");
         return;
       }
 
@@ -127,7 +128,7 @@ export default function Challenges() {
 
       setChallenges(mappedChallenges);
       setLoadingChallenges(false);
-      hasFetchedRef.current = true;
+      sessionStorage.setItem("challenges-fetched", "true");
     };
 
     fetchChallenges();
