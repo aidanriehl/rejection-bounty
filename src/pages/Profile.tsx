@@ -243,6 +243,9 @@ export default function Profile() {
 
       }
       <div className="mx-auto max-w-lg px-4">
+        {/* Winner Banner */}
+        <WinnerBanner />
+
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button

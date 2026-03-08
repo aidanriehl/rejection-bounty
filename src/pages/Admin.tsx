@@ -978,15 +978,33 @@ export default function Admin() {
           </DialogContent>
         </Dialog>
 
-        {/* Section 5: Past Winners */}
+        {/* Section 5: Winners & Messaging (combined) */}
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <History className="h-5 w-5 text-primary" />
-              Past Winners
+              <Trophy className="h-5 w-5 text-primary" />
+              Winners & Messaging
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Current winner */}
+            {drawing?.status === "complete" && drawing?.winner_user_id && (
+              <div className="flex items-center gap-3 rounded-lg bg-primary/5 border border-primary/20 p-3 mb-4">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl">
+                  {avatarEmoji(tickets.find(t => t.user_id === drawing.winner_user_id)?.avatar ?? "dragon")}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-foreground">{currentWinnerName}</p>
+                  <p className="text-xs text-muted-foreground">This week's winner</p>
+                </div>
+                <Button size="sm" onClick={() => setShowMessageThread(true)}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Message
+                </Button>
+              </div>
+            )}
+
+            {/* Past winners */}
             {pastWinners.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">No winners yet</p>
             ) : (
@@ -1015,35 +1033,6 @@ export default function Admin() {
                   );
                 })}
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section 6: Message Current Winner (Settings replacement) */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MessageCircle className="h-5 w-5 text-primary" />
-              Winner Messaging
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {drawing?.status === "complete" && drawing?.winner_user_id ? (
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl">
-                  {avatarEmoji(tickets.find(t => t.user_id === drawing.winner_user_id)?.avatar ?? "dragon")}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-foreground">{currentWinnerName}</p>
-                  <p className="text-xs text-muted-foreground">This week's winner</p>
-                </div>
-                <Button onClick={() => setShowMessageThread(true)}>
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Message
-                </Button>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No winner selected yet this week</p>
             )}
           </CardContent>
         </Card>
