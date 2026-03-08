@@ -21,7 +21,7 @@ export default function PostPage() {
   const challengeId = (location.state as any)?.challengeId || "";
   const { startUpload, status: globalStatus } = useUpload();
 
-  const [step, setStep] = useState<Step>("select");
+  const [step, setStep] = useState<Step>("trim");
   const [caption, setCaption] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
