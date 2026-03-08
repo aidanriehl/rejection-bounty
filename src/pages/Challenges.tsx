@@ -41,10 +41,21 @@ export default function Challenges() {
   const weekKey = getCurrentWeekKey();
   const [dropRevealed] = useState(true);
   const [summaryDone, setSummaryDone] = useState(() => {
-    // Don't show weekly summary for brand new users (just completed setup)
+    // Don't show weekly summary for brand new users
     if (localStorage.getItem("show-tour") === "true") return true;
     return localStorage.getItem(`${weekKey}-summary`) === "true";
   });
+
+  // Also auto-dismiss summary if account is less than 7 days old
+  useEffect(() => {
+    if (profile?.created_at) {
+      const created = new Date(profile.created_at);
+      const daysSinceSignup = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceSignup < 7 && !localStorage.getItem(`${weekKey}-summary`)) {
+        setSummaryDone(true);
+      }
+    }
+  }, [profile?.created_at, weekKey]);
 
   // Persist summary dismissal
   const dismissSummary = () => {
