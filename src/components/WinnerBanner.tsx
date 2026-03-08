@@ -74,7 +74,7 @@ export default function WinnerBanner() {
             background: "linear-gradient(90deg, transparent 0%, hsla(0,0%,100%,0.35) 45%, hsla(0,0%,100%,0.45) 50%, hsla(0,0%,100%,0.35) 55%, transparent 100%)",
           }}
           animate={{ x: ["-200%", "300%"] }}
-          transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+          transition={{ duration: 3.6, repeat: Infinity, repeatDelay: 3.5, ease: "easeInOut" }}
         />
 
         <div className="flex items-center gap-2 z-10">
