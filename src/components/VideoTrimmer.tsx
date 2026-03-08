@@ -159,23 +159,11 @@ function VideoTrimmer({
       const newStart = Math.min(time, trimEnd - minDuration);
       const clampedStart = Math.max(0, newStart);
       onTrimChange(clampedStart, trimEnd);
-      playheadTimeRef.current = clampedStart;
-      // Use RAF for smooth visual update
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        updatePlayheadVisual(clampedStart);
-      });
       throttledVideoSeek(clampedStart);
     } else if (dragging === "right") {
       const newEnd = Math.max(time, trimStart + minDuration);
       const clampedEnd = Math.min(duration, newEnd);
       onTrimChange(trimStart, clampedEnd);
-      playheadTimeRef.current = clampedEnd;
-      // Use RAF for smooth visual update
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        updatePlayheadVisual(clampedEnd);
-      });
       throttledVideoSeek(clampedEnd);
     } else if (dragging === "playhead") {
       const clampedTime = Math.max(trimStart, Math.min(trimEnd, time));
