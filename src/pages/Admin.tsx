@@ -112,6 +112,21 @@ export default function Admin() {
   const [pastWinners, setPastWinners] = useState<PastWinner[]>([]);
   const [pastWinnerThread, setPastWinnerThread] = useState<PastWinner | null>(null);
 
+  // Support inbox
+  interface SupportThread {
+    user_id: string;
+    username: string | null;
+    avatar: string;
+    last_message: string;
+    last_time: string;
+    unread: number;
+  }
+  const [supportThreads, setSupportThreads] = useState<SupportThread[]>([]);
+  const [activeSupportUser, setActiveSupportUser] = useState<{ user_id: string; username: string | null } | null>(null);
+  const [supportMessages, setSupportMessages] = useState<any[]>([]);
+  const [supportReply, setSupportReply] = useState("");
+  const [sendingSupport, setSendingSupport] = useState(false);
+
   // Challenge management
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
   const [newChallenge, setNewChallenge] = useState({ title: "", emoji: "", week_key: "" });

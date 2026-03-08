@@ -35,7 +35,13 @@ export default function WinnerBanner() {
         .order("created_at", { ascending: false })
         .limit(1);
 
-      if (!drawings || drawings.length === 0) return;
+      if (!drawings || drawings.length === 0) {
+        // QA PREVIEW: Force-show banner for testing
+        setWeekKey("2026-W10");
+        setDaysLeft(5);
+        setVisible(true);
+        return;
+      }
 
       const drawing = drawings[0];
       const createdAt = new Date(drawing.created_at);
@@ -47,6 +53,18 @@ export default function WinnerBanner() {
       setWeekKey(drawing.week_key);
       setDaysLeft(Math.max(0, Math.ceil(7 - daysSince)));
       setVisible(true);
+
+      // Count messages
+      const { count } = await supabase
+        .from("winner_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("week_key", drawing.week_key)
+        .eq("winner_user_id", user.id);
+
+      setMessageCount(count ?? 0);
+    };
+
+    check();
 
       // Count messages
       const { count } = await supabase
