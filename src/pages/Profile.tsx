@@ -245,7 +245,7 @@ export default function Profile() {
         {/* Top bar */}
         <div className="mb-4 flex items-center justify-between">
           <button
-                        onClick={() => setShowWhyModal(true)}
+            onClick={() => setShowWhyModal(true)}
             className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70">
             
             <HelpCircle className="h-3.5 w-3.5" />
@@ -341,11 +341,11 @@ export default function Profile() {
               {ms.medal && <MedalIcon tier={ms.medal.tier} size={16} />}
             </div>
             {/* Progress bar */}
-            <div className="mt-2.5 h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div className="mt-2.5 h-3 w-full bg-muted overflow-hidden rounded-full">
               <div
                 className="h-full rounded-full bg-primary transition-all duration-300"
-                style={{ width: `${progressPct}%` }}
-              />
+                style={{ width: `${progressPct}%` }} />
+              
             </div>
           </div>
         </div>
@@ -436,9 +436,9 @@ export default function Profile() {
             {/* Row 2: Likes - smaller and less prominent */}
             <p className="text-xs text-white/50 drop-shadow-md mb-2">{selectedPost.likes} likes</p>
             {/* Row 3: Caption */}
-            {selectedPost.caption && (
-              <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
-            )}
+            {selectedPost.caption &&
+          <p className="text-sm text-white/90 drop-shadow-md">{selectedPost.caption}</p>
+          }
           </div>
         </div>
       }
