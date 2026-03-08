@@ -264,6 +264,14 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           </DuoButton>
         </motion.form>
       </div>
+      {/* Image Cropper Modal */}
+      {cropSrc && (
+        <ImageCropper
+          imageSrc={cropSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   );
 }
