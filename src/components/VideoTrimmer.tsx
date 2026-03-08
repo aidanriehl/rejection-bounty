@@ -212,7 +212,7 @@ function VideoTrimmer({
     <div className="rounded-lg bg-amber-400 p-[2px]">
       <div
         ref={containerRef}
-        className="relative h-12 select-none"
+        className="relative h-12 select-none bg-black rounded-md overflow-hidden"
         style={{ touchAction: dragging ? "none" : "pan-y" }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
