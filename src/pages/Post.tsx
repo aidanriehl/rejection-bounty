@@ -370,6 +370,7 @@ export default function PostPage() {
               {/* Thumbnail preview */}
               <div className="mb-3 flex justify-center">
                 <div className="w-32 overflow-hidden rounded-xl bg-muted">
+                  <div className="aspect-[9/16] w-full flex items-center justify-center">
                     {loadingThumbnails ? (
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     ) : thumbnailFrames.length > 0 ? (
