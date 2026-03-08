@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { AnimatePresence } from "framer-motion";
 
 const ADMIN_EMAIL = "aidanriehl5@gmail.com";
-const AUTO_MESSAGE = "Congrats on winning!!! As long as your bank account is linked in settings your funds should be on their way 🥳💰";
+const AUTO_MESSAGE = "For payout, please send your PayPal, Venmo, or Zelle info 🎁";
 
 interface TicketEntry {
   user_id: string;
