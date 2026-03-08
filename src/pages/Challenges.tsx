@@ -66,6 +66,7 @@ export default function Challenges() {
   const [justRevealed, setJustRevealed] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
+  const hasFetchedRef = useRef(false);
 
   const [pendingUncheck, setPendingUncheck] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(getTimeUntilSunday);
@@ -79,7 +80,7 @@ export default function Challenges() {
   // Fetch challenges from database based on current week
   useEffect(() => {
     const fetchChallenges = async () => {
-      setLoadingChallenges(true);
+      if (!hasFetchedRef.current) setLoadingChallenges(true);
 
       // Fetch challenges for this week from database
       const { data: dbChallenges, error } = await supabase
@@ -126,6 +127,7 @@ export default function Challenges() {
 
       setChallenges(mappedChallenges);
       setLoadingChallenges(false);
+      hasFetchedRef.current = true;
     };
 
     fetchChallenges();
