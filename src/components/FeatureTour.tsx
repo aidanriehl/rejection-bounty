@@ -333,7 +333,7 @@ export default function FeatureTour({ onComplete }: { onComplete: () => void }) 
                 return (
                   <div
                     key={i}
-                    className="h-2.5 w-2.5 rounded-full"
+                    className="h-3 w-3 rounded-full"
                     style={dotStyle}
                   />
                 );
