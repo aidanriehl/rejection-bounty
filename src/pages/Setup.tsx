@@ -152,7 +152,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
     }
   };
 
-  const isValid = username.trim().length >= 3;
+  const isValid = username.trim().length >= 2;
 
   return (
     <div
