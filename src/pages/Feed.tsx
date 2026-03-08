@@ -194,7 +194,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
           </div>
           {/* Likes on right */}
           <button onClick={toggleLike} className="flex items-center gap-1.5 mr-1">
-            <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-white text-white" : "text-white/50")} />
+            <Heart className={cn("h-3.5 w-3.5 drop-shadow-md", liked ? "fill-rose-500 text-rose-500" : "text-white/50")} />
             <span className="text-xs text-white/50 drop-shadow-md">{likeCount} likes</span>
           </button>
         </div>
