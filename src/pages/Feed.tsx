@@ -5,7 +5,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import AvatarDisplay from "@/components/AvatarDisplay";
-import WinnerBanner from "@/components/WinnerBanner";
+
 import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
