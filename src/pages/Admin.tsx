@@ -490,6 +490,36 @@ export default function Admin() {
 
   const currentWinnerName = tickets.find(t => t.user_id === drawing?.winner_user_id)?.username ?? "Winner";
 
+  // Support inbox helpers
+  const openSupportThread = async (thread: SupportThread) => {
+    setActiveSupportUser({ user_id: thread.user_id, username: thread.username });
+    const { data } = await supabase
+      .from("user_messages")
+      .select("*")
+      .eq("user_id", thread.user_id)
+      .order("created_at", { ascending: true });
+    setSupportMessages(data ?? []);
+  };
+
+  const sendSupportReply = async () => {
+    if (!supportReply.trim() || sendingSupport || !activeSupportUser) return;
+    setSendingSupport(true);
+    await supabase.from("user_messages").insert({
+      user_id: activeSupportUser.user_id,
+      sender: "admin",
+      message: supportReply.trim(),
+    } as any);
+    setSupportReply("");
+    setSendingSupport(false);
+    // Refresh
+    const { data } = await supabase
+      .from("user_messages")
+      .select("*")
+      .eq("user_id", activeSupportUser.user_id)
+      .order("created_at", { ascending: true });
+    setSupportMessages(data ?? []);
+  };
+
   return (
     <div className="min-h-screen pb-24 pt-6">
       <div className="mx-auto max-w-lg px-4">
