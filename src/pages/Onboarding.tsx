@@ -267,7 +267,7 @@ export default function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="items-center flex flex-col mt-0 mb-[150px]">
+            className="items-center flex flex-col mt-0 mb-[135px]">
             
                 <span className="mb-3 text-5xl">✉️</span>
                 <h1 className="mb-4 text-2xl font-bold text-primary-foreground text-center">
