@@ -501,11 +501,11 @@ export default function Profile() {
 
           {/* Delete confirmation overlay */}
           {showDeleteConfirm && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60">
-              <div className="mx-8 w-full max-w-xs rounded-2xl bg-card p-5 text-center shadow-xl">
-                <Trash2 className="mx-auto mb-3 h-8 w-8 text-destructive" />
-                <h3 className="text-base font-bold text-foreground mb-1">Delete this video?</h3>
-                <p className="text-sm text-muted-foreground mb-5">This can't be undone.</p>
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60" style={{ bottom: 0 }}>
+              <div className="mx-10 w-full max-w-[260px] rounded-2xl bg-card p-4 text-center shadow-xl -mt-16">
+                <Trash2 className="mx-auto mb-2 h-6 w-6 text-destructive" />
+                <h3 className="text-sm font-bold text-foreground mb-0.5">Delete this video?</h3>
+                <p className="text-xs text-muted-foreground mb-4">This can't be undone.</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
