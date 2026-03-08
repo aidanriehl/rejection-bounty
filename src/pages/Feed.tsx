@@ -64,14 +64,18 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
   post.video_url || "/placeholder.svg";
 
   const doLike = useCallback(async () => {
-    if (!liked) {
-      const newLiked = new Set(likedPosts);
+    const newLiked = new Set(likedPosts);
+    if (liked) {
+      newLiked.delete(post.id);
+      setLikeCount((c) => c - 1);
+      supabase.from("posts").update({ likes: likeCount - 1 }).eq("id", post.id);
+    } else {
       newLiked.add(post.id);
-      setLikedPosts(newLiked);
-      saveLikedPosts(newLiked);
       setLikeCount((c) => c + 1);
-      await supabase.from("posts").update({ likes: likeCount + 1 }).eq("id", post.id);
+      supabase.from("posts").update({ likes: likeCount + 1 }).eq("id", post.id);
     }
+    setLikedPosts(newLiked);
+    saveLikedPosts(newLiked);
     setShowHeartAnim(true);
     setTimeout(() => setShowHeartAnim(false), 300);
   }, [liked, likedPosts, post.id, likeCount]);
