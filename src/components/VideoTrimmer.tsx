@@ -209,9 +209,7 @@ function VideoTrimmer({
   const thumbnailX = timeToX(Math.max(trimStart, Math.min(trimEnd, thumbnailTime)));
 
   return (
-    <div className="mt-2 rounded-xl bg-muted/30 px-2 py-2.5">
-      <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">Trim video</p>
-
+    <div className="rounded-xl bg-muted/30 px-2 py-2">
       <div
         ref={containerRef}
         className="relative h-12 select-none"
