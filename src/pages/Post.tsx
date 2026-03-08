@@ -356,7 +356,13 @@ export default function PostPage() {
                 Back
               </button>
               <h1 className="text-lg font-bold text-foreground">New Post</h1>
-              <div className="w-16" /> {/* Spacer for centering */}
+              <button
+                onClick={handlePost}
+                disabled={!videoFile || globalStatus === "uploading"}
+                className="flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Post
+              </button>
             </div>
 
             {/* Section B: Content */}
@@ -426,14 +432,6 @@ export default function PostPage() {
                 className="mb-4 w-full resize-none rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
-              {/* Post button */}
-              <button
-                onClick={handlePost}
-                disabled={!videoFile || globalStatus === "uploading"}
-                className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
-                Post to Feed
-              </button>
             </div>
           </motion.div>
         )}
