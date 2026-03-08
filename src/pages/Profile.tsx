@@ -446,10 +446,10 @@ export default function Profile() {
           {/* Delete button - top right */}
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center text-white/70 active:text-red-400"
+            className="absolute right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white active:text-red-400"
             style={{ top: 'calc(env(safe-area-inset-top) + 24px)' }}
           >
-            <Trash2 className="h-5 w-5" />
+            <Trash2 className="h-[18px] w-[18px]" />
           </button>
 
           {/* Bottom gradient */}
