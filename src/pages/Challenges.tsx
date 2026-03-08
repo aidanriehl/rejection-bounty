@@ -126,7 +126,7 @@ export default function Challenges() {
 
       setChallenges(mappedChallenges);
       setLoadingChallenges(false);
-      hasFetchedRef.current = true;
+      sessionStorage.setItem("challenges-fetched", "true");
     };
 
     fetchChallenges();
