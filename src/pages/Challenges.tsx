@@ -346,7 +346,7 @@ export default function Challenges() {
           {/* Countdown */}
           <div data-tour="countdown" className="mb-6 text-center">
             <p className="text-xl font-extrabold text-primary">Time Left Until Next Drawing</p>
-            <p className="text-sm text-muted-foreground mb-3 -mt-0.5">Deadline Sunday @ Midnight</p>
+            <p className="text-sm text-muted-foreground mb-3 -mt-0.5">Deadline: Sunday @ Midnight</p>
             <div className="flex items-center justify-center gap-2">
               <CountdownDigit value={countdown.days} label="Days" />
               <span className="text-2xl font-bold text-muted-foreground/30 -mt-3">:</span>
