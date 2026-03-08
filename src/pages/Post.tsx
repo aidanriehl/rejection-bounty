@@ -361,7 +361,7 @@ export default function PostPage() {
                 <p className="mb-2 text-xs font-medium text-muted-foreground text-center">Choose cover</p>
                 {/* Filmstrip behind slider */}
                 <div className="relative mx-auto max-w-xs">
-                  <div className="flex h-12 overflow-hidden rounded-lg">
+                  <div className="flex h-8 overflow-hidden rounded-lg">
                     {loadingThumbnails ? (
                       <div className="h-full w-full bg-muted animate-pulse" />
                     ) : (
