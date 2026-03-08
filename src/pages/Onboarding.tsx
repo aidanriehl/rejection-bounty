@@ -287,17 +287,12 @@ export default function Onboarding() {
                 autoFocus
                 className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50" />
               
-                  <button
-                onClick={handleSendOtp}
-                disabled={loading}
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary-foreground text-base font-bold text-primary shadow-md disabled:opacity-50">
-                
+                  <DuoButton onClick={handleSendOtp} disabled={loading}>
                     {loading ?
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
-
-                "Continue"
-                }
-                  </button>
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
+                    "Continue"
+                    }
+                  </DuoButton>
                   <p className="text-xs text-primary-foreground/40 pt-[6px]">
                     We'll send a 6-digit code to your email. No password needed.
                   </p>

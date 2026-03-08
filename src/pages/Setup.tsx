@@ -239,13 +239,9 @@ export default function Setup({ userId, onComplete }: SetupProps) {
           </div>
 
           {/* Submit button */}
-          <button
-            type="submit"
-            disabled={!isValid || saving}
-            className="mt-4 h-14 w-full rounded-2xl bg-white text-base font-bold text-primary shadow-md transition-opacity disabled:opacity-60"
-          >
+          <DuoButton type="submit" disabled={!isValid || saving} className="mt-4">
             {uploading ? "Uploading..." : saving ? "Saving..." : "Continue"}
-          </button>
+          </DuoButton>
         </motion.form>
       </div>
     </div>
