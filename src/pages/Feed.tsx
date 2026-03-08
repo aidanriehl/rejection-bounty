@@ -47,12 +47,15 @@ interface FeedPostData {
   } | null;
 }
 
-function ReelCard({ post }: {post: FeedPostData;}) {
+function ReelCard({ post, currentUserId, initialFollowing }: {post: FeedPostData; currentUserId?: string; initialFollowing: boolean;}) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(() => getLikedPosts());
   const liked = likedPosts.has(post.id);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(initialFollowing);
   const lastTapRef = useRef(0);
+
+  const isOwnPost = currentUserId === post.user_id;
 
   const customerSubdomain = import.meta.env.VITE_CLOUDFLARE_CUSTOMER_SUBDOMAIN || "ekqzy78t2m50j1d7";
   const thumbnailUrl = post.video_id ?
@@ -99,6 +102,27 @@ function ReelCard({ post }: {post: FeedPostData;}) {
   const avatarStage = (post.profiles?.avatar_stage || 0) as any;
   const username = post.profiles?.username || "Anonymous";
 
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUserId || isOwnPost) return;
+
+    if (isFollowing) {
+      // Unfollow
+      await supabase.from("friendships").delete().eq("user_id", currentUserId).eq("friend_id", post.user_id);
+      setIsFollowing(false);
+    } else {
+      // Follow
+      await supabase.from("friendships").insert({ user_id: currentUserId, friend_id: post.user_id });
+      setIsFollowing(true);
+    }
+  };
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // TODO: Navigate to user profile when public profiles are implemented
+    console.log("Navigate to profile:", post.user_id);
+  };
+
   return (
     <div
       className="relative w-full snap-start snap-always flex-shrink-0"
@@ -141,13 +165,30 @@ function ReelCard({ post }: {post: FeedPostData;}) {
 
       {/* Bottom info - left aligned */}
       <div className="absolute bottom-8 left-4 right-4">
-        {/* Row 1: Avatar + Username */}
-        <div className="flex items-center gap-2.5 mb-1">
-          <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
-          <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
+        {/* Row 1: Avatar + Username + Follow button */}
+        <div className="flex items-center gap-3 mb-2.5">
+          <button onClick={handleProfileClick} className="flex-shrink-0">
+            <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
+          </button>
+          <button onClick={handleProfileClick}>
+            <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
+          </button>
+          {!isOwnPost && currentUserId && (
+            <button
+              onClick={handleFollow}
+              className={cn(
+                "px-3 py-1 rounded-md text-xs font-semibold transition-colors",
+                isFollowing
+                  ? "bg-white/20 text-white border border-white/40"
+                  : "bg-white text-black"
+              )}
+            >
+              {isFollowing ? "Following" : "Follow"}
+            </button>
+          )}
         </div>
         {/* Row 2: Likes - smaller and less prominent */}
-        <p className="text-xs text-white/60 drop-shadow-md mb-1.5">{likeCount} likes</p>
+        <p className="text-xs text-white/50 drop-shadow-md mb-2">{likeCount} likes</p>
         {/* Row 3: Caption */}
         {post.caption && (
           <p className="text-sm text-white/90 drop-shadow-md">{post.caption}</p>
@@ -157,7 +198,7 @@ function ReelCard({ post }: {post: FeedPostData;}) {
 
 }
 
-function FeedPane({ posts, emptyMessage, loading }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;}) {
+function FeedPane({ posts, emptyMessage, loading, currentUserId, friendIds }: {posts: FeedPostData[];emptyMessage: string;loading?: boolean;currentUserId?: string;friendIds: string[];}) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -175,7 +216,7 @@ function FeedPane({ posts, emptyMessage, loading }: {posts: FeedPostData[];empty
   return (
     <div data-scroll-container className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
       {posts.map((post) =>
-      <ReelCard key={post.id} post={post} />
+      <ReelCard key={post.id} post={post} currentUserId={currentUserId} initialFollowing={friendIds.includes(post.user_id)} />
       )}
     </div>);
 
@@ -310,7 +351,9 @@ export default function Feed() {
             <FeedPane
             posts={panePosts}
             emptyMessage="No videos uploaded yet"
-            loading={loading} />
+            loading={loading}
+            currentUserId={user?.id}
+            friendIds={friendIds} />
           
           </div>
         )}
