@@ -74,7 +74,7 @@ const ARROW_SIZE = 10;
 const HIGHLIGHT_PAD = 8;
 const NAV_HEIGHT = 72;
 
-export default function FeatureTour({ onComplete }: {onComplete: () => void;}) {
+export default function FeatureTour({ onComplete, username }: {onComplete: () => void; username?: string;}) {
   const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<Rect | null>(null);
@@ -182,7 +182,7 @@ export default function FeatureTour({ onComplete }: {onComplete: () => void;}) {
         
         <div className="text-center px-8">
           <span className="text-4xl mb-4 block">✨</span>
-          <h1 className="text-2xl font-bold text-primary mb-2">​Welcome!         </h1>
+          <h1 className="text-2xl font-bold text-primary mb-2">Welcome{username ? ` ${username}` : ""}!</h1>
           <p className="text-muted-foreground mb-8">      See how the app works </p>
           <button
             onClick={() => setShowIntro(false)}
