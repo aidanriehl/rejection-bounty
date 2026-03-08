@@ -363,7 +363,8 @@ export default function Feed() {
             emptyMessage="No videos uploaded yet"
             loading={loading}
             currentUserId={user?.id}
-            friendIds={friendIds} />
+            friendIds={friendIds}
+            onNavigateProfile={handleNavigateProfile} />
           
           </div>
         )}
