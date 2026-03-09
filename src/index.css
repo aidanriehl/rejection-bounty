@@ -145,6 +145,11 @@ input, select, textarea {
   font-size: 16px !important;
 }
 
+/* Allow specific textareas to have smaller font */
+textarea.text-sm-override {
+  font-size: 12px !important;
+}
+
 html {
   height: 100%;
   overflow: hidden;
