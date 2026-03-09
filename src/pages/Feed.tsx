@@ -331,7 +331,7 @@ export default function Feed() {
       </div>
       <div
         className="absolute inset-x-0 z-10 px-4"
-        style={{ top: "calc(env(safe-area-inset-top) + 20px)" }}>
+        style={{ top: "calc(env(safe-area-inset-top) + 23px)" }}>
         
         <div className="flex items-center justify-center gap-6">
           {TABS.map((tab, i) =>
