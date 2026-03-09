@@ -57,20 +57,51 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<UploadState>(initialState);
   const fileRef = useRef<File | null>(null);
   const metaRef = useRef<UploadMeta | null>(null);
+  const prefetchedUrlRef = useRef<{ uploadURL: string; videoId: string } | null>(null);
+  const prefetchPromiseRef = useRef<Promise<{ uploadURL: string; videoId: string }> | null>(null);
+
+  const fetchUploadUrl = useCallback(async () => {
+    const { data, error } = await supabase.functions.invoke("upload-video", {
+      body: { maxDurationSeconds: 30 },
+    });
+    if (error || !data?.uploadURL) {
+      throw new Error(error?.message || "Failed to get upload URL");
+    }
+    return { uploadURL: data.uploadURL, videoId: data.videoId };
+  }, []);
+
+  const prefetchUploadUrl = useCallback(() => {
+    if (prefetchedUrlRef.current || prefetchPromiseRef.current) return;
+    const promise = fetchUploadUrl().then((result) => {
+      prefetchedUrlRef.current = result;
+      prefetchPromiseRef.current = null;
+      return result;
+    }).catch((err) => {
+      console.warn("[Upload] Prefetch failed, will retry on upload:", err);
+      prefetchPromiseRef.current = null;
+      throw err;
+    });
+    prefetchPromiseRef.current = promise;
+  }, [fetchUploadUrl]);
 
   const doUpload = useCallback(async (file: File) => {
     try {
       setState((s) => ({ ...s, status: "uploading", progress: 0 }));
 
-      const { data, error } = await supabase.functions.invoke("upload-video", {
-        body: { maxDurationSeconds: 30 },
-      });
+      let uploadURL: string;
+      let videoId: string;
 
-      if (error || !data?.uploadURL) {
-        throw new Error(error?.message || "Failed to get upload URL");
+      // Use prefetched URL if available, otherwise fetch now
+      if (prefetchedUrlRef.current) {
+        ({ uploadURL, videoId } = prefetchedUrlRef.current);
+        prefetchedUrlRef.current = null;
+      } else if (prefetchPromiseRef.current) {
+        ({ uploadURL, videoId } = await prefetchPromiseRef.current);
+        prefetchedUrlRef.current = null;
+      } else {
+        ({ uploadURL, videoId } = await fetchUploadUrl());
       }
 
-      const { uploadURL, videoId } = data;
       setState((s) => ({ ...s, videoId }));
 
       const formData = new FormData();
