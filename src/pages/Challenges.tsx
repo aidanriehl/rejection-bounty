@@ -282,7 +282,7 @@ export default function Challenges() {
     // Update local state immediately
     setChallenges((prev) => {
       const next = prev.map((c) =>
-        c.id === id ? { ...c, completed: newCompleted } : c
+        c.id === id ? { ...c, completed: newCompleted, ...(newCompleted ? {} : { hasVideo: false }) } : c
       );
       if (newCompleted) {
         const newCount = getCompletedCount(next);
