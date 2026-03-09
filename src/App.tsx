@@ -114,7 +114,7 @@ function AppRoutes() {
         <Route path="/splash-preview" element={
           <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: "hsl(var(--primary))" }}>
             <div className="-mt-16 flex flex-col items-center gap-3">
-              <img src="/logo.png" alt="" className="h-20 w-20" style={{ filter: "brightness(0) invert(1)" }} />
+              <img src="/logo-white.png" alt="" className="h-20 w-20" />
               <h1 className="text-3xl font-extrabold tracking-tight text-white">Rejection Bounty</h1>
             </div>
           </div>
