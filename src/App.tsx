@@ -59,14 +59,8 @@ function AppRoutes() {
   };
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: "hsl(var(--primary))" }}>
-        <div className="-mt-16 flex flex-col items-center gap-1">
-          <img src={logoWhite} alt="" className="h-20 w-20" />
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Rejection Bounty</h1>
-        </div>
-      </div>
-    );
+    // Keep the native HTML splash visible — don't render a second React splash
+    return null;
   }
 
   // Not signed in → onboarding
