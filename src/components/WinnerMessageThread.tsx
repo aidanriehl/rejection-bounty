@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 
 interface Message {
   id: string;
