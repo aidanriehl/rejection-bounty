@@ -295,7 +295,7 @@ export default function Profile() {
             onClick={() => setShowWhyModal(true)}
             className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors active:bg-muted/70">
             
-            <HelpCircle className="h-3.5 w-3.5" />
+            <HelpCircle className="h-[14.7px] w-[14.7px]" />
             Why get rejected?
           </button>
           <div className="flex items-center gap-1">
