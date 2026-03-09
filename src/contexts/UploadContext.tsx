@@ -28,6 +28,7 @@ interface UploadState {
 
 interface UploadContextValue extends UploadState {
   startUpload: (file: File, meta: UploadMeta) => void;
+  prefetchUploadUrl: () => void;
   retry: () => void;
   clearUpload: () => void;
 }
