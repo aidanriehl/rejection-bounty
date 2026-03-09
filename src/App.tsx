@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
