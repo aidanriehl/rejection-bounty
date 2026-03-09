@@ -20,9 +20,9 @@ function SimpleDumbbell({ className, strokeWidth = 2 }: { className?: string; st
       {/* Bar */}
       <line x1="6" y1="12" x2="18" y2="12" />
       {/* Left weight */}
-      <rect x="2" y="8" width="4" height="8" rx="1" />
+      <rect x="1.8" y="7.6" width="4.4" height="8.8" rx="1" />
       {/* Right weight */}
-      <rect x="18" y="8" width="4" height="8" rx="1" />
+      <rect x="17.8" y="7.6" width="4.4" height="8.8" rx="1" />
     </svg>
   );
 }
