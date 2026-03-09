@@ -81,56 +81,61 @@ export default function Challenges() {
     const fetchChallenges = async () => {
       setLoadingChallenges(true);
 
-      // Fetch challenges for this week from database
-      const { data: dbChallenges, error } = await supabase
-        .from("challenges")
-        .select("*")
-        .eq("week_key", weekKey)
-        .eq("is_active", true)
-        .order("created_at", { ascending: true });
+      try {
+        // Fetch challenges for this week from database
+        const { data: dbChallenges, error } = await supabase
+          .from("challenges")
+          .select("*")
+          .eq("week_key", weekKey)
+          .eq("is_active", true)
+          .order("created_at", { ascending: true });
 
-      if (error) {
-        console.error("Failed to fetch challenges:", error);
-        setChallenges([]);
+        if (error) {
+          console.error("[Challenges] Failed to fetch challenges:", error);
+          setChallenges([]);
+          setLoadingChallenges(false);
+          return;
+        }
+
+        console.log("[Challenges] Fetched", dbChallenges?.length, "challenges for week", weekKey);
+
+        if (!dbChallenges || dbChallenges.length === 0) {
+          setChallenges([]);
+          setLoadingChallenges(false);
+          return;
+        }
+
+        // Fetch user's completions for this week
+        let completedIds: string[] = [];
+        let videoIds: string[] = [];
+        if (user) {
+          const { data: completions } = await supabase
+            .from("challenge_completions")
+            .select("challenge_id, video_url")
+            .eq("user_id", user.id)
+            .eq("week_key", weekKey);
+
+          completedIds = (completions || []).map((c: any) => c.challenge_id);
+          videoIds = (completions || []).filter((c: any) => c.video_url).map((c: any) => c.challenge_id);
+        }
+
+        // Map DB challenges to Challenge type with completion status
+        const mappedChallenges: Challenge[] = dbChallenges.map((ch: any) => ({
+          id: ch.id,
+          title: ch.title,
+          description: ch.description || ch.title,
+          emoji: ch.emoji,
+          completed: completedIds.includes(ch.id),
+          hasVideo: videoIds.includes(ch.id),
+        }));
+
+        console.log("[Challenges] Setting", mappedChallenges.length, "challenges");
+        setChallenges(mappedChallenges);
         setLoadingChallenges(false);
-        sessionStorage.setItem("challenges-fetched", "true");
-        return;
-      }
-
-      if (!dbChallenges || dbChallenges.length === 0) {
-        setChallenges([]);
+      } catch (err) {
+        console.error("[Challenges] Unexpected error fetching challenges:", err);
         setLoadingChallenges(false);
-        sessionStorage.setItem("challenges-fetched", "true");
-        return;
       }
-
-      // Fetch user's completions for this week
-      let completedIds: string[] = [];
-      let videoIds: string[] = [];
-      if (user) {
-        const { data: completions } = await supabase
-          .from("challenge_completions")
-          .select("challenge_id, video_url")
-          .eq("user_id", user.id)
-          .eq("week_key", weekKey);
-
-        completedIds = (completions || []).map((c: any) => c.challenge_id);
-        videoIds = (completions || []).filter((c: any) => c.video_url).map((c: any) => c.challenge_id);
-      }
-
-      // Map DB challenges to Challenge type with completion status
-      const mappedChallenges: Challenge[] = dbChallenges.map((ch: any) => ({
-        id: ch.id,
-        title: ch.title,
-        description: ch.description || ch.title,
-        emoji: ch.emoji,
-        completed: completedIds.includes(ch.id),
-        hasVideo: videoIds.includes(ch.id),
-      }));
-
-      setChallenges(mappedChallenges);
-      setLoadingChallenges(false);
-      sessionStorage.setItem("challenges-fetched", "true");
     };
 
     fetchChallenges();
