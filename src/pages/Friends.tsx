@@ -22,7 +22,7 @@ interface SocialProfile {
 export default function FriendsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [tab, setTab] = useState<Tab>((searchParams.get("tab") as Tab) || "friends");
   const [query, setQuery] = useState("");
   const [friends, setFriends] = useState<SocialProfile[]>([]);
@@ -136,7 +136,7 @@ export default function FriendsPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground">
-            {user ? `@${(user as any).user_metadata?.username || ""}` : ""}
+            @{profile?.username || ""}
           </h1>
         </div>
 
