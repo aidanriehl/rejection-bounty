@@ -575,7 +575,7 @@ export default function Challenges() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-[85%] max-w-sm rounded-2xl bg-card p-4"
+                className="w-[76%] max-w-xs rounded-2xl bg-card p-3.5"
               >
                 <p className="mb-3 text-lg font-bold text-foreground">Add Challenge Video</p>
 
