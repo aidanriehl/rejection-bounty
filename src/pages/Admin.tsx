@@ -944,21 +944,40 @@ export default function Admin() {
                 {challenges.filter(c => c.week_key === selectedChallengeWeek).length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">No challenges for this week</p>
                 ) : (
-                  challenges.filter(c => c.week_key === selectedChallengeWeek).map((ch, idx) => (
-                    <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
-                      <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
-                      <span className="text-lg">{ch.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                  (() => {
+                    const weekChallenges = challenges.filter(c => c.week_key === selectedChallengeWeek);
+                    return weekChallenges.map((ch, idx) => (
+                      <div key={ch.id} className="flex items-center gap-2 rounded-lg bg-muted p-2">
+                        <div className="flex flex-col">
+                          <button
+                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx - 1)}
+                            disabled={idx === 0}
+                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
+                          >
+                            <ArrowUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx + 1)}
+                            disabled={idx === weekChallenges.length - 1}
+                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
+                          >
+                            <ArrowDown className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
+                        <span className="text-lg">{ch.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingChallenge(ch)}>
+                          <Edit2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       </div>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingChallenge(ch)}>
-                        <Edit2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))
+                    ));
+                  })()
                 )}
               </div>
             )}
