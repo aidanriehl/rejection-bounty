@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Globe, Lock, LogOut, ChevronRight, User, Camera, Bell, FileText, Trash2, Loader2, Moon, Scale, MessageCircle } from "lucide-react";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import ImageCropper from "@/components/ImageCropper";
 import { type AvatarType } from "@/lib/mock-data";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   const [isPublic, setIsPublic] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
 
@@ -63,30 +65,49 @@ export default function SettingsPage() {
     setEditingName(false);
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
+    // Convert to data URL and show cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCroppedImageUpload = async (croppedBlob: Blob) => {
+    if (!user) return;
+    setImageToCrop(null);
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      const filePath = `${user.id}/avatar.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, croppedBlob, { upsert: true, contentType: "image/jpeg" });
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
       const urlWithBuster = `${publicUrl}?t=${Date.now()}`;
-      const { error: updateError } = await supabase.from("profiles").update({ profile_photo_url: urlWithBuster }).eq("id", user.id);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ profile_photo_url: urlWithBuster })
+        .eq("id", user.id);
       if (updateError) throw updateError;
       setAuthProfile({ ...authProfile!, profile_photo_url: urlWithBuster });
+      toast({ title: "Profile photo updated" });
     } catch (err) {
       console.error("Upload failed:", err);
       toast({ title: "Failed to upload photo", variant: "destructive" });
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -158,7 +179,7 @@ export default function SettingsPage() {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handlePhotoUpload}
+            onChange={handlePhotoSelect}
           />
         </div>
 
@@ -314,6 +335,15 @@ export default function SettingsPage() {
           </AlertDialog>
         </div>
       </div>
+
+      {/* Image cropper */}
+      {imageToCrop && (
+        <ImageCropper
+          imageSrc={imageToCrop}
+          onCropComplete={handleCroppedImageUpload}
+          onCancel={() => setImageToCrop(null)}
+        />
+      )}
     </div>
   );
 }

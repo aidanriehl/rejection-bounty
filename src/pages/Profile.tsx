@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import ImageCropper from "@/components/ImageCropper";
 // import WinnerBanner from "@/components/WinnerBanner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,6 +88,7 @@ export default function Profile() {
   const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -192,37 +194,50 @@ export default function Profile() {
     return () => window.removeEventListener("challenge-completed", handleUploadComplete);
   }, [user]);
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
+    // Convert to data URL and show cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+  };
+
+  const handleCroppedImageUpload = async (croppedBlob: Blob) => {
+    if (!user) return;
+    setImageToCrop(null);
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage.
-      from("avatars").
-      upload(filePath, file, { upsert: true });
+      const filePath = `${user.id}/avatar.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, croppedBlob, { upsert: true, contentType: "image/jpeg" });
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.
-      from("avatars").
-      getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
       const urlWithBuster = `${publicUrl}?t=${Date.now()}`;
-      const { error: updateError } = await supabase.
-      from("profiles").
-      update({ profile_photo_url: urlWithBuster }).
-      eq("id", user.id);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ profile_photo_url: urlWithBuster })
+        .eq("id", user.id);
       if (updateError) throw updateError;
       setProfile({ ...profile!, profile_photo_url: urlWithBuster });
+      toast({ title: "Profile photo updated" });
     } catch (err) {
       console.error("Upload failed:", err);
       toast({ title: "Failed to upload photo", variant: "destructive" });
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -338,8 +353,8 @@ export default function Profile() {
                 <span className="text-[10px] font-bold text-primary-foreground leading-none">+</span>
               </div>
             }
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoUpload} />
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handlePhotoSelect} />
           </div>
           {uploading &&
           <p className="mt-1 text-[10px] text-muted-foreground">Uploading…</p>
@@ -565,6 +580,15 @@ export default function Profile() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Image cropper */}
+      {imageToCrop && (
+        <ImageCropper
+          imageSrc={imageToCrop}
+          onCropComplete={handleCroppedImageUpload}
+          onCancel={() => setImageToCrop(null)}
+        />
       )}
     </div>);
 
