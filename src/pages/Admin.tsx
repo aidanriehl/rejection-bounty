@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send } from "lucide-react";
+import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send, ArrowUp, ArrowDown } from "lucide-react";
 import { getCurrentWeekKey } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
@@ -392,6 +392,39 @@ export default function Admin() {
   // Delete a challenge
   const handleDeleteChallenge = async (id: string) => {
     await (supabase as any).from("challenges").delete().eq("id", id);
+    fetchData();
+  };
+
+  // Reorder challenges within a week
+  const handleReorderChallenge = async (weekKey: string, fromIdx: number, toIdx: number) => {
+    const weekChallenges = challenges
+      .filter(c => c.week_key === weekKey)
+      .sort((a, b) => a.id.localeCompare(b.id)); // stable sort by id initially
+
+    // We need a stable ordering. Use created_at timestamps to define order.
+    // Swap the created_at values of the two items to reorder them.
+    const filtered = challenges.filter(c => c.week_key === weekKey);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx >= filtered.length || toIdx >= filtered.length) return;
+
+    // Build new order by swapping
+    const reordered = [...filtered];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Assign new created_at timestamps to enforce order (earliest = first)
+    const baseTime = new Date("2025-01-01T00:00:00Z");
+    const updates = reordered.map((ch, i) => ({
+      id: ch.id,
+      created_at: new Date(baseTime.getTime() + i * 1000).toISOString(),
+    }));
+
+    for (const u of updates) {
+      await (supabase as any)
+        .from("challenges")
+        .update({ created_at: u.created_at })
+        .eq("id", u.id);
+    }
+
     fetchData();
   };
 
@@ -911,21 +944,40 @@ export default function Admin() {
                 {challenges.filter(c => c.week_key === selectedChallengeWeek).length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">No challenges for this week</p>
                 ) : (
-                  challenges.filter(c => c.week_key === selectedChallengeWeek).map((ch, idx) => (
-                    <div key={ch.id} className="flex items-center gap-3 rounded-lg bg-muted p-2">
-                      <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
-                      <span className="text-lg">{ch.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                  (() => {
+                    const weekChallenges = challenges.filter(c => c.week_key === selectedChallengeWeek);
+                    return weekChallenges.map((ch, idx) => (
+                      <div key={ch.id} className="flex items-center gap-2 rounded-lg bg-muted p-2">
+                        <div className="flex flex-col">
+                          <button
+                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx - 1)}
+                            disabled={idx === 0}
+                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
+                          >
+                            <ArrowUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx + 1)}
+                            disabled={idx === weekChallenges.length - 1}
+                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
+                          >
+                            <ArrowDown className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
+                        <span className="text-lg">{ch.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{ch.title}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingChallenge(ch)}>
+                          <Edit2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       </div>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingChallenge(ch)}>
-                        <Edit2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDeleteChallenge(ch.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))
+                    ));
+                  })()
                 )}
               </div>
             )}
