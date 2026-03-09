@@ -17,10 +17,14 @@ function SimpleDumbbell({ className, strokeWidth = 2 }: { className?: string; st
       strokeLinejoin="round"
       className={className}
     >
-      {/* Bar */}
-      <line x1="6" y1="12" x2="18" y2="12" />
+      {/* Left bar */}
+      <line x1="6.4" y1="12" x2="1.6" y2="12" />
+      {/* Right bar */}
+      <line x1="17.6" y1="12" x2="22.4" y2="12" />
       {/* Left weight */}
       <rect x="1.6" y="7.2" width="4.8" height="9.6" rx="1" />
+      {/* Center bar */}
+      <line x1="6.4" y1="12" x2="17.6" y2="12" />
       {/* Right weight */}
       <rect x="17.6" y="7.2" width="4.8" height="9.6" rx="1" />
     </svg>

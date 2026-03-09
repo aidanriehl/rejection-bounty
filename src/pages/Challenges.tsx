@@ -344,7 +344,7 @@ export default function Challenges() {
               className="flex items-center justify-center rounded-full h-8 w-8 text-muted-foreground transition-colors hover:bg-muted"
               aria-label="View last week recap"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="h-[16.8px] w-[16.8px]" />
             </button>
           </div>
 

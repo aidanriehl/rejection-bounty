@@ -99,7 +99,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             className="flex-1 overflow-y-auto overscroll-contain"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-          <div className="px-4 pb-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3rem)' }}>
+          <div className="px-4 pb-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3rem)', backgroundColor: 'hsl(var(--background))' }}>
             <motion.h1
               className="text-3xl font-extrabold text-foreground"
               initial={{ opacity: 0, scale: 0.9 }}
