@@ -19,7 +19,7 @@ export default function PostPage() {
   const location = useLocation();
   const challengeTitle = (location.state as any)?.challengeTitle || "Challenge";
   const challengeId = (location.state as any)?.challengeId || "";
-  const { startUpload, status: globalStatus } = useUpload();
+  const { startUpload, prefetchUploadUrl, status: globalStatus } = useUpload();
 
   const [step, setStep] = useState<Step>("trim");
   const [caption, setCaption] = useState("");
