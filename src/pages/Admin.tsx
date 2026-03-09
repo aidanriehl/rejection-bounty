@@ -133,6 +133,8 @@ export default function Admin() {
   const [selectedChallengeWeek, setSelectedChallengeWeek] = useState<string>("");
   const [editingChallenge, setEditingChallenge] = useState<ChallengeItem | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const dragItemRef = useRef<number | null>(null);
+  const dragOverRef = useRef<number | null>(null);
 
   // Featured videos
   const [featuredVideos, setFeaturedVideos] = useState<FeaturedVideo[]>([]);
