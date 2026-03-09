@@ -147,7 +147,7 @@ input, select, textarea {
 
 /* Allow specific textareas to have smaller font */
 textarea.text-sm-override {
-  font-size: 12px !important;
+  font-size: 9px !important;
 }
 
 html {
