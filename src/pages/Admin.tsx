@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send, ArrowUp, ArrowDown } from "lucide-react";
+import { Trophy, Shuffle, UserCheck, ChevronDown, ChevronUp, Play, Check, MessageCircle, History, Plus, Trash2, Star, Video, Upload, Inbox, Edit2, Calendar, CheckCircle2, AlertCircle, ArrowLeft, Send, GripVertical } from "lucide-react";
 import { getCurrentWeekKey } from "@/lib/mock-data";
 import AdminVideoEditor from "@/components/AdminVideoEditor";
 import WinnerMessageThread from "@/components/WinnerMessageThread";
@@ -133,6 +133,8 @@ export default function Admin() {
   const [selectedChallengeWeek, setSelectedChallengeWeek] = useState<string>("");
   const [editingChallenge, setEditingChallenge] = useState<ChallengeItem | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const dragItemRef = useRef<number | null>(null);
+  const dragOverRef = useRef<number | null>(null);
 
   // Featured videos
   const [featuredVideos, setFeaturedVideos] = useState<FeaturedVideo[]>([]);
@@ -395,34 +397,30 @@ export default function Admin() {
     fetchData();
   };
 
-  // Reorder challenges within a week
-  const handleReorderChallenge = async (weekKey: string, fromIdx: number, toIdx: number) => {
-    const weekChallenges = challenges
-      .filter(c => c.week_key === weekKey)
-      .sort((a, b) => a.id.localeCompare(b.id)); // stable sort by id initially
+  // Drag-and-drop reorder
+  const handleDragEnd = async () => {
+    const from = dragItemRef.current;
+    const to = dragOverRef.current;
+    dragItemRef.current = null;
+    dragOverRef.current = null;
 
-    // We need a stable ordering. Use created_at timestamps to define order.
-    // Swap the created_at values of the two items to reorder them.
-    const filtered = challenges.filter(c => c.week_key === weekKey);
-    if (fromIdx < 0 || toIdx < 0 || fromIdx >= filtered.length || toIdx >= filtered.length) return;
+    if (from === null || to === null || from === to || !selectedChallengeWeek) return;
 
-    // Build new order by swapping
+    const filtered = challenges.filter(c => c.week_key === selectedChallengeWeek);
     const reordered = [...filtered];
-    const [moved] = reordered.splice(fromIdx, 1);
-    reordered.splice(toIdx, 0, moved);
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
 
-    // Assign new created_at timestamps to enforce order (earliest = first)
+    // Optimistic update
+    const otherChallenges = challenges.filter(c => c.week_key !== selectedChallengeWeek);
+    setChallenges([...otherChallenges, ...reordered]);
+
     const baseTime = new Date("2025-01-01T00:00:00Z");
-    const updates = reordered.map((ch, i) => ({
-      id: ch.id,
-      created_at: new Date(baseTime.getTime() + i * 1000).toISOString(),
-    }));
-
-    for (const u of updates) {
+    for (let i = 0; i < reordered.length; i++) {
       await (supabase as any)
         .from("challenges")
-        .update({ created_at: u.created_at })
-        .eq("id", u.id);
+        .update({ created_at: new Date(baseTime.getTime() + i * 1000).toISOString() })
+        .eq("id", reordered[i].id);
     }
 
     fetchData();
@@ -947,22 +945,17 @@ export default function Admin() {
                   (() => {
                     const weekChallenges = challenges.filter(c => c.week_key === selectedChallengeWeek);
                     return weekChallenges.map((ch, idx) => (
-                      <div key={ch.id} className="flex items-center gap-2 rounded-lg bg-muted p-2">
-                        <div className="flex flex-col">
-                          <button
-                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx - 1)}
-                            disabled={idx === 0}
-                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </button>
-                          <button
-                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx + 1)}
-                            disabled={idx === weekChallenges.length - 1}
-                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </button>
+                      <div
+                        key={ch.id}
+                        draggable
+                        onDragStart={() => { dragItemRef.current = idx; }}
+                        onDragOver={(e) => { e.preventDefault(); dragOverRef.current = idx; }}
+                        onDrop={handleDragEnd}
+                        onDragEnd={() => { dragItemRef.current = null; dragOverRef.current = null; }}
+                        className="flex items-center gap-2 rounded-lg bg-muted p-2 cursor-default"
+                      >
+                        <div className="cursor-grab active:cursor-grabbing touch-none p-1 text-muted-foreground">
+                          <GripVertical className="h-4 w-4" />
                         </div>
                         <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
                         <span className="text-lg">{ch.emoji}</span>
