@@ -44,27 +44,9 @@ export default function WinnerMessageThread({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardHeight = useKeyboardHeight();
   const scrollRef = useRef<HTMLDivElement>(null);
   const targetUserId = adminTargetUserId ?? userId;
-
-  // Track keyboard height using visualViewport
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const handleResize = () => {
-      const kbHeight = window.innerHeight - vv.height;
-      setKeyboardHeight(kbHeight > 50 ? kbHeight : 0);
-    };
-
-    vv.addEventListener("resize", handleResize);
-    vv.addEventListener("scroll", handleResize);
-    return () => {
-      vv.removeEventListener("resize", handleResize);
-      vv.removeEventListener("scroll", handleResize);
-    };
-  }, []);
 
   const fetchMessages = async () => {
     const { data } = await supabase

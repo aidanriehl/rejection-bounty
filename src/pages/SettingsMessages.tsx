@@ -80,25 +80,7 @@ export default function SettingsMessages() {
     return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   };
 
-  // Track keyboard height using visualViewport
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const handleResize = () => {
-      const kbHeight = window.innerHeight - vv.height;
-      setKeyboardHeight(kbHeight > 50 ? kbHeight : 0);
-    };
-
-    vv.addEventListener("resize", handleResize);
-    vv.addEventListener("scroll", handleResize);
-    return () => {
-      vv.removeEventListener("resize", handleResize);
-      vv.removeEventListener("scroll", handleResize);
-    };
-  }, []);
+  const keyboardHeight = useKeyboardHeight();
 
   return (
     <div

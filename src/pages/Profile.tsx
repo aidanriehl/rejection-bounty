@@ -277,7 +277,7 @@ export default function Profile() {
   const weeksCompletedPct = Math.min(Math.round(weeksCompleted / weeksSinceSignup * 100), 100);
 
   return (
-    <div className="min-h-screen pb-24" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+    <div className="min-h-screen pb-24 pt-4">
       {celebrateMilestone &&
       <MilestoneCelebration
         tier={celebrateMilestone.tier}
