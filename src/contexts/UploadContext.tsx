@@ -307,7 +307,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UploadContext.Provider value={{ ...state, startUpload, retry, clearUpload }}>
+    <UploadContext.Provider value={{ ...state, startUpload, prefetchUploadUrl, retry, clearUpload }}>
       {children}
     </UploadContext.Provider>
   );
