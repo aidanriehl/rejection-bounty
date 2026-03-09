@@ -182,8 +182,8 @@ export default function FeatureTour({ onComplete, username }: {onComplete: () =>
         
         <div className="text-center px-8">
           <span className="text-4xl mb-4 block">✨</span>
-          <h1 className="text-2xl font-bold text-primary mb-2">Welcome{username ? ` ${username}` : ""}!</h1>
-          <p className="text-muted-foreground mb-8">      See how the app works </p>
+          <h1 className="text-2xl font-bold text-primary mb-1">Welcome{username ? ` ${username}` : ""}!</h1>
+          <p className="text-muted-foreground mb-5">See how the app works</p>
           <button
             onClick={() => setShowIntro(false)}
             className="px-12 py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-lg">
