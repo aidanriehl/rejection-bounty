@@ -305,7 +305,7 @@ export default function Profile() {
                 setTimeout(() => window.dispatchEvent(new Event("replay-tour")), 300);
               }}
               className="flex h-11 w-11 items-center justify-center rounded-full text-foreground">
-              <Info className="h-5 w-5" />
+              <Info className="h-[21px] w-[21px]" />
             </button>
             <button
               onClick={() => navigate("/settings")}
