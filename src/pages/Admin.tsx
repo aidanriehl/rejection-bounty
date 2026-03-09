@@ -395,6 +395,39 @@ export default function Admin() {
     fetchData();
   };
 
+  // Reorder challenges within a week
+  const handleReorderChallenge = async (weekKey: string, fromIdx: number, toIdx: number) => {
+    const weekChallenges = challenges
+      .filter(c => c.week_key === weekKey)
+      .sort((a, b) => a.id.localeCompare(b.id)); // stable sort by id initially
+
+    // We need a stable ordering. Use created_at timestamps to define order.
+    // Swap the created_at values of the two items to reorder them.
+    const filtered = challenges.filter(c => c.week_key === weekKey);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx >= filtered.length || toIdx >= filtered.length) return;
+
+    // Build new order by swapping
+    const reordered = [...filtered];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Assign new created_at timestamps to enforce order (earliest = first)
+    const baseTime = new Date("2025-01-01T00:00:00Z");
+    const updates = reordered.map((ch, i) => ({
+      id: ch.id,
+      created_at: new Date(baseTime.getTime() + i * 1000).toISOString(),
+    }));
+
+    for (const u of updates) {
+      await (supabase as any)
+        .from("challenges")
+        .update({ created_at: u.created_at })
+        .eq("id", u.id);
+    }
+
+    fetchData();
+  };
+
   // Add video to featured
   const handleAddFeatured = async (video: any) => {
     const ch = getChallengeInfo(video.challenge_id);
