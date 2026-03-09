@@ -178,6 +178,7 @@ export default function PostPage() {
     setTrimEnd(0);
     setCurrentTime(0);
     setStep("trim");
+    prefetchUploadUrl();
   };
 
   const handleVideoLoaded = () => {
