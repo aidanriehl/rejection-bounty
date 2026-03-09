@@ -1,11 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Check } from "lucide-react";
+import { ChevronRight, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import AvatarDisplay from "@/components/AvatarDisplay";
+import { supabase } from "@/integrations/supabase/client";
 import DrawingReveal from "@/components/DrawingReveal";
-import type { AvatarType, AvatarStage } from "@/lib/mock-data";
 
 interface ChallengeResult {
   title: string;
@@ -20,50 +19,90 @@ interface WeeklySummaryProps {
   onContinue: () => void;
 }
 
-const mockChallengeResults: ChallengeResult[] = [
-  { title: "Ask a stranger for a high-five", emoji: "🖐️", completedBy: 1423, totalUsers: 1832, takeRate: 77.6, userCompleted: true },
-  { title: "Compliment someone's outfit", emoji: "👗", completedBy: 1201, totalUsers: 1832, takeRate: 65.6, userCompleted: true },
-  { title: "Request a discount at a store", emoji: "💰", completedBy: 987, totalUsers: 1832, takeRate: 53.9, userCompleted: false },
-  { title: "Sing in public for 10 seconds", emoji: "🎤", completedBy: 734, totalUsers: 1832, takeRate: 40.1, userCompleted: true },
-  { title: "Dance in an elevator", emoji: "🕺", completedBy: 612, totalUsers: 1832, takeRate: 33.4, userCompleted: true },
-  { title: "Ask for a free coffee", emoji: "☕", completedBy: 498, totalUsers: 1832, takeRate: 27.2, userCompleted: false },
-  { title: "Ask to cut in line", emoji: "🚶", completedBy: 345, totalUsers: 1832, takeRate: 18.8, userCompleted: true },
-  { title: "Ask for someone's number", emoji: "📱", completedBy: 234, totalUsers: 1832, takeRate: 12.8, userCompleted: false },
-];
-
-const mockTopVideos = [
-  { username: "brave_sarah", avatar: "dragon" as AvatarType, avatarStage: 3 as AvatarStage, challenge: "Ask a stranger for a high-five", emoji: "🖐️" },
-  { username: "rejection_king", avatar: "fox" as AvatarType, avatarStage: 2 as AvatarStage, challenge: "Sing in public for 10 seconds", emoji: "🎤" },
-  { username: "fearless_mike", avatar: "owl" as AvatarType, avatarStage: 1 as AvatarStage, challenge: "Dance in an elevator", emoji: "🕺" },
-  { username: "courage_queen", avatar: "cat" as AvatarType, avatarStage: 3 as AvatarStage, challenge: "Ask for someone's number", emoji: "📱" },
-];
-
-const potAmount = 287;
-const playerCount = 52;
-const winnerName = "brave_sarah";
+function getPreviousWeekKey(): string {
+  const now = new Date();
+  const jan1 = new Date(now.getFullYear(), 0, 1);
+  const weekNum = Math.ceil(((now.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+  const prevWeekNum = weekNum - 1;
+  if (prevWeekNum > 0) return `${now.getFullYear()}-w${prevWeekNum}`;
+  return `${now.getFullYear() - 1}-w52`;
+}
 
 type FlowPhase = "drawing" | "recap";
 
 export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
   const [phase, setPhase] = useState<FlowPhase>("drawing");
   const [dismissed, setDismissed] = useState(false);
+  const [challengeResults, setChallengeResults] = useState<ChallengeResult[]>([]);
+  const [loadingResults, setLoadingResults] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Fetch real data for previous week
+  useEffect(() => {
+    const fetchRecapData = async () => {
+      setLoadingResults(true);
+      const prevWeekKey = getPreviousWeekKey();
+
+      // Fetch challenges for previous week
+      const { data: challenges } = await supabase
+        .from("challenges")
+        .select("id, title, emoji")
+        .eq("week_key", prevWeekKey)
+        .eq("is_active", true)
+        .order("created_at", { ascending: true });
+
+      if (!challenges || challenges.length === 0) {
+        setChallengeResults([]);
+        setLoadingResults(false);
+        return;
+      }
+
+      // Fetch all completions for previous week
+      const { data: completions } = await supabase
+        .from("challenge_completions")
+        .select("challenge_id, user_id")
+        .eq("week_key", prevWeekKey);
+
+      // Count unique users who participated
+      const uniqueUsers = new Set((completions || []).map(c => c.user_id));
+      const totalUsers = Math.max(uniqueUsers.size, 1);
+
+      // Get current user's completions
+      const { data: { user } } = await supabase.auth.getUser();
+      const userCompletedIds = new Set(
+        (completions || [])
+          .filter(c => c.user_id === user?.id)
+          .map(c => c.challenge_id)
+      );
+
+      // Build results
+      const results: ChallengeResult[] = challenges.map(ch => {
+        const completedBy = (completions || []).filter(c => c.challenge_id === ch.id).length;
+        const takeRate = Math.round((completedBy / totalUsers) * 1000) / 10;
+        return {
+          title: ch.title,
+          emoji: ch.emoji,
+          completedBy,
+          totalUsers,
+          takeRate,
+          userCompleted: userCompletedIds.has(ch.id),
+        };
+      });
+
+      // Sort by take rate descending
+      results.sort((a, b) => b.takeRate - a.takeRate);
+      setChallengeResults(results);
+      setLoadingResults(false);
+    };
+
+    fetchRecapData();
+  }, []);
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
     setTimeout(onContinue, 400);
   }, [onContinue]);
-
-  const handleChallengeClick = (challengeTitle: string) => {
-    setDismissed(true);
-    setTimeout(() => navigate("/"), 400);
-  };
-
-  const handleWatchAll = () => {
-    setDismissed(true);
-    setTimeout(() => navigate("/"), 400);
-  };
 
   return (
     <>
@@ -71,12 +110,12 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
       <AnimatePresence>
         {phase === "drawing" && (
           <DrawingReveal
-            potAmount={potAmount}
-            playerCount={playerCount}
-            winnerName={winnerName}
+            potAmount={0}
+            playerCount={0}
+            winnerName=""
             winningVideoId={null}
-            winningChallenge="Ask a stranger for a high-five"
-            winningEmoji="🖐️"
+            winningChallenge=""
+            winningEmoji=""
             onContinue={() => setPhase("recap")}
           />
         )}
@@ -87,7 +126,10 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
       {!dismissed && phase === "recap" && (
         <motion.div
           className="fixed inset-0 z-[60] flex flex-col"
-          style={{ backgroundColor: "hsl(var(--background))" }}
+          style={{
+            backgroundColor: "hsl(var(--background))",
+            paddingTop: "env(safe-area-inset-top)",
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: -300 }}
@@ -99,7 +141,7 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             className="flex-1 overflow-y-auto overscroll-contain"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-          <div className="px-4 pb-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3rem)', backgroundColor: 'hsl(var(--background))' }}>
+          <div className="px-4 pb-4 pt-12 text-center">
             <motion.h1
               className="text-3xl font-extrabold text-foreground"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -110,116 +152,76 @@ export default function WeeklySummary({ onContinue }: WeeklySummaryProps) {
             </motion.h1>
           </div>
 
-          <div className="px-4 mt-4">
-            <motion.div
-              className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="px-4 py-3 border-b border-border">
-                <h2 className="text-sm font-bold text-foreground">Group Take Rates</h2>
-              </div>
-              {mockChallengeResults.map((challenge, i) => (
-                <motion.button
-                  key={challenge.title}
-                  onClick={() => handleChallengeClick(challenge.title)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2.5 w-full text-left transition-colors active:bg-muted/50",
-                    i !== mockChallengeResults.length - 1 && "border-b border-border/50",
-                    challenge.userCompleted && "bg-primary/5"
-                  )}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.05 }}
-                >
-                  <div className="relative w-8 text-center">
-                    <span className="text-lg">{challenge.emoji}</span>
-                    {challenge.userCompleted && (
-                      <div className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary">
-                        <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
-                      </div>
+          {loadingResults ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : challengeResults.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <p className="text-muted-foreground">No challenge data from last week.</p>
+            </div>
+          ) : (
+            <div className="px-4 mt-4">
+              <motion.div
+                className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="px-4 py-3 border-b border-border">
+                  <h2 className="text-sm font-bold text-foreground">Group Take Rates</h2>
+                </div>
+                {challengeResults.map((challenge, i) => (
+                  <motion.div
+                    key={challenge.title}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-2.5 w-full text-left",
+                      i !== challengeResults.length - 1 && "border-b border-border/50",
+                      challenge.userCompleted && "bg-primary/5"
                     )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      "text-xs font-medium truncate",
-                      challenge.userCompleted ? "text-foreground" : "text-foreground/70"
-                    )}>{challenge.title}</p>
-                    <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{
-                          background: challenge.takeRate > 50
-                            ? "hsl(var(--success))"
-                            : challenge.takeRate > 25
-                            ? "hsl(var(--gold))"
-                            : "hsl(var(--destructive))",
-                        }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${challenge.takeRate}%` }}
-                        transition={{ delay: 0.7 + i * 0.05, duration: 0.6, ease: "easeOut" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-bold text-muted-foreground w-12 text-right">
-                      {challenge.takeRate}%
-                    </span>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
-                  </div>
-                </motion.button>
-              ))}
-            </motion.div>
-          </div>
-
-          <div className="px-4 mt-4 mb-6">
-            <motion.div
-              className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <div className="px-4 py-3 border-b border-border">
-                <h2 className="text-sm font-bold text-foreground">🔥 Top Videos This Week</h2>
-              </div>
-              <div className="grid grid-cols-2 gap-3 p-3">
-                {mockTopVideos.map((video, i) => (
-                  <motion.button
-                    key={video.username}
-                    className="rounded-xl border border-border/50 overflow-hidden text-left bg-muted/30"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.9 + i * 0.1, type: "spring" }}
-                    onClick={() => handleWatchAll()}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + i * 0.05 }}
                   >
-                    <div
-                      className="aspect-[9/16] relative flex items-center justify-center"
-                      style={{ backgroundColor: 'hsl(var(--muted))' }}
-                    >
-                      <span className="text-4xl">{video.emoji}</span>
+                    <div className="relative w-8 text-center">
+                      <span className="text-lg">{challenge.emoji}</span>
+                      {challenge.userCompleted && (
+                        <div className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary">
+                          <Check className="h-2 w-2 text-primary-foreground" strokeWidth={3} />
+                        </div>
+                      )}
                     </div>
-                    <div className="p-2.5 flex items-center gap-2">
-                      <AvatarDisplay avatar={video.avatar} stage={video.avatarStage} size="sm" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate">{video.username}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">{video.challenge}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-xs font-medium truncate",
+                        challenge.userCompleted ? "text-foreground" : "text-foreground/70"
+                      )}>{challenge.title}</p>
+                      <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{
+                            background: challenge.takeRate > 50
+                              ? "hsl(var(--success))"
+                              : challenge.takeRate > 25
+                              ? "hsl(var(--gold))"
+                              : "hsl(var(--destructive))",
+                          }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${challenge.takeRate}%` }}
+                          transition={{ delay: 0.7 + i * 0.05, duration: 0.6, ease: "easeOut" }}
+                        />
                       </div>
                     </div>
-                  </motion.button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-bold text-muted-foreground w-12 text-right">
+                        {challenge.takeRate}%
+                      </span>
+                    </div>
+                  </motion.div>
                 ))}
-              </div>
-
-              <div className="px-3 pb-3">
-                <button
-                  onClick={handleWatchAll}
-                  className="w-full rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition-colors active:bg-muted/50"
-                >
-                  Watch all videos
-                </button>
-              </div>
-            </motion.div>
-          </div>
+              </motion.div>
+            </div>
+          )}
 
           <div className="h-32" />
           </div>
