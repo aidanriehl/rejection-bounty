@@ -526,6 +526,48 @@ export default function Profile() {
           )}
         </div>
       )}
+
+      {/* Photo picker menu */}
+      {showPhotoMenu && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+          onClick={() => setShowPhotoMenu(false)}
+        >
+          <div
+            className="w-full max-w-lg mx-4 mb-8 rounded-2xl bg-card overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => {
+                setShowPhotoMenu(false);
+                cameraInputRef.current?.click();
+              }}
+              className="w-full flex items-center gap-3 px-4 py-4 text-left border-b border-border active:bg-muted"
+            >
+              <Camera className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">Take Photo</span>
+            </button>
+            <button
+              onClick={() => {
+                setShowPhotoMenu(false);
+                fileInputRef.current?.click();
+              }}
+              className="w-full flex items-center gap-3 px-4 py-4 text-left active:bg-muted"
+            >
+              <ImagePlus className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">Choose from Library</span>
+            </button>
+            <div className="border-t border-border">
+              <button
+                onClick={() => setShowPhotoMenu(false)}
+                className="w-full py-4 text-sm font-semibold text-muted-foreground active:bg-muted"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>);
 
 }

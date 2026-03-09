@@ -5,10 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Rejection Bounty',
   webDir: 'dist',
   server: {
-    url: 'https://rejection-bounty.lovable.app',
+    url: 'https://rejectionbounty.com',
     cleartext: false,
     // Allow OAuth URLs to stay in WebView instead of opening Safari
     allowNavigation: [
+      'https://rejectionbounty.com/*',
+      'https://*.rejectionbounty.com/*',
       'https://rejection-bounty.lovable.app/*',
       'https://*.lovable.app/*',
       'https://oauth.lovable.app/*',
