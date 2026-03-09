@@ -9,6 +9,11 @@ const SPLASH_DURATION = 2200;
 
 function SplashScreen({ onDone }: {onDone: () => void;}) {
   useEffect(() => {
+    // Remove the HTML splash now that React has mounted
+    const htmlSplash = document.getElementById("native-splash");
+    if (htmlSplash) {
+      htmlSplash.remove();
+    }
     const t = setTimeout(onDone, SPLASH_DURATION);
     return () => clearTimeout(t);
   }, [onDone]);
@@ -20,18 +25,12 @@ function SplashScreen({ onDone }: {onDone: () => void;}) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}>
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="-mt-16 flex flex-col items-center gap-3 relative overflow-hidden">
-        
+      <div className="-mt-16 flex flex-col items-center gap-3 relative overflow-hidden">
         <img src={logoImg} alt="Rejection Bounty" className="h-20 w-20" />
         <h1 className="text-3xl font-extrabold tracking-tight text-white">
           Rejection Bounty
         </h1>
-
-      </motion.div>
+      </div>
     </motion.div>);
 
 }
