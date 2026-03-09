@@ -47,6 +47,7 @@ export default function PostPage() {
       setVideoFile(pendingFile);
       setVideoUrl(url);
       setStep("trim");
+      prefetchUploadUrl();
     }
   }, []);
 
