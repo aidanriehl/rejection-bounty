@@ -19,7 +19,7 @@ export default function PostPage() {
   const location = useLocation();
   const challengeTitle = (location.state as any)?.challengeTitle || "Challenge";
   const challengeId = (location.state as any)?.challengeId || "";
-  const { startUpload, status: globalStatus } = useUpload();
+  const { startUpload, prefetchUploadUrl, status: globalStatus } = useUpload();
 
   const [step, setStep] = useState<Step>("trim");
   const [caption, setCaption] = useState("");
@@ -47,6 +47,7 @@ export default function PostPage() {
       setVideoFile(pendingFile);
       setVideoUrl(url);
       setStep("trim");
+      prefetchUploadUrl();
     }
   }, []);
 
@@ -177,6 +178,7 @@ export default function PostPage() {
     setTrimEnd(0);
     setCurrentTime(0);
     setStep("trim");
+    prefetchUploadUrl();
   };
 
   const handleVideoLoaded = () => {
