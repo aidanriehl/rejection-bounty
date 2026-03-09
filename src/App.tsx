@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
@@ -132,6 +132,7 @@ function AppRoutes() {
 
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   // Disable browser's scroll restoration on mount
   useEffect(() => {
@@ -141,40 +142,35 @@ function ScrollToTop() {
   }, []);
 
   useEffect(() => {
-    // Reset ALL possible scroll positions immediately
-    window.scrollTo(0, 0);
+    // Method 1: scrollIntoView on a zero-height anchor (most reliable on iOS WKWebView)
+    if (anchorRef.current) {
+      anchorRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }
+
+    // Method 2: Traditional scroll resets as fallback
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
 
-    // Reset any custom scroll containers
-    document.querySelectorAll('[data-scroll-container]').forEach((el) => {
-      el.scrollTop = 0;
+    // Method 3: Delayed retry for slow renders
+    const raf = requestAnimationFrame(() => {
+      anchorRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     });
 
-    // Also reset after a frame to catch late-rendering containers
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      document.querySelectorAll('[data-scroll-container]').forEach((el) => {
-        el.scrollTop = 0;
-      });
-    });
-
-    // And again after render completes for slow pages
     const timer = setTimeout(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      document.querySelectorAll('[data-scroll-container]').forEach((el) => {
-        el.scrollTop = 0;
-      });
-    }, 100);
+      anchorRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    }, 50);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
   }, [pathname]);
 
-  return null;
+  // Render a zero-height anchor at the very top of the page
+  return <div ref={anchorRef} style={{ height: 0, overflow: 'hidden' }} aria-hidden="true" />;
 }
 
 function KeyboardSetup() {
