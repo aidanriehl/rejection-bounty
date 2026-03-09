@@ -315,6 +315,23 @@ export default function Challenges() {
             week_key: weekKey,
           }, { onConflict: "user_id,challenge_id,week_key" });
       } else {
+        // Check if this challenge had a video — if so, delete the post too
+        const challengeHadVideo = challenges.find(c => c.id === id)?.hasVideo;
+        if (challengeHadVideo && user) {
+          // Delete post(s) for this challenge by this user
+          const { error: postDeleteError } = await supabase
+            .from("posts")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("challenge_id", id);
+
+          if (postDeleteError) {
+            console.error("[Challenges] Failed to delete post:", postDeleteError);
+          } else {
+            console.log("[Challenges] Deleted post for challenge:", id);
+          }
+        }
+
         // Remove completion record
         await supabase
           .from("challenge_completions")
