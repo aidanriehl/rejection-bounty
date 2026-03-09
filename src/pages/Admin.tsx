@@ -945,22 +945,17 @@ export default function Admin() {
                   (() => {
                     const weekChallenges = challenges.filter(c => c.week_key === selectedChallengeWeek);
                     return weekChallenges.map((ch, idx) => (
-                      <div key={ch.id} className="flex items-center gap-2 rounded-lg bg-muted p-2">
-                        <div className="flex flex-col">
-                          <button
-                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx - 1)}
-                            disabled={idx === 0}
-                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </button>
-                          <button
-                            onClick={() => handleReorderChallenge(selectedChallengeWeek, idx, idx + 1)}
-                            disabled={idx === weekChallenges.length - 1}
-                            className="text-muted-foreground disabled:opacity-20 hover:text-foreground p-0.5"
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </button>
+                      <div
+                        key={ch.id}
+                        draggable
+                        onDragStart={() => { dragItemRef.current = idx; }}
+                        onDragOver={(e) => { e.preventDefault(); dragOverRef.current = idx; }}
+                        onDrop={handleDragEnd}
+                        onDragEnd={() => { dragItemRef.current = null; dragOverRef.current = null; }}
+                        className="flex items-center gap-2 rounded-lg bg-muted p-2 cursor-default"
+                      >
+                        <div className="cursor-grab active:cursor-grabbing touch-none p-1 text-muted-foreground">
+                          <GripVertical className="h-4 w-4" />
                         </div>
                         <span className="text-xs font-bold text-muted-foreground w-5">{idx + 1}</span>
                         <span className="text-lg">{ch.emoji}</span>
