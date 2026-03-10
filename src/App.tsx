@@ -12,6 +12,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { ThemeProvider } from "next-themes";
 import BottomNav from "@/components/BottomNav";
 import Challenges from "@/pages/Challenges";
+import ChallengesCopy from "@/pages/ChallengesCopy";
 import Feed from "@/pages/Feed";
 import Profile from "@/pages/Profile";
 import SettingsPage from "@/pages/Settings";
@@ -99,6 +100,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Feed />} />
         <Route path="/challenges" element={<Challenges />} />
+        <Route path="/challenges-copy" element={<ChallengesCopy />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/terms" element={<SettingsTerms />} />
