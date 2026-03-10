@@ -13,6 +13,7 @@ import { ThemeProvider } from "next-themes";
 import BottomNav from "@/components/BottomNav";
 import Challenges from "@/pages/Challenges";
 import ChallengesCopy from "@/pages/ChallengesCopy";
+import SpinGenerator from "@/pages/SpinGenerator";
 import Feed from "@/pages/Feed";
 import Profile from "@/pages/Profile";
 import SettingsPage from "@/pages/Settings";
@@ -101,6 +102,7 @@ function AppRoutes() {
         <Route path="/" element={<Feed />} />
         <Route path="/challenges" element={<Challenges />} />
         <Route path="/challenges-copy" element={<ChallengesCopy />} />
+        <Route path="/spingenerator" element={<SpinGenerator />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/terms" element={<SettingsTerms />} />
