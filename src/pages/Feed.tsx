@@ -182,7 +182,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
               <button
                 onClick={handleFollow}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border",
+                  "px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border",
                   isFollowing
                     ? "border-white/40 text-white/60 bg-transparent"
                     : "border-white text-white bg-transparent"
