@@ -233,6 +233,8 @@ export default function Profile() {
       if (updateError) throw updateError;
       setProfile({ ...profile!, profile_photo_url: urlWithBuster });
       toast({ title: "Profile photo updated" });
+      // Notify other components (e.g., Feed) to refresh
+      window.dispatchEvent(new Event("profile-updated"));
     } catch (err) {
       console.error("Upload failed:", err);
       toast({ title: "Failed to upload photo", variant: "destructive" });

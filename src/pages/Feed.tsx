@@ -45,6 +45,7 @@ interface FeedPostData {
     username: string | null;
     avatar: string;
     avatar_stage: number;
+    profile_photo_url: string | null;
   } | null;
 }
 
@@ -106,6 +107,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
   const avatar = (post.profiles?.avatar || "dragon") as any;
   const avatarStage = (post.profiles?.avatar_stage || 0) as any;
   const username = post.profiles?.username || "Anonymous";
+  const profilePhotoUrl = post.profiles?.profile_photo_url || null;
 
   const handleFollow = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -173,7 +175,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-3">
             <button onClick={handleProfileClick} className="flex-shrink-0">
-              <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" />
+              <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" photoUrl={profilePhotoUrl} />
             </button>
             <button onClick={handleProfileClick}>
               <span className="text-base font-bold text-white drop-shadow-md">@{username}</span>
@@ -250,7 +252,7 @@ export default function Feed() {
     // Fetch posts with profile data via FK join
     const { data, error } = await supabase.
     from("posts").
-    select("*, profiles!posts_user_id_fkey(username, avatar, avatar_stage)").
+    select("*, profiles!posts_user_id_fkey(username, avatar, avatar_stage, profile_photo_url)").
     order("created_at", { ascending: false });
 
     if (error) {
@@ -280,6 +282,15 @@ export default function Feed() {
     };
     window.addEventListener("challenge-completed", handleUploadComplete);
     return () => window.removeEventListener("challenge-completed", handleUploadComplete);
+  }, []);
+
+  // Refresh feed when profile is updated (e.g. profile photo changed)
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      fetchData();
+    };
+    window.addEventListener("profile-updated", handleProfileUpdate);
+    return () => window.removeEventListener("profile-updated", handleProfileUpdate);
   }, []);
 
   // Sort posts for different tabs
