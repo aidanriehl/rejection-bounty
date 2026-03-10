@@ -34,11 +34,11 @@ interface MockChallenge {
 
 // Mock challenges for App Store preview
 const MOCK_CHALLENGES: MockChallenge[] = [
-  { id: "1", title: "Film yourself vlogging out loud in a public place", emoji: "🎥", completed: true },
-  { id: "2", title: "Compliment a stranger in passing", emoji: "💬", completed: true },
-  { id: "3", title: "Ask for a discount at a store", emoji: "🏷️", completed: false },
+  { id: "1", title: "Film yourself vlogging out loud in a public place", emoji: "🎥", completed: false },
+  { id: "2", title: "Compliment a stranger in passing", emoji: "💬", completed: false },
+  { id: "3", title: "Ask for a discount at a store", emoji: "🏷️", completed: true },
   { id: "4", title: "Give a random person a high five in passing", emoji: "✋", completed: false },
-  { id: "5", title: "Film yourself doing pushups in public", emoji: "💪", completed: false },
+  { id: "5", title: "Film yourself doing pushups in public", emoji: "💪", completed: true },
   { id: "6", title: "Ask someone for directions you don't need", emoji: "🗺️", completed: false },
   { id: "7", title: "Strike up a conversation with someone in line", emoji: "🗣️", completed: false },
   { id: "8", title: "Ask a stranger to take your photo", emoji: "📸", completed: false },
