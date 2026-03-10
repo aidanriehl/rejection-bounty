@@ -221,10 +221,10 @@ export default function FriendsPage() {
                   {!isMe && (
                     <Button
                       size="sm"
-                      variant={isFollowed ? "outline" : "default"}
+                      variant="outline"
                       disabled={actionLoading === person.id}
                       onClick={() => (isFollowed ? handleUnfollow(person.id) : handleFollow(person.id))}
-                      className="min-w-[80px] text-xs"
+                      className={`min-w-[80px] text-xs ${isFollowed ? "text-muted-foreground border-border" : "text-foreground border-foreground"}`}
                     >
                       {actionLoading === person.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />

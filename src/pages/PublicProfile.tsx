@@ -173,10 +173,10 @@ export default function PublicProfile() {
             <button
               onClick={handleFollow}
               className={cn(
-                "w-full max-w-[280px] rounded-lg py-2 text-sm font-bold transition-colors",
+                "w-full max-w-[280px] rounded-lg py-2 text-sm font-bold transition-colors border",
                 isFollowing
-                  ? "bg-muted text-foreground"
-                  : "bg-primary text-primary-foreground"
+                  ? "border-border text-muted-foreground bg-transparent"
+                  : "border-foreground text-foreground bg-transparent"
               )}
             >
               {isFollowing ? "Following" : "Follow"}
