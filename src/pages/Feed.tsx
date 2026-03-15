@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const TABS = [
 { key: "week", label: "This Week" },
-{ key: "friends", label: "Friends" },
+{ key: "friends", label: "Followers" },
 { key: "alltime", label: "All Time" }] as
 const;
 

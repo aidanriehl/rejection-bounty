@@ -159,7 +159,7 @@ export default function PublicProfile() {
           </div>
           <div>
             <p className="text-xl font-extrabold text-foreground leading-none">{friendsCount}</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Friends</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Followers</p>
           </div>
           <div>
             <p className="text-xl font-extrabold text-foreground leading-none">{followingCount}</p>

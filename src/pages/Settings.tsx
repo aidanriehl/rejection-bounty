@@ -201,7 +201,7 @@ export default function SettingsPage() {
                   {isPublic ? "Public Profile" : "Private Profile"}
                 </span>
                 <p className="text-[13px] text-muted-foreground">
-                  {isPublic ? "Anyone can see your profile" : "Only friends can see your profile"}
+                  {isPublic ? "Anyone can see your profile" : "Only followers can see your profile"}
                 </p>
               </div>
             </div>

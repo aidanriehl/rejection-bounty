@@ -150,7 +150,7 @@ export default function FriendsPage() {
                 : "text-muted-foreground"
             }`}
           >
-            {friends.length} Friends
+            {friends.length} Followers
           </button>
           <button
             onClick={() => { setTab("following"); setQuery(""); }}
@@ -196,7 +196,7 @@ export default function FriendsPage() {
             {isSearching
               ? "No users found"
               : tab === "friends"
-              ? "No friends yet"
+              ? "No followers yet"
               : "Not following anyone"}
           </p>
         ) : (
