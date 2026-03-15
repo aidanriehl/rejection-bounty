@@ -165,7 +165,8 @@ export default function SpinGenerator() {
       style={{ backgroundColor: "hsl(var(--background))" }}
     >
       <motion.div
-        className="flex flex-col items-center"
+      className="flex flex-col items-center"
+      style={{ marginTop: '-5px' }}
       >
         {/* Pot info above machine - using x and y placeholders */}
         <motion.div

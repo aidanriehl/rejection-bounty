@@ -180,7 +180,7 @@ export default function Setup({ userId, onComplete }: SetupProps) {
       style={{ backgroundColor: "hsl(var(--primary))" }}
     >
       <div
-        className="flex flex-col items-center px-6 transition-all duration-200 mb-[195px]"
+        className="flex flex-col items-center px-6 transition-all duration-200 mb-[215px]"
       >
         <motion.form
           initial={{ opacity: 0, y: 16 }}

@@ -180,7 +180,7 @@ export default function FeatureTour({ onComplete, username }: {onComplete: () =>
         className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background"
         style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
         
-        <div className="text-center px-8" style={{ marginTop: '-12px' }}>
+        <div className="text-center px-8" style={{ marginTop: '-32px' }}>
           <span className="text-4xl mb-4 block">✨</span>
           <h1 className="text-2xl font-bold text-primary mb-1">Welcome{username ? ` ${username}` : ""}!</h1>
           <p className="text-muted-foreground mb-5">See how the app works</p>

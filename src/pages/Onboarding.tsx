@@ -122,7 +122,7 @@ function OtpScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="flex flex-col items-center mt-0 mb-[118px]">
+      className="flex flex-col items-center mt-0 mb-[128px]">
       
       <span className="mb-1.5 text-4xl">✉️</span>
       <h2 className="mb-0.5 text-2xl font-bold text-primary-foreground">Enter Your Code</h2>
@@ -266,7 +266,7 @@ export default function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="items-center flex flex-col mt-0 mb-[125px]">
+            className="items-center flex flex-col mt-0 mb-[135px]">
             
                 <span className="mb-3 text-5xl">✉️</span>
                 <h1 className="mb-4 text-2xl font-bold text-primary-foreground text-center">
