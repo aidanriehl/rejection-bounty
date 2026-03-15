@@ -102,7 +102,6 @@ export default function SettingsPage() {
         .eq("id", user.id);
       if (updateError) throw updateError;
       setAuthProfile({ ...authProfile!, profile_photo_url: urlWithBuster });
-      toast({ title: "Profile photo updated" });
       // Notify other components (e.g., Feed) to refresh
       window.dispatchEvent(new Event("profile-updated"));
     } catch (err) {
