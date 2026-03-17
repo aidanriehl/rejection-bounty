@@ -293,20 +293,41 @@ export default function Onboarding() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
+                onKeyDown={(e) => e.key === "Enter" && !showPassword && handleSubmit()}
                 disabled={loading}
                 autoFocus
                 className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50" />
               
-                  <DuoButton onClick={handleSendOtp} disabled={loading}>
+                  {showPassword && (
+                    <input
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                      disabled={loading}
+                      autoFocus
+                      className="flex h-14 w-full items-center rounded-2xl border-2 border-primary-foreground/15 bg-primary-foreground/10 px-4 text-base text-primary-foreground placeholder:text-primary-foreground/40 focus:border-primary-foreground/40 focus:outline-none disabled:opacity-50" />
+                  )}
+
+                  <DuoButton onClick={handleSubmit} disabled={loading || (showPassword && !password)}>
                     {loading ?
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> :
-                    "Continue"
+                    showPassword ? "Log In" : "Continue"
                     }
                   </DuoButton>
-                  <p className="text-xs text-primary-foreground/40 pt-[6px]">
-                    We'll send a 6-digit code to your email. No password needed.
-                  </p>
+                  
+                  <button
+                    onClick={() => { setShowPassword(!showPassword); setPassword(""); }}
+                    className="text-xs text-primary-foreground/40 pt-[2px] block w-full text-center">
+                    {showPassword ? "Use code instead" : "Use password instead"}
+                  </button>
+
+                  {!showPassword && (
+                    <p className="text-xs text-primary-foreground/40">
+                      We'll send a 6-digit code to your email. No password needed.
+                    </p>
+                  )}
                   <button
                 onClick={handleBack}
                 className="text-sm font-medium text-primary-foreground/60">
