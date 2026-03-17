@@ -227,6 +227,8 @@ export default function Onboarding() {
     } else {
       setMode("welcome");
       setEmail("");
+      setPassword("");
+      setShowPassword(false);
     }
   };
 
