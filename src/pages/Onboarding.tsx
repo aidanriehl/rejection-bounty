@@ -183,7 +183,7 @@ export default function Onboarding() {
   const [isJoining, setIsJoining] = useState(true);
   const sendingRef = useRef(false);
 
-  const handleSendOtp = async () => {
+  const handleSubmit = async () => {
     const trimmed = email.trim();
     if (!trimmed) {
       toast({ title: "Please enter your email", variant: "destructive" });
@@ -193,16 +193,26 @@ export default function Onboarding() {
     sendingRef.current = true;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: trimmed
-      });
-      if (error) {
-        toast({ title: "Failed to send code", description: error.message, variant: "destructive" });
+      if (showPassword && password) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: trimmed,
+          password,
+        });
+        if (error) {
+          toast({ title: "Login failed", description: error.message, variant: "destructive" });
+        }
       } else {
-        setSent(true);
+        const { error } = await supabase.auth.signInWithOtp({
+          email: trimmed
+        });
+        if (error) {
+          toast({ title: "Failed to send code", description: error.message, variant: "destructive" });
+        } else {
+          setSent(true);
+        }
       }
     } catch (err) {
-      console.error("[OTP] Error:", err);
+      console.error("[Auth] Error:", err);
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
