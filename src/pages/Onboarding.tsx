@@ -175,6 +175,8 @@ function OtpScreen({
 export default function Onboarding() {
   const [showSplash, setShowSplash] = useState(true);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<"welcome" | "form">("welcome");
