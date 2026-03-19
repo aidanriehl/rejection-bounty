@@ -131,23 +131,23 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
 
   return (
     <div
-      className="relative w-full snap-start snap-always flex-shrink-0"
+      className="relative w-full snap-start snap-always flex-shrink-0 overflow-hidden"
       style={{ height: "calc(100dvh - 3rem - env(safe-area-inset-bottom))" }}
       onClick={handleDoubleTap}>
       
       {post.video_id ?
       <iframe
         src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false&fit=cover&poster=https%3A%2F%2Fcustomer-${customerSubdomain}.cloudflarestream.com%2F${post.video_id}%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D${post.thumbnail_time || 0}s`}
-        className="h-full w-full select-none pointer-events-none"
+        className="absolute inset-0 h-full w-full select-none pointer-events-none"
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowFullScreen
-        style={{ border: "none" }} /> :
+        style={{ border: "none", transform: "scale(1.01)" }} /> :
 
 
       <img
         src={thumbnailUrl}
         alt={post.caption || "Post"}
-        className="h-full w-full object-cover select-none"
+        className="absolute inset-0 h-full w-full object-cover select-none"
         draggable={false} />
 
       }
