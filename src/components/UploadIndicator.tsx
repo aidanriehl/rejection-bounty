@@ -9,7 +9,7 @@ export default function UploadIndicator() {
   // Auto-dismiss "done" banner after 3 seconds
   useEffect(() => {
     if (status === "done") {
-      const timer = setTimeout(clearUpload, 3000);
+      const timer = setTimeout(clearUpload, 2350);
       return () => clearTimeout(timer);
     }
   }, [status, clearUpload]);
