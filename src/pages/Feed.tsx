@@ -55,7 +55,11 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const [isFollowing, setIsFollowing] = useState(initialFollowing);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isSpeedUp, setIsSpeedUp] = useState(false);
   const lastTapRef = useRef(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isOwnPost = currentUserId === post.user_id;
 
@@ -63,6 +67,9 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
   const thumbnailUrl = post.video_id ?
   `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/thumbnails/thumbnail.jpg?time=${post.thumbnail_time || 0}s` :
   post.video_url || "/placeholder.svg";
+  const hlsUrl = post.video_id ?
+  `https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/manifest/video.m3u8` :
+  null;
 
   const doLike = useCallback(async () => {
     const newLiked = new Set(likedPosts);
@@ -104,6 +111,70 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
     lastTapRef.current = now;
   }, [doLike]);
 
+  // Single tap to pause/play
+  const handleTap = useCallback(() => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
+  }, []);
+
+  // Combined tap handler: single tap = pause, double tap = like
+  const handleVideoTap = useCallback(() => {
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapRef.current;
+
+    if (timeSinceLastTap < 300) {
+      // Double tap - like
+      doLike();
+      // Resume video if paused
+      if (videoRef.current?.paused) {
+        videoRef.current.play();
+        setIsPaused(false);
+      }
+    } else {
+      // Single tap - wait briefly to see if it's a double tap
+      setTimeout(() => {
+        if (Date.now() - lastTapRef.current >= 300) {
+          handleTap();
+        }
+      }, 300);
+    }
+    lastTapRef.current = now;
+  }, [doLike, handleTap]);
+
+  // Hold right side for 1.5x speed
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isRightHalf = touch.clientX > rect.left + rect.width / 2;
+
+    if (isRightHalf && videoRef.current) {
+      holdTimerRef.current = setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.playbackRate = 1.5;
+          setIsSpeedUp(true);
+          if (navigator.vibrate) navigator.vibrate(10);
+        }
+      }, 200);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.0;
+    }
+    setIsSpeedUp(false);
+  }, []);
+
   const avatar = (post.profiles?.avatar || "dragon") as any;
   const avatarStage = (post.profiles?.avatar_stage || 0) as any;
   const username = post.profiles?.username || "Anonymous";
@@ -133,15 +204,21 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
     <div
       className="relative w-full snap-start snap-always flex-shrink-0 overflow-hidden"
       style={{ height: "calc(100dvh - 3rem - env(safe-area-inset-bottom))" }}
-      onClick={handleDoubleTap}>
+      onClick={handleVideoTap}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}>
 
-      {post.video_id ?
-      <iframe
-        src={`https://customer-${customerSubdomain}.cloudflarestream.com/${post.video_id}/iframe?autoplay=true&loop=true&muted=true&controls=false&poster=https%3A%2F%2Fcustomer-${customerSubdomain}.cloudflarestream.com%2F${post.video_id}%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D${post.thumbnail_time || 0}s`}
-        className="absolute inset-0 h-full w-full select-none pointer-events-none"
-        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-        allowFullScreen
-        style={{ border: "none", transform: "scale(1.5)", transformOrigin: "center" }} /> :
+      {hlsUrl ?
+      <video
+        ref={videoRef}
+        src={hlsUrl}
+        poster={thumbnailUrl}
+        className="absolute inset-0 h-full w-full object-cover select-none"
+        autoPlay
+        loop
+        muted
+        playsInline
+      /> :
 
 
       <img
@@ -160,9 +237,41 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
           exit={{ scale: 1.4, opacity: 0 }}
           transition={{ duration: 0.25 }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          
+
             <Heart className="h-24 w-24 fill-primary text-primary drop-shadow-lg" />
           </motion.div>
+        }
+      </AnimatePresence>
+
+      {/* Pause indicator */}
+      <AnimatePresence>
+        {isPaused &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="rounded-full bg-black/50 p-4">
+            <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
+          </div>
+        </motion.div>
+        }
+      </AnimatePresence>
+
+      {/* Speed indicator */}
+      <AnimatePresence>
+        {isSpeedUp &&
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="absolute top-20 right-4 rounded-full px-3 py-1.5 pointer-events-none"
+          style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
+          <span className="text-sm font-bold text-white">1.5x</span>
+        </motion.div>
         }
       </AnimatePresence>
 
