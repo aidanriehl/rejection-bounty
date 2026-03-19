@@ -174,7 +174,7 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
         {/* Row 1: Avatar + Username + Follow on left, Likes on right */}
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-3">
-            <button onClick={handleProfileClick} className="flex-shrink-0">
+            <button onClick={handleProfileClick} className="flex-shrink-0 translate-y-[2px]">
               <AvatarDisplay avatar={avatar} stage={avatarStage} size="sm" photoUrl={profilePhotoUrl} />
             </button>
             <button onClick={handleProfileClick}>
