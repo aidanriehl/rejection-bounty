@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Grid3X3, Camera, ImagePlus, HelpCircle, ChevronLeft, Info, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCurrentWeekKey } from "@/lib/mock-data";
 
 import { motion } from "framer-motion";
 import AvatarDisplay from "@/components/AvatarDisplay";
@@ -258,12 +259,32 @@ export default function Profile() {
   const handleDeletePost = async () => {
     if (!selectedPost || !user) return;
     setDeleting(true);
+
+    // Calculate the week key from the post's created_at date
+    const postDate = new Date(selectedPost.created_at);
+    const jan1 = new Date(postDate.getFullYear(), 0, 1);
+    const postWeekNum = Math.ceil(((postDate.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7);
+    const postWeekKey = `${postDate.getFullYear()}-W${String(postWeekNum).padStart(2, "0")}`;
+    const currentWeekKey = getCurrentWeekKey();
+
+    // Delete the post
     const { error } = await supabase.from("posts").delete().eq("id", selectedPost.id).eq("user_id", user.id);
     setDeleting(false);
     if (error) {
       toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
       return;
     }
+
+    // If post is from current week, also remove the challenge completion (removes entry from draw)
+    if (postWeekKey === currentWeekKey && selectedPost.challenge_id) {
+      await supabase
+        .from("challenge_completions")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("challenge_id", selectedPost.challenge_id)
+        .eq("week_key", currentWeekKey);
+    }
+
     setPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
     setShowDeleteConfirm(false);
     setSelectedPost(null);
