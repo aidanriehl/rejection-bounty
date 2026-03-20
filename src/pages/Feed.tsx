@@ -5,6 +5,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import AvatarDisplay from "@/components/AvatarDisplay";
+import Hls from "hls.js";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -175,6 +176,28 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
     setIsSpeedUp(false);
   }, []);
 
+  // Set up HLS.js for non-Safari browsers
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !hlsUrl) return;
+
+    // Safari supports HLS natively
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = hlsUrl;
+      return;
+    }
+
+    // For other browsers, use hls.js
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(hlsUrl);
+      hls.attachMedia(video);
+      return () => {
+        hls.destroy();
+      };
+    }
+  }, [hlsUrl]);
+
   const avatar = (post.profiles?.avatar || "dragon") as any;
   const avatarStage = (post.profiles?.avatar_stage || 0) as any;
   const username = post.profiles?.username || "Anonymous";
@@ -211,7 +234,6 @@ function ReelCard({ post, currentUserId, initialFollowing, onNavigateProfile }: 
       {hlsUrl ?
       <video
         ref={videoRef}
-        src={hlsUrl}
         poster={thumbnailUrl}
         className="absolute inset-0 h-full w-full object-cover select-none"
         autoPlay
